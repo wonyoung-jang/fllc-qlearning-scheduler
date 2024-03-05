@@ -1,4 +1,4 @@
-from PySide6.QtCore import QObject, QThread, Signal, Slot, QWaitCondition, QMutex, Qt
+from PySide6.QtCore import (QObject, QThread, Signal, Slot, QWaitCondition, QMutex, Qt)
 import pandas as pd
 from collections import defaultdict
 import csv

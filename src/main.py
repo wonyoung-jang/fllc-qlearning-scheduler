@@ -1,6 +1,4 @@
-###############################################################
-# Step 1: Import required libraries
-###############################################################
+
 import pandas as pd
 from datetime import datetime
 from openpyxl import Workbook
@@ -34,21 +32,28 @@ from q_learning import QLearning
 from descriptive_stats import MplWidget
 from training_thread import TrainingWorker
 
-
-###############################################################
-# Step 2: Define the Main Window GUI ##########################
-###############################################################
 class MainWindow(QWidget):
+    """
+    The main window of the application.
+
+    This class represents the main window of the application and contains all the GUI components and functionality.
+
+    Attributes:
+        scheduleData (ScheduleData): An instance of the ScheduleData class.
+        timeData (TimeData): An instance of the TimeData class.
+        qLearning (QLearning): An instance of the QLearning class.
+    """
+
     def __init__(self):
         super().__init__()
-        
+
         # Initialize the data objects
         self.scheduleData = ScheduleData()  # Create an instance of ScheduleData
         self.timeData = TimeData(self.scheduleData)  # Create an instance of TimeData
-        
+
         # Initialize the Q-Learning object
         self.qLearning = QLearning(self.scheduleData, self.timeData)
-        
+
         # Create the GUI components
         self.create_schedule_data_inputs()
         self.create_time_data_inputs()
@@ -58,129 +63,25 @@ class MainWindow(QWidget):
         self.create_schedule_display()
         self.create_submission_buttons()
         self.create_soft_constraint_weights()
-        
-        # Initizlize the GUI components
+
+        # Initialize the GUI components
         self.initialize_schedule_data_inputs()
         self.initialize_time_data_inputs()
         self.initialize_q_learning_inputs()
         self.initialize_statistics_and_progress()
         self.initialize_schedule_display()
-        
+
         # Setup the GUI components
         self.setup_schedule_data_inputs()
         self.setup_time_data_inputs()
         self.setup_q_learning_inputs()
         self.setup_statistics()
         self.setup_schedule_display()
-        
+
         self.initialize_main_gui()
-        
+
         # Connect signals and slots
         self.connect_signals_and_slots()
-    
-    # Schedule Data
-    def create_schedule_data_inputs(self):
-        # Basic Schedule Data Inputs
-        self.numTeamsSpinbox = QSpinBox(self)
-        self.numRoomsSpinbox = QSpinBox(self)
-        self.numTablesSpinbox = QSpinBox(self)
-
-        # Count for the number of tables and sides (display)
-        self.numTablesAndSidesLabel = QLabel(str(self.scheduleData.num_tables_and_sides))
-        
-        # Round Types Per Team
-        self.roundTypeGroupBox = QGroupBox("Round Types Per Team")
-        self.roundTypeLayout = QGridLayout(self.roundTypeGroupBox)
-        self.roundTypeSpinboxes = {
-            "judging": QLabel(f'{1}'),
-            "practice": QSpinBox(self),
-            "table": QSpinBox(self),
-        }
-        self.roundTypeLabels = {}
-        for name, spinbox in self.roundTypeSpinboxes.items():
-            self.roundTypeLabels[name] = QLabel(f"{self.scheduleData.num_teams * self.scheduleData.round_types_per_team[name]} Rounds")
-        
-        self.roundTypeSpinboxes["judging"].setFont(QFont("Sans", 8, QFont.Bold))
-        
-    
-    def initialize_schedule_data_inputs(self):
-        self.numTeamsSpinbox.setValue(self.scheduleData.num_teams)
-        self.numRoomsSpinbox.setValue(self.scheduleData.num_rooms)
-        self.numTablesSpinbox.setValue(self.scheduleData.num_tables)
-        for name, spinbox in self.roundTypeSpinboxes.items():
-            if name == "judging":
-                continue
-            spinbox.setValue(self.scheduleData.round_types_per_team[name]) 
-
-    def setup_schedule_data_inputs(self):
-        # ScheduleData Inputs Widgets
-        self.scheduleDataInputsGroupBox = QGroupBox("Schedule Data Inputs")
-        self.scheduleDataLayout = QGridLayout(self.scheduleDataInputsGroupBox)
-        self.scheduleDataLayout.addWidget(QLabel("Number of Teams"), 0, 0)
-        self.scheduleDataLayout.addWidget(self.numTeamsSpinbox, 0, 1)
-        self.scheduleDataLayout.addWidget(QLabel("Number of Rooms"), 1, 0)
-        self.scheduleDataLayout.addWidget(self.numRoomsSpinbox, 1, 1)
-        self.scheduleDataLayout.addWidget(QLabel("Number of Tables"), 2, 0)
-        self.scheduleDataLayout.addWidget(self.numTablesSpinbox, 2, 1)
-        self.scheduleDataLayout.addWidget(QLabel("Number of Tables and Sides: "), 3, 0)
-        self.scheduleDataLayout.addWidget(self.numTablesAndSidesLabel, 3, 1, Qt.AlignRight)
-        
-        # Round Types per Team Inputs Widgets
-        count = 0
-        for name, spinbox in self.roundTypeSpinboxes.items():
-            if name == 'judging':
-                jlabel = QLabel(f'Judging')
-                jlabel.setFont(QFont('Sans', 8, QFont.Bold))
-                self.roundTypeLayout.addWidget(jlabel, count, 0)
-            else:
-                self.roundTypeLayout.addWidget(QLabel(name.capitalize()), count, 0)
-            self.roundTypeLayout.addWidget(spinbox, count, 1)
-            self.roundTypeLayout.addWidget(self.roundTypeLabels[name], count, 2, Qt.AlignRight)
-            count += 1
-        
-    # Time Data
-    def create_time_data_inputs(self):
-        self.startTimeJudgingRounds = QTimeEdit(self)
-        self.startTimePracticeRounds = QTimeEdit(self)
-        self.stopTimePractice = QTimeEdit(self)
-        self.startTimeTableRounds = QTimeEdit(self)
-        self.stopTimeTableRounds = QTimeEdit(self)
-        
-        self.judgingRoundDuration = QLabel(f'{45} minutes')
-        self.judgingRoundDuration.setFont(QFont("Sans", 8, QFont.Bold))
-        
-        self.practiceRoundDuration = QLabel(f'{self.timeData.round_durations["practice"]} minutes')
-        self.tableRoundDuration = QLabel(f'{self.timeData.round_durations["table"]} minutes')
-        
-        self.minimumPracticeDuration = QTimeEdit(self)
-        self.minimumPracticeDuration.setDisplayFormat('mm')
-        self.minimumTableDuration = QTimeEdit(self)
-        self.minimumTableDuration.setDisplayFormat('mm')
-        
-        self.minimumPracticeDurationLabel = QLabel('Minimum Practice Duration: ')
-        self.minimumTableDurationLabel = QLabel('Minimum Table Duration:')
-        
-        self.practiceTimeAvailable = QLabel(f'{self.timeData.practice_duration_available} minutes')
-        self.tableTimeAvailable = QLabel(f'{self.timeData.table_duration_available} minutes')
-    
-    
-    def initialize_time_data_inputs(self):
-        self.minimumPracticeDuration.setTime(QTime.fromString(str(self.timeData.round_durations["practice"]), 'mm'))
-        self.minimumTableDuration.setTime(QTime.fromString(str(self.timeData.round_durations["table"]), 'mm'))
-        self.startTimeJudgingRounds.setTime(QTime.fromString(self.timeData.start_time_judging_rounds, 'HH:mm'))
-        self.startTimePracticeRounds.setTime(QTime.fromString(self.timeData.start_time_practice_rounds, 'HH:mm'))
-        self.stopTimePractice.setTime(QTime.fromString(self.timeData.start_time_break, 'HH:mm'))
-        self.startTimeTableRounds.setTime(QTime.fromString(self.timeData.start_time_table_rounds, 'HH:mm'))
-        self.stopTimeTableRounds.setTime(QTime.fromString(self.timeData.stop_time_table_rounds, 'HH:mm'))
-    
-    def setup_time_data_inputs(self):
-        self.timeDataInputsGroupBox = QGroupBox("Time Data Inputs")
-        self.timeDataLayout = QGridLayout(self.timeDataInputsGroupBox)
-        
-        self.judgingRoundDurationLabelConstant = QLabel("Judging Round Duration")
-        self.judgingRoundDurationLabelConstant.setFont(QFont("Sans", 8, QFont.Bold))
-        self.timeDataLayout.addWidget(self.judgingRoundDurationLabelConstant, 0, 0)
-        self.timeDataLayout.addWidget(self.judgingRoundDuration, 0, 1)
         
         self.timeDataLayout.addWidget(QLabel("Practice Round Duration"), 1, 0)
         self.timeDataLayout.addWidget(self.practiceRoundDuration, 1, 1)
@@ -707,11 +608,7 @@ class MainWindow(QWidget):
         if not self.thread.isRunning():
             print(f"Thread {self.thread} Stopped")
             return
-        
 
-###############################################################
-# Step 3: Run the application #################################
-###############################################################
 if __name__ == "__main__":
     app = QApplication([])
     window = MainWindow()

@@ -1,0 +1,5 @@
+src/__pycache__/*
+*.zip
+translations/*
+exports/*
+features_in_progress/*

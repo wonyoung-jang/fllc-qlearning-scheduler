@@ -58,7 +58,7 @@ of inputs.
     - Note: The application loads with default parameters that will begin to
     generate schedules, if you would like to see it generate some right away.
 
-    - Important: The “GUI Refresh Rate” input tells the program how many training episodes it should run before updating the GUI with the current schedule, the Q-Value Convergence Plot, the Q-Table Heatmap, and the Exploration vs. Exploitation Ratios Plot. The default is set to “1”, but that may slow down your device if you train a large number of episodes.
+    - Important: The “GUI Refresh Rate” input tells the program how many training episodes it should run before updating the GUI with the current schedule, the Q-Value Convergence Plot, the Q-Table Heatmap, and the Exploration vs. Exploitation Ratios Plot. The default is set to “1”, but that may slow down your device if you train a large number of episodes
 
 3. After inputting the required information, or leaving the inputs to their defaults, press
 the "Train and then Generate Optimal Schedule" on the bottom left of the
@@ -73,7 +73,7 @@ application.
     scheduler may approach the problem.
 
     - Second, it will train by generating schedules given the inputs. It will train for
-    as many iterations as there were inputted into the “Max Training Episodes”
+    as many iterations as there were inputted into the “Max Training episodes”
     box in the “Q-Learning Inputs” section.
 
     - Third, after the final training episode, it will use the Q-table it generated to

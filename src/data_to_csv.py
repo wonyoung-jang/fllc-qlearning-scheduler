@@ -1,83 +1,101 @@
-import json
+"""Export Q-Learning data to CSV and Excel files."""
 import csv
-from xlsxwriter import Workbook
-import pandas as pd
 import os
-import shutil
+import pandas as pd
+
+# TASKS
+# TODO create: exports folder if it does not exist
+
 
 class QLearningExporter:
+    """Class to export Q-Learning data to CSV and Excel files."""
+
     def __init__(self):
-        self.clear_exports_folder()
-    
-    def clear_exports_folder(self):
-        folder = './exports'
-        for root, dirs, files in os.walk(folder):  # Use os.walk for recursive traversal
+        """Initialize QLearningExporter object."""
+        self.clear_exports_directory()
+        self.dataframe = None
+        self.excel_file_path = "./exports/grid_optimal_schedule.xlsx"
+
+    def clear_exports_directory(self):
+        """Clear the exports directory."""
+        exports_directory = "./exports"
+        for root, _, files in os.walk(exports_directory):
             for filename in files:
                 file_path = os.path.join(root, filename)
                 try:
-                    if os.path.isfile(file_path):  # Only delete files
+                    if os.path.isfile(file_path):
                         os.unlink(file_path)
-                except Exception as e:
-                    print(f"Failed to delete {file_path}. Reason: {e}")                
-                    
-    def transform_and_write(self, df, sheet_name, writer):
-        # Pivot table to create the desired grid format
-        pivot_df = df.pivot_table(index='Time', columns=['Location'], values='Team').reset_index()
-        # Sorting if necessary, can be customized based on requirements
-        pivot_df.columns = [i for i in pivot_df.columns]
-        pivot_df.sort_index(axis=1, inplace=True)
-        # Write to the specified sheet in the Excel writer context
-        pivot_df.to_excel(writer, sheet_name=sheet_name, index=False)
+                except OSError as e:
+                    print(f"Failed to delete {file_path}. Reason: {e}")    
+
+    def transform_dataframe_to_grid(self, dataframe, sheet_name, writer):
+        """Transform the DataFrame into grid format and write to Excel."""
+        pivot_dataframe = dataframe.pivot_table(index="Time", columns=["Location"], values="Team").reset_index()
+        pivot_dataframe.columns = [i for i in pivot_dataframe.columns]
+        pivot_dataframe.sort_index(axis=1, inplace=True)
+        pivot_dataframe.to_excel(writer, sheet_name=sheet_name, index=False)
 
     def convert_q_table_to_rows(self, q_table):
-        q_rows = []
-        for ((time_start, time_end, round_type, location_type, location_id, team_id), action), value in q_table.items():
-            q_rows.append([time_start, f'{round_type.capitalize()} Round', f'{location_type.capitalize()} {location_id}', action, value])
-        return q_rows
-    
-    def export_q_table_to_csv(self, filename, q_table):
+        """Convert the Q-Table to a list of rows for CSV export."""
+        q_table_rows = []
+        for ((time_start, _, round_type, location_type, location_id, _), action), value in q_table.items():
+            q_table_rows.append([
+                time_start,
+                f"{round_type.capitalize()} Round",
+                f"{location_type.capitalize()} {location_id}",
+                action,
+                value,
+            ])
+        return q_table_rows
+
+    def export_q_table_to_csv(self, file_path, q_table):
+        """Export the Q-Table to a CSV file."""
         q_table_rows = self.convert_q_table_to_rows(q_table)
-        with open(filename, 'w', newline='') as f:
-            writer = csv.writer(f)
+        with open(file_path, "w", newline="", encoding="utf-8") as file:
+            writer = csv.writer(file)
             writer.writerow(["Time", "Round", "Location", "Team", "Q-Value"])
             writer.writerows(q_table_rows)
-        
+        return file_path
+
     def convert_schedule_to_rows(self, schedule):
-        s_rows = []
-        for (time_start, time_end, round_type, location_type, location_id, team_id) in schedule:
-            s_rows.append([time_start, f'{round_type.capitalize()} Round', f'{location_type.capitalize()} {location_id}', team_id])
-        return s_rows
-    
-    def export_schedule_for_eval_to_csv(self, filename, schedule):
+        """Convert the schedule to a list of rows for CSV export."""
+        schedule_rows = []
+        for time_start, _, round_type, location_type, location_id, team_id in schedule:
+            schedule_rows.append([
+                time_start,
+                f"{round_type.capitalize()} Round",
+                f"{location_type.capitalize()} {location_id}",
+                team_id,
+            ])
+        return schedule_rows
+
+    def export_schedule_to_csv(self, file_path, schedule):
+        """Export the schedule to a CSV file."""        
         schedule_rows = self.convert_schedule_to_rows(schedule)
-        with open(filename, 'w', newline='') as f:
-            writer = csv.writer(f)
+        with open(file_path, "w", newline="", encoding="utf-8") as file:
+            writer = csv.writer(file)
             writer.writerow(["Time", "Round", "Location", "Team"])
             writer.writerows(schedule_rows)
-        
-    def export_optimal_schedule_to_csv(self, filename, schedule):
+        return file_path
+    
+    def export_optimal_schedule_to_excel(self, file_path, schedule):
+        """Export the optimal schedule to an Excel file."""
         optimal_schedule_rows = self.convert_schedule_to_rows(schedule)
-        with open(filename, 'w', newline='') as f:
-            writer = csv.writer(f)
+        with open(file_path, "w", newline="", encoding="utf-8") as file:
+            writer = csv.writer(file)
             writer.writerow(["Time", "Round", "Location", "Team"])
             writer.writerows(optimal_schedule_rows)
-            
-        self.df = pd.read_csv(filename)
-        self.excel_file = './exports/grid_optimal_schedule.xlsx'
-        
-        with pd.ExcelWriter(self.excel_file, engine='xlsxwriter') as writer:
-            # Step 2 & 3: Filter, transform, and write for each round_type
-            for round_type in self.df['Round'].unique():
-                filtered_df = self.df[self.df['Round'] == round_type]
-
-                # Write the data to Excel
-                self.transform_and_write(filtered_df, round_type, writer)  
-
-                # Formatting (Apply after writing the data)
+        self.dataframe = pd.read_csv(file_path)
+        with pd.ExcelWriter(self.excel_file_path, engine="xlsxwriter") as writer:
+            for round_type in self.dataframe["Round"].unique():
+                filtered_dataframe = self.dataframe[self.dataframe["Round"] == round_type]
+                self.transform_dataframe_to_grid(filtered_dataframe, round_type, writer)
                 workbook = writer.book
-                worksheet = writer.sheets[round_type]  # Assuming the sheet name matches round_type 
-
-                # Find last row with data 
-                df_for_sheet = self.df[self.df['Round'] == round_type].dropna()
-
-        return filename
+                worksheet = writer.sheets[round_type]
+                dataframe_for_sheet = self.dataframe[self.dataframe["Round"] == round_type].dropna()
+                last_row = len(dataframe_for_sheet)
+                worksheet.conditional_format(1, 1, last_row, len(dataframe_for_sheet.columns), {
+                    "type": "no_blanks",
+                    "format": workbook.add_format({"bg_color": "#FFFFFF"})
+                })
+        return file_path

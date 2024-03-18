@@ -9,6 +9,7 @@ from PySide6.QtCore import QObject, Signal
 from schedule_evaluator import ScheduleEvaluator
 from data_to_csv import QLearningExporter
 from collections import defaultdict
+from time_utilities import TimeUtilities
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -557,8 +558,8 @@ class QLearning:
 
         table_key = (location_id[0], int(location_id[1]))
 
-        start_time_minutes = self.time_data.time_to_minutes(time_start)
-        end_time_minutes = self.time_data.time_to_minutes(time_end)
+        start_time_minutes = TimeUtilities.time_to_minutes(time_start)
+        end_time_minutes = TimeUtilities.time_to_minutes(time_end)
 
         reward = 0
 
@@ -623,8 +624,8 @@ class QLearning:
         """Calculate the back-to-back penalty."""
         reward = 0
         for i in range(len(scheduled_times)):
-            timeActionStart = self.time_data.time_to_minutes(scheduled_times[i][0])
-            timeActionEnd = self.time_data.time_to_minutes(scheduled_times[i][1])
+            timeActionStart = TimeUtilities.time_to_minutes(scheduled_times[i][0])
+            timeActionEnd = TimeUtilities.time_to_minutes(scheduled_times[i][1])
             reward_back_to_back = 0
             if timeActionStart - end_time_minutes <= 0 or timeActionEnd - start_time_minutes <= 0:
                 reward_back_to_back -= 1
@@ -649,8 +650,8 @@ class QLearning:
         reward = 0
         break_time = 30
         for i in range(1, len(scheduled_times)):
-            timeActionStart = self.time_data.time_to_minutes(scheduled_times[i][0])
-            timeActionEnd = self.time_data.time_to_minutes(scheduled_times[i][1])
+            timeActionStart = TimeUtilities.time_to_minutes(scheduled_times[i][0])
+            timeActionEnd = TimeUtilities.time_to_minutes(scheduled_times[i][1])
             reward_break_time = 0
             if timeActionStart - end_time_minutes >= break_time or timeActionEnd - start_time_minutes >= break_time:
                 reward_break_time += 1

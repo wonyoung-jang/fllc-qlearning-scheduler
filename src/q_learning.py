@@ -128,15 +128,9 @@ class QLearning:
         for i, schedule in enumerate(self.schedule):
             if schedule[2] == "judging" and current_team_id <= len(list(self.schedule_data.teams.keys())):
                 self.schedule[i][5] = current_team_id
-                self.schedule_data.teams[current_team_id]["scheduled_round_types"][
-                    "judging"
-                ] += 1
-                self.schedule_data.teams[current_team_id]["scheduled_times"].append(
-                    (schedule[0], schedule[1])
-                )
-                self.schedule_data.rooms[schedule[4]]["scheduled_teams"].append(
-                    current_team_id
-                )
+                self.schedule_data.teams[current_team_id].scheduled_round_types["judging"] += 1
+                self.schedule_data.teams[current_team_id].scheduled_times.append((schedule[0], schedule[1]))
+                self.schedule_data.rooms[schedule[4]].scheduled_teams.append(current_team_id)
                 current_team_id += 1
 
         return self.schedule
@@ -384,14 +378,14 @@ class QLearning:
         # 1. "Is the team already scheduled for the current round type for rounds_per_type number of times?"
         for team_id in potential_actions:
             if (
-                self.schedule_data.teams[team_id]["scheduled_round_types"][round_type]
+                self.schedule_data.teams[team_id].scheduled_round_types[round_type]
                 >= self.schedule_data.round_types_per_team[round_type]
             ):
                 remove_actions.append(team_id)
 
         # 2. "Is the current state's time slot overlapping with any time slot scheduled for the team?"
         for team_id in potential_actions:
-            for existing_start, existing_end in self.schedule_data.teams[team_id]["scheduled_times"]:
+            for existing_start, existing_end in self.schedule_data.teams[team_id].scheduled_times:
                 if (time_start < existing_end) and (time_end > existing_start):
                     remove_actions.append(team_id)
                     break  # No need to check further slots for this team
@@ -422,10 +416,10 @@ class QLearning:
         if team_id in self.schedule_data.teams:
             team_info = self.schedule_data.teams[team_id]
 
-            team_info["scheduled_round_types"][round_type] += 1
-            team_info["scheduled_times"].append(time_slot)
-            team_info["scheduled_tables"].append((location_id, int(side)))
-            team_info["scheduled_time_table_pairs"].append((time_slot, (location_id, int(side))))
+            team_info.scheduled_round_types[round_type] += 1
+            team_info.scheduled_times.append(time_slot)
+            team_info.scheduled_tables.append((location_id, int(side)))
+            team_info.scheduled_time_table_pairs.append((time_slot, (location_id, int(side))))
 
             if round_type == "practice":
                 self.practice_teams_available.remove(team_id)
@@ -441,7 +435,7 @@ class QLearning:
                 for other_team_id, other_team_info in self.schedule_data.teams.items():
                     if (
                         other_team_id != team_id
-                        and (time_slot, (table_id, other_side)) in other_team_info["scheduled_time_table_pairs"]
+                        and (time_slot, (table_id, other_side)) in other_team_info.scheduled_time_table_pairs
                     ):
                         # Update opponents for both teams
                         other_team_info["scheduled_opponents"].append(team_id)
@@ -457,8 +451,8 @@ class QLearning:
         side = int(location_id[-1])  # Extract side (e.g., 1 from 'A11')
 
         if (table_id, side) in self.schedule_data.tables:
-            self.schedule_data.tables[(table_id, side)]["scheduled_teams"].append(team_id)
-            self.schedule_data.tables[(table_id, side)]["scheduled_times"].append(time_slot)
+            self.schedule_data.tables[(table_id, side)].scheduled_teams.append(team_id)
+            self.schedule_data.tables[(table_id, side)].scheduled_times.append(time_slot)
         else:
             print(f"Table {table_id} side {side} does not exist.")
 
@@ -506,12 +500,14 @@ class QLearning:
         ) = prev_state
         prev_time_slot = (prev_time_start, prev_time_end)
         prev_table_key = (prev_location_id[0], int(prev_location_id[1]))
-        self.schedule_data.teams[prev_team_id]["scheduled_round_types"][prev_round_type] -= 1
-        self.schedule_data.teams[prev_team_id]["scheduled_times"].remove(prev_time_slot)
-        self.schedule_data.teams[prev_team_id]["scheduled_tables"].remove(prev_table_key)
-        self.schedule_data.teams[prev_team_id]["scheduled_time_table_pairs"].remove((prev_time_slot, prev_table_key))
-        self.schedule_data.tables[prev_table_key]["scheduled_teams"].remove(prev_team_id)
-        self.schedule_data.tables[prev_table_key]["scheduled_times"].remove(prev_time_slot)
+
+        self.schedule_data.teams[prev_team_id].scheduled_round_types[prev_round_type] -= 1
+        self.schedule_data.teams[prev_team_id].scheduled_times.remove(prev_time_slot)
+        self.schedule_data.teams[prev_team_id].scheduled_tables.remove(prev_table_key)
+        self.schedule_data.teams[prev_team_id].scheduled_time_table_pairs.remove((prev_time_slot, prev_table_key))
+        self.schedule_data.tables[prev_table_key].scheduled_teams.remove(prev_team_id)
+        self.schedule_data.tables[prev_table_key].scheduled_times.remove(prev_time_slot)
+        
         self.schedule[self.staticStates.index(prev_state)][5] = None
         self.current_schedule_length -= 1
         if prev_round_type == "practice":
@@ -547,15 +543,17 @@ class QLearning:
 
     def get_reward(self, state, action) -> float:
         """Get the reward for the current state-action pair."""
+        
+        # Unpack state
         time_start, time_end, round_type, location_type, location_id, team_id = state
-        (
-            team_id,
-            scheduled_round_types,
-            scheduled_times,
-            scheduled_tables,
-            scheduled_opponents,
-            scheduled_time_table_pairs,
-        ) = self.schedule_data.teams[action].values()
+
+        # Get the selected team's attributes
+        team = self.schedule_data.teams[action]
+        scheduled_round_types = team.scheduled_round_types
+        scheduled_times = team.scheduled_times
+        scheduled_tables = team.scheduled_tables
+        scheduled_opponents = team.scheduled_opponents
+        scheduled_time_table_pairs = team.scheduled_time_table_pairs
 
         table_key = (location_id[0], int(location_id[1]))
 
@@ -579,7 +577,7 @@ class QLearning:
         # Apply completion reward multiplier
         completion_reward = self.current_schedule_length / (
             self.required_schedule_slots
-            - (self.schedule_data.num_teams * self.schedule_data.round_types_per_team["judging"])
+            - (self.schedule_data.num_teams * self.schedule_data.round_types_per_team['judging'])
         )
         reward += reward * completion_reward
 

@@ -3,6 +3,7 @@ from team import Team
 from table import Table
 from room import Room
 
+
 class ScheduleData:
     """A class to store the data for the schedule."""
     

@@ -9,9 +9,9 @@ from PySide6.QtCore import QObject, Signal
 from schedule_evaluator import ScheduleEvaluator
 from data_to_csv import QLearningExporter
 from collections import defaultdict
-from time_utilities import TimeUtilities
+from time_data.time_utilities import TimeUtilities
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='FLLC-Q_Log.txt', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 class QLearning:

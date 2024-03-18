@@ -1,7 +1,7 @@
 """This module contains the ScheduleData class, which is used to store the data for the schedule."""
-from team import Team
-from table import Table
-from room import Room
+from .team import Team
+from .table import Table
+from .room import Room
 
 
 class ScheduleData:

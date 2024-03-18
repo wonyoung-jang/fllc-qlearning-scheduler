@@ -1,5 +1,5 @@
 """This module contains the TimeSlotCreator class."""
-from time_utilities import TimeUtilities
+from .time_utilities import TimeUtilities
 
 
 class TimeSlotCreator:

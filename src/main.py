@@ -27,15 +27,11 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QTime, Qt, QThread, QMetaObject, Q_ARG, Slot, QTranslator, QCoreApplication, QLocale, QEvent
 from PySide6.QtGui import QFont
-from schedule_data import ScheduleData
-from time_data import TimeData
+from schedule_data._schedule_data import ScheduleData
+from time_data._time_data import TimeData
 from q_learning import QLearning
 from descriptive_stats import MplWidget
 from training_thread import TrainingWorker
-
-# TASKS
-# TODO implement: translation feature
-# TODO maybe: using a dependency injection framework or design pattern
 
 FONT_SIZE_HEADER = 12
 FONT_SIZE_SUBHEADER = 10

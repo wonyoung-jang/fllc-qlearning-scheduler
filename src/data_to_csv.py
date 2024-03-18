@@ -3,9 +3,6 @@ import csv
 import os
 import pandas as pd
 
-# TASKS
-# TODO create: exports folder if it does not exist
-
 
 class QLearningExporter:
     """Class to export Q-Learning data to CSV and Excel files."""

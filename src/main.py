@@ -25,8 +25,8 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QSplitter
 )
-from PySide6.QtCore import QTime, Qt, QThread, QMetaObject, Q_ARG, Slot, QTranslator, QCoreApplication, QLocale, QEvent
-from PySide6.QtGui import QFont
+from PySide6.QtCore import QTime, Qt, QThread, QMetaObject, Q_ARG, Slot, QTranslator, QCoreApplication, QLocale, QEvent, QKeyCombination
+from PySide6.QtGui import QFont, QShortcut, QKeySequence
 from schedule_data._schedule_data import ScheduleData
 from time_data._time_data import TimeData
 from q_learning import QLearning
@@ -60,6 +60,10 @@ class MainWindow(QWidget):
         self.translator = QTranslator() # TODO
         self.current_language = "en"  # Default language
     
+        # Create a custom shortcut for the "Ctrl+G" key combination
+        self.generate_shortcut = QShortcut(QKeySequence(Qt.CTRL | Qt.Key_G), self)
+        self.generate_shortcut.activated.connect(self.start_training_thread)
+        
     def create_exports_directory(self):
         """Creates the exports directory if it does not exist.
         
@@ -532,8 +536,8 @@ class MainWindow(QWidget):
     def create_submission_buttons(self):
         """Creates submission buttons for training and generating optimal schedule."""
         # Submit(Train) Button
-        self.trainButton = QPushButton("Train then Generate Optimal Schedule", self)
-        self.trainButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        self.train_button = QPushButton("Train then Generate Optimal Schedule (Ctrl + G)", self)
+        self.train_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         
     def connect_signals_and_slots(self):
         """Connects the signals and slots for the scheduler application."""
@@ -580,7 +584,7 @@ class MainWindow(QWidget):
         self.softConstraintWeights['Break Time'].valueChanged.connect(self.on_update)  # Connects the valueChanged signal of softConstraintWeights['Break Time'] to the on_update slot function
         
         # Buttons
-        self.trainButton.clicked.connect(self.start_training_thread)  # Connects the clicked signal of trainButton to the start_training_thread slot function
+        self.train_button.clicked.connect(self.start_training_thread)  # Connects the clicked signal of train_button to the start_training_thread slot function
 
     def initialize_main_gui(self):
         """Initializes the main GUI for the scheduler application."""
@@ -600,7 +604,7 @@ class MainWindow(QWidget):
         left_panel.addWidget(self.qLearningInputsGroupBox)
         left_panel.addWidget(self.softConstraintWeightsGroupBox)
         left_panel.addWidget(self.statisticsGroupBox)
-        left_panel.addWidget(self.trainButton)
+        left_panel.addWidget(self.train_button)
         
         # Add widgets to the right panel
         right_panel.addWidget(QLabel("Visualizations", font=QFont("Times", FONT_SIZE_HEADER, FONT_WEIGHT_BOLD)))
@@ -798,8 +802,8 @@ class MainWindow(QWidget):
         if episode == -1: # Benchmarks
             self.progressBar.setValue(0)
             self.statusLabel.setText(f"Generating Benchmarks...")
-            self.trainButton.setText("Generating Benchmarks...")
-            self.trainButton.setDisabled(True)
+            self.train_button.setText("Generating Benchmarks...")
+            self.train_button.setDisabled(True)
             self.scheduleScoresPlot.plot_schedule_scores('benchmark', 10, self.qLearning.scores, self.qLearning.completion_percentage)
             
             self.worker.signals.gui_updated_signal.emit()
@@ -815,8 +819,8 @@ class MainWindow(QWidget):
                 # Update the schedule display
                 self.initialize_schedule_display()
                 self.progressBar.setValue(self.qLearning.training_episodes)
-                self.trainButton.setDisabled(False)
-                self.trainButton.setText("Close Window")
+                self.train_button.setDisabled(False)
+                self.train_button.setText("Close Window")
                 self.worker.signals.gui_updated_signal.emit()
                 
             elif episode > 0 and episode % self.guiRefreshRate.value() == 0:
@@ -844,7 +848,7 @@ class MainWindow(QWidget):
                 # Update the schedule display
                 self.initialize_schedule_display()
                 self.progressBar.setValue(episode)
-                self.trainButton.setText(f'Training in Progress...{episode}/{self.qLearning.training_episodes}')
+                self.train_button.setText(f'Training in Progress...{episode}/{self.qLearning.training_episodes}')
                 self.worker.signals.gui_updated_signal.emit()
         
         self.worker.signals.gui_updated_signal.emit()

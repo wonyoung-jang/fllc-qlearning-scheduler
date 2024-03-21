@@ -2,9 +2,9 @@
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from PySide6.QtWidgets import QWidget, QVBoxLayout
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from PySide6.QtWidgets import QWidget, QVBoxLayout
 
 
 class MplWidget(QWidget):

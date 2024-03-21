@@ -1,10 +1,10 @@
 """This module contains the QLearning class, which is responsible for the Q-Learning algorithm for scheduling."""
 import random
-from typing import List, Tuple, Dict, Optional, Any
 import logging
 import pickle
 import numpy as np
 from datetime import datetime
+from typing import List, Tuple, Dict, Optional, Any
 from PySide6.QtCore import QObject, Signal
 from schedule_evaluator import ScheduleEvaluator
 from data_to_csv import QLearningExporter
@@ -66,12 +66,12 @@ class QLearning:
 
         self.exporter = QLearningExporter()
 
-    def save_model(self, filename: str) -> None:
+    def save_model(self, filename: str) -> None:  # TODO
         """Save the trained model to a file."""
         with open(filename, 'wb') as file:
             pickle.dump(self.q_table, file)
 
-    def load_model(self, filename: str) -> None:
+    def load_model(self, filename: str) -> None:  # TODO
         """Load the trained model from a file."""
         with open(filename, 'rb') as file:
             self.q_table = pickle.load(file)
@@ -82,8 +82,7 @@ class QLearning:
         self.staticStates = [tuple(i) for i in self.schedule]
 
         self.initialize_judging_rounds()
-        self.states = [tuple(i) for i in self.schedule if i[5] is None]
-
+        self.states = [tuple(i) for i in self.schedule if i[2] != 'judging']
         self.exploration_count = 0
         self.exploitation_count = 0
         self.practice_teams_available = (
@@ -122,7 +121,7 @@ class QLearning:
                         )
         return schedule
 
-    def initialize_judging_rounds(self) -> List[List]:
+    def initialize_judging_rounds(self) -> None:
         """Initialize the judging rounds for training."""
         current_team_id = list(self.schedule_data.teams.keys())[0]
 
@@ -133,8 +132,6 @@ class QLearning:
                 self.schedule_data.teams[current_team_id].scheduled_times.append((schedule[0], schedule[1]))
                 self.schedule_data.rooms[schedule[4]].scheduled_teams.append(current_team_id)
                 current_team_id += 1
-
-        return self.schedule
 
     def train_benchmark_episodes(self) -> None:
         """Train the Q-Learning algorithm for benchmarking."""

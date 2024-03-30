@@ -6,7 +6,6 @@ import numpy as np
 from datetime import datetime
 from typing import List, Tuple, Dict, Optional, Any
 from PySide6.QtCore import QObject, Signal
-from schedule_evaluator import ScheduleEvaluator
 from data_to_csv import QLearningExporter
 from collections import defaultdict
 from time_data.time_utilities import TimeUtilities
@@ -195,10 +194,6 @@ class QLearning:
         self.exporter.export_schedule_to_csv(scheduleCSVFileName, self.schedule)
 
         self.completed_percentage = self.current_schedule_length / self.required_schedule_slots
-        self.evaluator = ScheduleEvaluator(scheduleCSVFileName)
-        self.schedule_score = self.evaluator.calculate_schedule_score(self.completed_percentage)
-        self.evaluator.generate_aggregate_statistics(name="Benchmarks")
-
         self.completion_percentage["Benchmarks"].append(self.completed_percentage)
         self.scores["Benchmarks"].append(self.schedule_score)
 
@@ -307,10 +302,6 @@ class QLearning:
 
         # Evaluate the schedule
         self.completed_percentage = self.current_schedule_length / self.required_schedule_slots
-        self.evaluator = ScheduleEvaluator(scheduleCSVFileName)
-        self.schedule_score = self.evaluator.calculate_schedule_score(self.completed_percentage)
-        self.evaluator.generate_aggregate_statistics(name="Training")
-
         self.completion_percentage["Training"].append(self.completed_percentage)
         self.scores["Training"].append(self.schedule_score)
 
@@ -359,9 +350,6 @@ class QLearning:
         self.exporter.export_optimal_schedule_to_excel(optimal_filename, self.schedule)
 
         self.completed_percentage = self.current_schedule_length / self.required_schedule_slots
-        self.evaluator = ScheduleEvaluator(optimal_filename)
-        self.schedule_score = self.evaluator.calculate_schedule_score(self.completed_percentage)
-        self.evaluator.generate_aggregate_statistics(name="Optimal")
         self.completion_percentage["Optimal"].append(self.completed_percentage)
         self.scores["Optimal"].append(self.schedule_score)
 

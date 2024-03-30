@@ -8,13 +8,14 @@ class Config:
     # Constants #
     #############
     
-    # String Constants
+    # Round Type Constants
     JUDGING     = 'judging'
     PRACTICE    = 'practice'
     TABLE       = 'table'
+    
+    # Location Type Constants
     LOCATION_TYPE_ROOM  = 'room'
     LOCATION_TYPE_TABLE = 'table'
-    
     
     # GUI Constants
     FONT_SIZE_HEADER    = 12
@@ -90,6 +91,21 @@ class Config:
     ################
     
     # Export settings
-    exports_directory           = './exports'
-    grid_optimal_schedule_excel = './exports/grid_optimal_schedule.xlsx'
-    eval_results_csv_path       = './exports/schedule_evaluation/evaluation_results.csv'
+    EXPORTS_DIRECTORY                   = './exports'
+    OPTIMAL_SCHEDULE_GRID_EXCEL_PATH    = './exports/grid_optimal_schedule.xlsx'
+    EVAL_RESULTS_CSV_PATH               = './exports/schedule_evaluation/evaluation_results.csv'
+    
+    # Column names
+    COL_TIME        = 'Time'
+    COL_ROUND       = 'Round'
+    COL_LOCATION    = 'Location'
+    COL_TEAM        = 'Team'
+    COL_QVALUE      = 'Q-Value'
+    
+    # Evaluation data
+    EVAL_TYPES                      = ['Benchmarks', 'Training', 'Optimal']
+    EVAL_TYPE                       = 'Eval Type'
+    SCORES                          = 'Scores'
+    COMPLETION_PERCENTAGES          = 'Completion Percentages'
+    AVERAGE_SCORE                   = 'Average Score'
+    AVERAGE_COMPLETION_PERCENTAGE   = 'Average Completion Percentage'

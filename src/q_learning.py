@@ -668,6 +668,7 @@ class QLearning:
             reward += reward_break_time_normalized * self.soft_constraints_weight["Break Time"]
         return reward
 
+    ''' TODO 
     def transform_for_heatmap(self) -> Dict[Tuple[Tuple, Any], float]:
         """Transform the Q-table data for the heatmap."""
         data = {}
@@ -694,7 +695,9 @@ class QLearning:
         # Aggregate values by averaging
         aggregated_data = {k: sum(values) / len(values) for k, values in data.items()}
         return aggregated_data
+    '''
 
+    ''' TODO
     def aggregated_data_to_2d_array(self, aggregated_data) -> Tuple[np.ndarray, List[str], List[str]]:
         """Convert the aggregated data to a 2D array for the heatmap."""
         detailed_states = sorted(set(k[0] for k in aggregated_data.keys()), key=lambda x: (x[1], x[0]))
@@ -712,6 +715,7 @@ class QLearning:
         action_labels = [str(action) for action in actions]  # Assuming actions are already meaningful
 
         return heatmap_data, state_labels, action_labels
+    '''
 
     def is_terminal_state(self) -> bool:
         """Check if the current state is a terminal state."""

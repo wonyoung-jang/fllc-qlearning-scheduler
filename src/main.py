@@ -30,8 +30,8 @@ from PySide6.QtGui import QFont, QShortcut, QKeySequence
 from schedule_data._schedule_data import ScheduleData
 from time_data._time_data import TimeData
 from q_learning import QLearning
-from descriptive_stats import MplWidget
 from training_thread import TrainingWorker
+# from descriptive_stats import MplWidget
 
 FONT_SIZE_HEADER = 12
 FONT_SIZE_SUBHEADER = 10
@@ -96,7 +96,7 @@ class MainWindow(QWidget):
         self.create_time_data_inputs()
         self.create_q_learning_inputs()
         self.create_statistics_and_progress()
-        self.create_visualizations()
+        # self.create_visualizations()
         self.create_schedule_display()
         self.create_submission_buttons()
         self.create_soft_constraint_weights()
@@ -399,7 +399,9 @@ class MainWindow(QWidget):
 
             # Increment the row counter
             row += 1
-            
+    
+    '''        
+    # TODO Removing visualizations for now 
     def create_visualizations(self): 
         """Creates the visualizations for the Q-learning scheduler."""
         # Initialize the visualizationsLayout
@@ -410,6 +412,7 @@ class MainWindow(QWidget):
         self.qValueHeatmapPlot = MplWidget(self)
         self.exploreExploitPlot = MplWidget(self)
         self.scheduleScoresPlot = MplWidget(self)
+    '''
     
     def create_schedule_display(self): 
         """Creates the schedule display for the Q-learning scheduler."""
@@ -606,6 +609,7 @@ class MainWindow(QWidget):
         left_panel.addWidget(self.statisticsGroupBox)
         left_panel.addWidget(self.train_button)
         
+        ''' TODO
         # Add widgets to the right panel
         right_panel.addWidget(QLabel("Visualizations", font=QFont("Times", FONT_SIZE_HEADER, FONT_WEIGHT_BOLD)))
         right_panel.addWidget(QLabel("Q-Value Convergence Plot", font=QFont("Times", FONT_SIZE_SUBHEADER, FONT_WEIGHT_BOLD)))
@@ -616,6 +620,7 @@ class MainWindow(QWidget):
         right_panel.addWidget(self.exploreExploitPlot)
         right_panel.addWidget(QLabel("Schedule Scores", font=QFont("Times", FONT_SIZE_SUBHEADER, FONT_WEIGHT_BOLD)))
         right_panel.addWidget(self.scheduleScoresPlot)
+        '''
         
         # Add panels to the column splitter
         column_splitter.addWidget(left_panel)
@@ -804,7 +809,7 @@ class MainWindow(QWidget):
             self.statusLabel.setText(f"Generating Benchmarks...")
             self.train_button.setText("Generating Benchmarks...")
             self.train_button.setDisabled(True)
-            self.scheduleScoresPlot.plot_schedule_scores('benchmark', 10, self.qLearning.scores, self.qLearning.completion_percentage)
+            # self.scheduleScoresPlot.plot_schedule_scores('benchmark', 10, self.qLearning.scores, self.qLearning.completion_percentage)
             
             self.worker.signals.gui_updated_signal.emit()
         else:
@@ -814,7 +819,7 @@ class MainWindow(QWidget):
                 self.q_learningLabel.setText(f"Epsilon: {self.qLearning.epsilon:.2f} (Final)\nAlpha: {self.qLearning.learning_rate:.2f}\nGamma: {self.qLearning.discount_factor:.2f}\nEpisodes: {self.qLearning.training_episodes}")
                 self.q_tableSizeLabel.setText(f"Q-Table Size: {len(self.qLearning.q_table)}/{self.qLearning.q_table_size_limit} (Final)")
 
-                self.scheduleScoresPlot.plot_schedule_scores('optimal', episode, self.qLearning.scores, self.qLearning.completion_percentage)
+                # self.scheduleScoresPlot.plot_schedule_scores('optimal', episode, self.qLearning.scores, self.qLearning.completion_percentage)
                 
                 # Update the schedule display
                 self.initialize_schedule_display()
@@ -831,6 +836,7 @@ class MainWindow(QWidget):
                 self.q_learningLabel.setText(f"Epsilon: {self.qLearning.epsilon:.2f}\nAlpha: {self.qLearning.learning_rate:.2f}\nGamma: {self.qLearning.discount_factor:.2f}\nEpisodes: {self.qLearning.training_episodes}")
                 self.q_tableSizeLabel.setText(f"Q-Table Size: {len(self.qLearning.q_table)}/{self.qLearning.q_table_size_limit}")
                 
+                ''' TODO
                 # Update the Q-value heatmap                  
                 aggregated_data = self.qLearning.transform_for_heatmap()
                 heatmap_data, round_types, team_ids = self.qLearning.aggregated_data_to_2d_array(aggregated_data)
@@ -844,6 +850,7 @@ class MainWindow(QWidget):
 
                 # Update score plot
                 self.scheduleScoresPlot.plot_schedule_scores('training', episode, self.qLearning.scores, self.qLearning.completion_percentage)    
+                '''
                 
                 # Update the schedule display
                 self.initialize_schedule_display()

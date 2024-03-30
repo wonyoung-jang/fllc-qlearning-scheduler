@@ -26,7 +26,7 @@ from PySide6.QtWidgets import (
     QSplitter
 )
 from PySide6.QtCore import QTime, Qt, QThread, QMetaObject, Q_ARG, Slot, QTranslator, QCoreApplication, QLocale, QEvent, QKeyCombination
-from PySide6.QtGui import QFont, QShortcut, QKeySequence
+from PySide6.QtGui import QFont, QShortcut, QKeySequence, QBrush, QColor
 from schedule_data._schedule_data import ScheduleData
 from time_data._time_data import TimeData
 from q_learning import QLearning
@@ -433,10 +433,10 @@ class MainWindow(QWidget):
         table_round_headers = ['Time'] + [f'Table {chr(65 + i // 2)}{i % 2 + 1}' for i in range(self.scheduleData.num_tables * 2)]
         self.tableRoundTable.setHorizontalHeaderLabels(table_round_headers)
     
-    def initialize_schedule_display(self):
+    '''def initialize_schedule_display(self):
         """Initializes the schedule display for the Q-learning scheduler."""
         # Ensure tables are clear and set up before populating
-        self.clearAndSetupTables()
+        self.clear_and_setup_tables()
 
         # Initialize a dictionary to track the last row used for each time in each table
         lastRow = {'judging': {}, 'practice': {}, 'table': {}}
@@ -444,7 +444,7 @@ class MainWindow(QWidget):
         # Iterate over each entry in the sorted schedule
         for entry in sorted(self.qLearning.schedule, key=lambda x: (x[0], x[2], x[4])):
             time_start, _, round_type, _, location_id, team_id = entry
-            tableWidget = self.getTableWidget(round_type)
+            tableWidget = self.get_table_widget(round_type)
 
             # If this time_start has not been used in this table, add a new row for it
             if time_start not in lastRow[round_type]:
@@ -454,9 +454,48 @@ class MainWindow(QWidget):
                 lastRow[round_type][time_start] = newRow
             row = lastRow[round_type][time_start]
 
-            # Calculate the column for this entry. Adjust getColIndex to fit your logic
-            col = self.getColIndex(round_type, location_id)
-            tableWidget.setItem(row, col, QTableWidgetItem(str(team_id)))
+            # Calculate the column for this entry. Adjust get_col_index to fit your logic
+            col = self.get_col_index(round_type, location_id)
+            tableWidget.setItem(row, col, QTableWidgetItem(str(team_id)))'''
+    def initialize_schedule_display(self):
+        """Initializes the schedule display for the Q-learning scheduler."""
+
+        # Ensure tables are clear and set up before populating
+        self.clear_and_setup_tables()
+
+        # Initialize a dictionary to track the last row used for each time in each table
+        lastRow = {'judging': {}, 'practice': {}, 'table': {}}
+
+        # Create a color map to store unique colors for each team
+        color_map = {}
+
+        # Iterate over each entry in the sorted schedule
+        for entry in sorted(self.qLearning.schedule, key=lambda x: (x[0], x[2], x[4])):
+            time_start, _, round_type, _, location_id, team_id = entry
+
+            tableWidget = self.get_table_widget(round_type)
+
+            # If this time_start has not been used in this table, add a new row for it
+            if time_start not in lastRow[round_type]:
+                newRow = tableWidget.rowCount()
+                tableWidget.insertRow(newRow)
+                tableWidget.setItem(newRow, 0, QTableWidgetItem(time_start))  # Set the time in the first column
+                lastRow[round_type][time_start] = newRow
+
+            row = lastRow[round_type][time_start]
+
+            # Calculate the column for this entry. Adjust get_col_index to fit your logic
+            col = self.get_col_index(round_type, location_id)
+
+            item = QTableWidgetItem(str(team_id))
+            tableWidget.setItem(row, col, item)
+
+            # Generate a unique color for each team if not already in the color map
+            if team_id not in color_map:
+                color_map[team_id] = QColor.fromHsv((len(color_map) * 30) % 360, 88, 255)
+                
+            # Set the cell background color using QBrush
+            item.setBackground(QBrush(color_map[team_id]))
 
     def setup_schedule_display(self): 
         """Sets up the schedule display for the Q-learning scheduler."""
@@ -499,9 +538,10 @@ class MainWindow(QWidget):
 
         # Add the splitter to the schedule layout
         self.scheduleLayout.addWidget(schedule_splitter)
-        
-    def clearAndSetupTables(self):
+            
+    def clear_and_setup_tables(self):
         """Clears and sets up the judging, practice, and table round tables."""
+
         for table in [self.judgingTable, self.practiceTable, self.tableRoundTable]:
             table.clearContents()  # Clear the contents of the table
             table.setColumnCount(0)  # Clear the columns
@@ -517,8 +557,8 @@ class MainWindow(QWidget):
                 # Set column count and header labels for practice and table round tables
                 table.setColumnCount((self.scheduleData.num_tables * 2) + 1)
                 table.setHorizontalHeaderLabels(['Time'] + [f'Table {chr(65 + i // 2)}{i % 2 + 1}' for i in range(self.scheduleData.num_tables * 2)])
-        
-    def getTableWidget(self, round_type):
+
+    def get_table_widget(self, round_type):
         """Returns the table widget based on the round type."""
         if round_type == 'judging':
             return self.judgingTable
@@ -527,7 +567,7 @@ class MainWindow(QWidget):
         else:  # 'table'
             return self.tableRoundTable
 
-    def getColIndex(self, round_type, location_id):
+    def get_col_index(self, round_type, location_id):
         """Returns the column index based on the round type and location ID."""
         if round_type == 'judging':
             return int(location_id)
@@ -868,7 +908,6 @@ if __name__ == "__main__":
     """Run the main application."""
     app = QApplication([])
     window = MainWindow()
-    window.resize(1500, 600)
 
     # Show window
     window.show()

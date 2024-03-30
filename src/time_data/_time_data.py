@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from .time_utilities import TimeUtilities
 from .start_time_generator import StartTimeGenerator
 from .time_slot_creator import TimeSlotCreator
-
+from config import Config
 
 class TimeData:
     """Class to store data for scheduling rounds and tables."""
@@ -11,23 +11,20 @@ class TimeData:
     def __init__(self, schedule_data):
         """Initialize TimeData object."""
         self.schedule_data = schedule_data
-        self.judging_rounds_start_time = "08:00"
-        self.practice_rounds_start_time = "09:00"
-        self.practice_rounds_stop_time = "12:00"
-        self.table_rounds_start_time = "13:30"
-        self.table_rounds_stop_time = "16:21"
-        self.minimum_slots_required = {
-            "judging": 0,
-            "practice": 0,
-            "table": 0,
-        }
+        
+        self.judging_rounds_start_time = Config.judging_rounds_start_time
+        self.practice_rounds_start_time = Config.practice_rounds_start_time
+        self.practice_rounds_stop_time = Config.practice_rounds_stop_time
+        self.table_rounds_start_time = Config.table_rounds_start_time
+        self.table_rounds_stop_time = Config.table_rounds_stop_time
+        self.minimum_slots_required = Config.minimum_slots_required
+            
+            
         self.available_practice_duration = 0
         self.available_table_duration = 0
-        self.round_type_durations = {
-            "judging": 45,
-            "practice": 0,
-            "table": 0,
-        }
+        
+        self.round_type_durations = Config.round_type_durations
+        
         self.judging_round_start_times = []
         self.practice_round_start_times = []
         self.table_round_start_times = []
@@ -36,6 +33,7 @@ class TimeData:
             "practice": [],
             "table": [],
         }
+        
         self.update_time_data()
 
     def __str__(self):

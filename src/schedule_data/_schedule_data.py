@@ -2,17 +2,18 @@
 from .team import Team
 from .table import Table
 from .room import Room
-
+from config import Config
 
 class ScheduleData:
     """A class to store the data for the schedule."""
     
-    def __init__(self, num_teams=42, num_rooms=7, num_tables=4):
+    def __init__(self):
         """Initialize a ScheduleData object."""
-        self.num_teams = num_teams
-        self.num_rooms = num_rooms
-        self.num_tables = num_tables
-        self.round_types_per_team = {'judging': 1, 'practice': 2, 'table': 3}
+        self.num_teams  = Config.num_teams
+        self.num_rooms  = Config.num_rooms
+        self.num_tables = Config.num_tables
+        self.round_types_per_team = Config.round_types_per_team
+        
         self.num_tables_and_sides = self.num_tables * 2
         self.teams, self.rooms, self.tables = self.initialize_teams_rooms_tables()
 

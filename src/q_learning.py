@@ -10,24 +10,39 @@ from schedule_evaluator import ScheduleEvaluator
 from data_to_csv import QLearningExporter
 from collections import defaultdict
 from time_data.time_utilities import TimeUtilities
+from config import Config
 
 logging.basicConfig(filename='FLLC-Q_Log.txt', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
+JUDGING = Config.JUDGING
+PRACTICE = Config.PRACTICE
+TABLE = Config.TABLE
+
+TABLE_CONSISTENCY = Config.TABLE_CONSISTENCY
+OPPONENT_VARIETY = Config.OPPONENT_VARIETY
+BACK_TO_BACK_PENALTY = Config.BACK_TO_BACK_PENALTY
+BREAK_TIME = Config.BREAK_TIME
+
+table_consistency_weight = Config.table_consistency_weight
+opponent_variety_weight = Config.opponent_variety_weight
+back_to_back_penalty_weight = Config.back_to_back_penalty_weight
+break_time_weight = Config.break_time_weight
 
 class QLearning:
     """Q-Learning algorithm for scheduling."""
 
     def __init__(self, schedule_data, time_data):
         """Initialize the Q-Learning algorithm for scheduling."""
-        self.learning_rate = 0.20  # Alpha
-        self.discount_factor = 0.80  # Gamma
-        self.epsilon_start = 1.00
-        self.epsilon_end = 0.01
-        self.epsilon_decay = 0.995
+        self.learning_rate = Config.learning_rate  # Alpha
+        self.discount_factor = Config.discount_factor  # Gamma
+        self.epsilon_start = Config.epsilon_start
+        self.epsilon_end = Config.epsilon_end
+        self.epsilon_decay = Config.epsilon_decay
+        self.training_episodes = Config.training_episodes
+        
+        self.gui_refresh_interval = Config.gui_refresh_interval
+        
         self.epsilon = self.epsilon_start
-        self.training_episodes = 5
-
-        self.gui_refresh_interval = 1
 
         self.q_table: Dict[Tuple[Tuple, Any], float] = {}
         self.episode_rewards: List[float] = []
@@ -38,10 +53,10 @@ class QLearning:
         self.average_reward_changes: List[float] = []
 
         self.soft_constraints_weight = {
-            "Table Consistency": 1.0,
-            "Opponent Variety": 1.0,
-            "Back to Back Penalty": 1.0,
-            "Break Time": 1.0,
+            TABLE_CONSISTENCY: table_consistency_weight,
+            OPPONENT_VARIETY: opponent_variety_weight,
+            BACK_TO_BACK_PENALTY: back_to_back_penalty_weight,
+            BREAK_TIME: break_time_weight,
         }
 
         self.schedule_data = schedule_data
@@ -52,9 +67,9 @@ class QLearning:
         )
 
         self.possible_schedule_slots = self.schedule_data.num_rooms * self.time_data.minimum_slots_required[
-            "judging"
+            JUDGING
         ] + self.schedule_data.num_tables_and_sides * (
-            self.time_data.minimum_slots_required["practice"] + self.time_data.minimum_slots_required["table"]
+            self.time_data.minimum_slots_required[PRACTICE] + self.time_data.minimum_slots_required[TABLE]
         )
 
         self.initialize_schedule_and_states()
@@ -66,16 +81,6 @@ class QLearning:
 
         self.exporter = QLearningExporter()
 
-    def save_model(self, filename: str) -> None:  # TODO
-        """Save the trained model to a file."""
-        with open(filename, 'wb') as file:
-            pickle.dump(self.q_table, file)
-
-    def load_model(self, filename: str) -> None:  # TODO
-        """Load the trained model from a file."""
-        with open(filename, 'rb') as file:
-            self.q_table = pickle.load(file)
-
     def initialize_schedule_and_states(self) -> None:
         """Initialize the schedule and states for training."""
         self.schedule = self.initialize_schedule()
@@ -86,10 +91,10 @@ class QLearning:
         self.exploration_count = 0
         self.exploitation_count = 0
         self.practice_teams_available = (
-            list(self.schedule_data.teams.keys()) * self.schedule_data.round_types_per_team["practice"]
+            list(self.schedule_data.teams.keys()) * self.schedule_data.round_types_per_team[PRACTICE]
         )
         self.table_teams_available = (
-            list(self.schedule_data.teams.keys()) * self.schedule_data.round_types_per_team["table"]
+            list(self.schedule_data.teams.keys()) * self.schedule_data.round_types_per_team[TABLE]
         )
         self.current_schedule_length = 0
 
@@ -103,7 +108,7 @@ class QLearning:
         schedule = []
         for round_type, slots in self.time_data.round_type_time_slots.items():
             for time_start, time_end in slots:
-                if round_type == "judging":
+                if round_type == JUDGING:
                     for room_id in range(1, self.schedule_data.num_rooms + 1):
                         schedule.append([time_start, time_end, round_type, "room", room_id, None])
                 else:
@@ -114,7 +119,7 @@ class QLearning:
                                 time_start,
                                 time_end,
                                 round_type,
-                                "table",
+                                TABLE,
                                 f"{table_id}{side}",
                                 None,
                             ]
@@ -126,9 +131,9 @@ class QLearning:
         current_team_id = list(self.schedule_data.teams.keys())[0]
 
         for i, schedule in enumerate(self.schedule):
-            if schedule[2] == "judging" and current_team_id <= len(list(self.schedule_data.teams.keys())):
+            if schedule[2] == JUDGING and current_team_id <= len(list(self.schedule_data.teams.keys())):
                 self.schedule[i][5] = current_team_id
-                self.schedule_data.teams[current_team_id].scheduled_round_types["judging"] += 1
+                self.schedule_data.teams[current_team_id].scheduled_round_types[JUDGING] += 1
                 self.schedule_data.teams[current_team_id].scheduled_times.append((schedule[0], schedule[1]))
                 self.schedule_data.rooms[schedule[4]].scheduled_teams.append(current_team_id)
                 current_team_id += 1
@@ -365,9 +370,9 @@ class QLearning:
         time_start, time_end, round_type, location_type, location_id, team_id = state
         time_slot = (time_start, time_end)
 
-        if round_type == "practice":
+        if round_type == PRACTICE:
             potential_actions = [team for team in self.schedule_data.teams if team in self.practice_teams_available]
-        elif round_type == "table":
+        elif round_type == TABLE:
             potential_actions = [team for team in self.schedule_data.teams if team in self.table_teams_available]
 
         remove_actions = []
@@ -419,9 +424,9 @@ class QLearning:
             team_info.scheduled_tables.append((location_id, int(side)))
             team_info.scheduled_time_table_pairs.append((time_slot, (location_id, int(side))))
 
-            if round_type == "practice":
+            if round_type == PRACTICE:
                 self.practice_teams_available.remove(team_id)
-            elif round_type == "table":
+            elif round_type == TABLE:
                 self.table_teams_available.remove(team_id)
 
             # Table side and opponent logic
@@ -508,9 +513,9 @@ class QLearning:
         
         self.schedule[self.staticStates.index(prev_state)][5] = None
         self.current_schedule_length -= 1
-        if prev_round_type == "practice":
+        if prev_round_type == PRACTICE:
             self.practice_teams_available.append(prev_team_id)
-        elif prev_round_type == "table":
+        elif prev_round_type == TABLE:
             self.table_teams_available.append(prev_team_id)
 
     def select_action(self, state, actions) -> Optional[int]:
@@ -592,7 +597,7 @@ class QLearning:
             min_reward_table = 0
             max_reward_table = 1
             reward_table_normalized = self.normalize_reward(reward_table, min_reward_table, max_reward_table)
-            reward += reward_table_normalized * self.soft_constraints_weight["Table Consistency"]
+            reward += reward_table_normalized * self.soft_constraints_weight[TABLE_CONSISTENCY]
         return reward
 
     def calculate_opponent_variety_reward(self, scheduled_opponents) -> float:
@@ -607,7 +612,7 @@ class QLearning:
             length_of_unique_opponents = len(unique)
             unique_to_opponents = length_of_unique_opponents / length_of_opponents_scheduled
             reward_opponent = (
-                unique_to_opponents * self.max_num_rounds_per_team * self.soft_constraints_weight["Opponent Variety"]
+                unique_to_opponents * self.max_num_rounds_per_team * self.soft_constraints_weight[OPPONENT_VARIETY]
             )
             min_reward_opponent = 0
             max_reward_opponent = 1
@@ -639,7 +644,7 @@ class QLearning:
             reward_back_to_back_normalized = self.normalize_reward(
                 reward_back_to_back, min_reward_back_to_back, max_reward_back_to_back
             )
-            reward += reward_back_to_back_normalized * self.soft_constraints_weight["Back to Back Penalty"]
+            reward += reward_back_to_back_normalized * self.soft_constraints_weight[BACK_TO_BACK_PENALTY]
         return reward
 
     def calculate_break_time_reward(self, scheduled_times, start_time_minutes, end_time_minutes) -> float:
@@ -665,8 +670,16 @@ class QLearning:
             reward_break_time_normalized = self.normalize_reward(
                 reward_break_time, min_reward_break_time, max_reward_break_time
             )
-            reward += reward_break_time_normalized * self.soft_constraints_weight["Break Time"]
+            reward += reward_break_time_normalized * self.soft_constraints_weight[BREAK_TIME]
         return reward
+
+    def is_terminal_state(self) -> bool:
+        """Check if the current state is a terminal state."""
+        if len(self.practice_teams_available) == 0 and len(self.table_teams_available) == 0:
+            return True
+        else:
+            return False
+
 
     ''' TODO 
     def transform_for_heatmap(self) -> Dict[Tuple[Tuple, Any], float]:
@@ -716,10 +729,15 @@ class QLearning:
 
         return heatmap_data, state_labels, action_labels
     '''
+    
+    '''TODO
+    def save_model(self, filename: str) -> None:  # TODO
+        """Save the trained model to a file."""
+        with open(filename, 'wb') as file:
+            pickle.dump(self.q_table, file)
 
-    def is_terminal_state(self) -> bool:
-        """Check if the current state is a terminal state."""
-        if len(self.practice_teams_available) == 0 and len(self.table_teams_available) == 0:
-            return True
-        else:
-            return False
+    def load_model(self, filename: str) -> None:  # TODO
+        """Load the trained model from a file."""
+        with open(filename, 'rb') as file:
+            self.q_table = pickle.load(file)
+    '''

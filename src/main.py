@@ -31,12 +31,17 @@ from schedule_data._schedule_data import ScheduleData
 from time_data._time_data import TimeData
 from q_learning import QLearning
 from training_thread import TrainingWorker
+from config import Config
 # from descriptive_stats import MplWidget
 
-FONT_SIZE_HEADER = 12
-FONT_SIZE_SUBHEADER = 10
-FONT_WEIGHT_BOLD = QFont.Bold
+# TODO Refactor this code
 
+FONT_SIZE_HEADER = Config.FONT_SIZE_HEADER
+FONT_SIZE_SUBHEADER = Config.FONT_SIZE_SUBHEADER
+FONT_WEIGHT_BOLD = Config.FONT_WEIGHT_BOLD
+JUDGING = Config.JUDGING
+PRACTICE = Config.PRACTICE
+TABLE = Config.TABLE
 
 class MainWindow(QWidget):
     """The main window class for the scheduler application."""
@@ -117,6 +122,7 @@ class MainWindow(QWidget):
         self.setup_statistics()
         self.setup_schedule_display()
     
+    
     def create_schedule_data_inputs(self): 
         """Creates the schedule data inputs for the application."""
         self.numTeamsSpinbox = QSpinBox(self)
@@ -127,9 +133,9 @@ class MainWindow(QWidget):
         self.roundTypeLayout = QGridLayout(self.roundTypeGroupBox)
 
         self.roundTypeSpinboxes = {
-            "judging": QLabel(f'{1}'),
-            "practice": QSpinBox(self),
-            "table": QSpinBox(self),
+            JUDGING: QLabel(f'{1}'),
+            PRACTICE: QSpinBox(self),
+            TABLE: QSpinBox(self),
         }
 
         self.roundTypeLabels = {}
@@ -137,7 +143,7 @@ class MainWindow(QWidget):
         for name, spinbox in self.roundTypeSpinboxes.items():
             self.roundTypeLabels[name] = QLabel(f"{self.scheduleData.num_teams * self.scheduleData.round_types_per_team[name]} Rounds")
 
-        self.roundTypeSpinboxes["judging"].setFont(QFont("Sans", 8, FONT_WEIGHT_BOLD))
+        self.roundTypeSpinboxes[JUDGING].setFont(QFont("Sans", 8, FONT_WEIGHT_BOLD))
         
     def initialize_schedule_data_inputs(self): 
         """Initializes the schedule data inputs based on the values stored in the `scheduleData` object."""
@@ -145,7 +151,7 @@ class MainWindow(QWidget):
         self.numRoomsSpinbox.setValue(self.scheduleData.num_rooms)
         self.numTablesSpinbox.setValue(self.scheduleData.num_tables)
         for name, spinbox in self.roundTypeSpinboxes.items():
-            if name == "judging":
+            if name == JUDGING:
                 continue
             spinbox.setValue(self.scheduleData.round_types_per_team[name])
 
@@ -175,6 +181,7 @@ class MainWindow(QWidget):
             self.roundTypeLayout.addWidget(spinbox, count, 1)
             self.roundTypeLayout.addWidget(self.roundTypeLabels[name], count, 2, Qt.AlignRight)
             count += 1
+     
         
     def create_time_data_inputs(self): 
         """Creates the time data inputs for the application."""
@@ -188,8 +195,8 @@ class MainWindow(QWidget):
         # Set the duration labels for judging rounds, practice rounds, and table rounds
         self.judgingRoundDuration = QLabel(f'{45} minutes')
         self.judgingRoundDuration.setFont(QFont("Sans", 8, FONT_WEIGHT_BOLD))
-        self.practiceRoundDuration = QLabel(f'{self.timeData.round_type_durations["practice"]} minutes')
-        self.tableRoundDuration = QLabel(f'{self.timeData.round_type_durations["table"]} minutes')
+        self.practiceRoundDuration = QLabel(f'{self.timeData.round_type_durations[PRACTICE]} minutes')
+        self.tableRoundDuration = QLabel(f'{self.timeData.round_type_durations[TABLE]} minutes')
 
         # Create time edit widgets for minimum practice duration and minimum table duration
         self.minimumPracticeDuration = QTimeEdit(self)
@@ -207,8 +214,8 @@ class MainWindow(QWidget):
     
     def initialize_time_data_inputs(self): 
         """Initializes the time data inputs based on the values stored in the `timeData` object."""
-        self.minimumPracticeDuration.setTime(QTime.fromString(str(self.timeData.round_type_durations["practice"]), 'mm'))
-        self.minimumTableDuration.setTime(QTime.fromString(str(self.timeData.round_type_durations["table"]), 'mm'))
+        self.minimumPracticeDuration.setTime(QTime.fromString(str(self.timeData.round_type_durations[PRACTICE]), 'mm'))
+        self.minimumTableDuration.setTime(QTime.fromString(str(self.timeData.round_type_durations[TABLE]), 'mm'))
         self.startTimeJudgingRounds.setTime(QTime.fromString(self.timeData.judging_rounds_start_time, 'HH:mm'))
         self.startTimePracticeRounds.setTime(QTime.fromString(self.timeData.practice_rounds_start_time, 'HH:mm'))
         self.stopTimePractice.setTime(QTime.fromString(self.timeData.practice_rounds_stop_time, 'HH:mm'))
@@ -241,7 +248,7 @@ class MainWindow(QWidget):
         self.timeDataLayout.addWidget(self.startTimeJudgingRounds, 5, 1)
         
         self.judgingStopTimeProjectionLabel = QLabel(f'Judging Rounds-Stop')
-        self.judgingStopTime = self.startTimeJudgingRounds.time().addSecs(self.timeData.round_type_durations["judging"] * 60 * self.timeData.minimum_slots_required["judging"])
+        self.judgingStopTime = self.startTimeJudgingRounds.time().addSecs(self.timeData.round_type_durations[JUDGING] * 60 * self.timeData.minimum_slots_required[JUDGING])
         self.judgingStopTime = QLabel(self.judgingStopTime.toString("HH:mm"))
         self.timeDataLayout.addWidget(self.judgingStopTimeProjectionLabel, 6, 0)
         self.timeDataLayout.addWidget(self.judgingStopTime, 6, 1)
@@ -263,6 +270,7 @@ class MainWindow(QWidget):
         
         self.timeDataLayout.addWidget(QLabel("Table Time Available"), 12, 0)
         self.timeDataLayout.addWidget(self.tableTimeAvailable, 12, 1)
+    
     
     def create_q_learning_inputs(self):
         """Creates the Q-learning inputs for the application."""
@@ -323,6 +331,7 @@ class MainWindow(QWidget):
         self.qLearningLayout.addWidget(QLabel(f'Epsilon End at:'), 7, 0)
         self.qLearningLayout.addWidget(self.epsilonTotalLabel, 7, 1)
         
+        
     def create_statistics_and_progress(self): 
         """Creates the statistics and progress for the Q-learning scheduler."""
         self.progressBar = QProgressBar(self)
@@ -362,6 +371,7 @@ class MainWindow(QWidget):
         
         self.statisticsLayout.addLayout(self.guiRefreshLayout)
         
+        
     def create_soft_constraint_weights(self):
         """Creates the soft constraint weights for the Q-learning scheduler."""
         # Create the group box and layout for the soft constraint weights
@@ -399,20 +409,7 @@ class MainWindow(QWidget):
 
             # Increment the row counter
             row += 1
-    
-    '''        
-    # TODO Removing visualizations for now 
-    def create_visualizations(self): 
-        """Creates the visualizations for the Q-learning scheduler."""
-        # Initialize the visualizationsLayout
-        self.visualizationsLayout = QVBoxLayout()
 
-        # Create MplWidget objects for different plots
-        self.qValueConvergencePlot = MplWidget(self)
-        self.qValueHeatmapPlot = MplWidget(self)
-        self.exploreExploitPlot = MplWidget(self)
-        self.scheduleScoresPlot = MplWidget(self)
-    '''
     
     def create_schedule_display(self): 
         """Creates the schedule display for the Q-learning scheduler."""
@@ -433,30 +430,6 @@ class MainWindow(QWidget):
         table_round_headers = ['Time'] + [f'Table {chr(65 + i // 2)}{i % 2 + 1}' for i in range(self.scheduleData.num_tables * 2)]
         self.tableRoundTable.setHorizontalHeaderLabels(table_round_headers)
     
-    '''def initialize_schedule_display(self):
-        """Initializes the schedule display for the Q-learning scheduler."""
-        # Ensure tables are clear and set up before populating
-        self.clear_and_setup_tables()
-
-        # Initialize a dictionary to track the last row used for each time in each table
-        lastRow = {'judging': {}, 'practice': {}, 'table': {}}
-
-        # Iterate over each entry in the sorted schedule
-        for entry in sorted(self.qLearning.schedule, key=lambda x: (x[0], x[2], x[4])):
-            time_start, _, round_type, _, location_id, team_id = entry
-            tableWidget = self.get_table_widget(round_type)
-
-            # If this time_start has not been used in this table, add a new row for it
-            if time_start not in lastRow[round_type]:
-                newRow = tableWidget.rowCount()
-                tableWidget.insertRow(newRow)
-                tableWidget.setItem(newRow, 0, QTableWidgetItem(time_start))  # Set the time in the first column
-                lastRow[round_type][time_start] = newRow
-            row = lastRow[round_type][time_start]
-
-            # Calculate the column for this entry. Adjust get_col_index to fit your logic
-            col = self.get_col_index(round_type, location_id)
-            tableWidget.setItem(row, col, QTableWidgetItem(str(team_id)))'''
     def initialize_schedule_display(self):
         """Initializes the schedule display for the Q-learning scheduler."""
 
@@ -539,6 +512,7 @@ class MainWindow(QWidget):
         # Add the splitter to the schedule layout
         self.scheduleLayout.addWidget(schedule_splitter)
             
+            
     def clear_and_setup_tables(self):
         """Clears and sets up the judging, practice, and table round tables."""
 
@@ -576,11 +550,13 @@ class MainWindow(QWidget):
             columnOffset = int(location_id[1])
             return (columnBase - 1) * 2 + columnOffset
 
+
     def create_submission_buttons(self):
         """Creates submission buttons for training and generating optimal schedule."""
         # Submit(Train) Button
         self.train_button = QPushButton("Train then Generate Optimal Schedule (Ctrl + G)", self)
         self.train_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        
         
     def connect_signals_and_slots(self):
         """Connects the signals and slots for the scheduler application."""
@@ -608,8 +584,8 @@ class MainWindow(QWidget):
         self.numTeamsSpinbox.valueChanged.connect(self.on_update)  # Connects the valueChanged signal of numTeamsSpinbox to the on_update slot function
         self.numRoomsSpinbox.valueChanged.connect(self.on_update)  # Connects the valueChanged signal of numRoomsSpinbox to the on_update slot function
         self.numTablesSpinbox.valueChanged.connect(self.on_update)  # Connects the valueChanged signal of numTablesSpinbox to the on_update slot function
-        self.roundTypeSpinboxes["practice"].valueChanged.connect(self.on_update)  # Connects the valueChanged signal of roundTypeSpinboxes["practice"] to the on_update slot function
-        self.roundTypeSpinboxes["table"].valueChanged.connect(self.on_update)  # Connects the valueChanged signal of roundTypeSpinboxes["table"] to the on_update slot function
+        self.roundTypeSpinboxes[PRACTICE].valueChanged.connect(self.on_update)  # Connects the valueChanged signal of roundTypeSpinboxes[PRACTICE] to the on_update slot function
+        self.roundTypeSpinboxes[TABLE].valueChanged.connect(self.on_update)  # Connects the valueChanged signal of roundTypeSpinboxes[TABLE] to the on_update slot function
         
         # Q-Learning Inputs
         self.alphaInput.valueChanged.connect(self.on_update)  # Connects the valueChanged signal of alphaInput to the on_update slot function
@@ -628,6 +604,7 @@ class MainWindow(QWidget):
         
         # Buttons
         self.train_button.clicked.connect(self.start_training_thread)  # Connects the clicked signal of train_button to the start_training_thread slot function
+
 
     def initialize_main_gui(self):
         """Initializes the main GUI for the scheduler application."""
@@ -670,6 +647,7 @@ class MainWindow(QWidget):
         # Add the column splitter to the main layout
         main_layout.addWidget(column_splitter, 0, 0)
     
+    
     def start_training_thread(self):
         """Starts the training thread for the Q-learning scheduler."""
         training_episodes = int(self.episodesInput.value())  # Assuming you have an input field for training_episodes
@@ -685,6 +663,7 @@ class MainWindow(QWidget):
         self.thread.started.connect(self.worker.run, Qt.QueuedConnection)
 
         self.thread.start()
+
 
     def calculate_epsilon_decay_episodes(self):
         """Calculates the epsilon decay episodes for the Q-learning scheduler."""
@@ -710,33 +689,7 @@ class MainWindow(QWidget):
             epsilon_decay_list.append(epsilon_start)
             
         return ep_count_half, ep_count, epsilon_decay_list
-    
-    '''
-    # TODO Implement a translation feature
-    def changeEvent(self, event): # TODO
-        """Handles the change event for the application."""
-        if event.type() == QEvent.LanguageChange:
-            self.retranslateUi()
-        super().changeEvent(event)
 
-    def retranslateUi(self): # TODO
-        """Retranslates the UI components based on the current language."""
-        self.setWindowTitle(QCoreApplication.translate("MainWindow", "FIRST LEGO League Challenge Q-Learning Tournament Scheduler"))
-        self.translate_button.setText(QCoreApplication.translate("MainWindow", "Translate"))
-
-    @Slot()
-    def translate(self): # TODO
-        """Slot to handle the translation of the application."""
-        if self.current_language == "en":
-            self.current_language = "es"  # Switch to Spanish
-            self.translator.load("../translations/es.qm")
-        else:
-            self.current_language = "en"  # Switch back to English
-            self.translator.load("")  # Empty string to remove translations
-
-        QCoreApplication.installTranslator(self.translator)
-        self.retranslateUi()
-    '''
     
     @Slot()
     def validate_practice_times(self):
@@ -745,7 +698,7 @@ class MainWindow(QWidget):
         start_practice = self.startTimePracticeRounds.time()
         end_practice = self.stopTimePractice.time()
         min_duration = self.minimumPracticeDuration.time()
-        duration = self.timeData.round_type_durations["practice"]
+        duration = self.timeData.round_type_durations[PRACTICE]
         duration = QTime(0, duration, 0)
         
         # Compare the duration with the minimum duration
@@ -760,13 +713,14 @@ class MainWindow(QWidget):
         start_table = self.startTimeTableRounds.time()
         end_table = self.stopTimeTableRounds.time()
         min_duration = self.minimumTableDuration.time()
-        duration = self.timeData.round_type_durations["table"]
+        duration = self.timeData.round_type_durations[TABLE]
         duration = QTime(0, duration, 0)
 
         if duration < min_duration:
             end_table = end_table.addSecs((min_duration.minute() - duration.minute()) * 60)
             self.stopTimeTableRounds.setTime(end_table)
 
+    @Slot()
     def update_schedule_data(self):
         """Updates the GUI based on the current inputs."""
         self.scheduleData.num_teams = self.numTeamsSpinbox.value()
@@ -776,12 +730,13 @@ class MainWindow(QWidget):
         self.scheduleData.round_types_per_team['table'] = self.roundTypeSpinboxes['table'].value()
         self.scheduleData.num_tables_and_sides = self.scheduleData.num_tables * 2
         self.numTablesAndSidesLabel.setText(str(self.scheduleData.num_tables_and_sides))
-        for name in ["judging", "practice", "table"]:
+        for name in [JUDGING, PRACTICE, TABLE]:
             self.roundTypeLabels[name].setText(f"{self.scheduleData.num_teams * self.scheduleData.round_types_per_team[name]} Rounds")
 
+    @Slot()
     def update_time_data(self):
         """Updates the TimeData with current GUI inputs."""
-        jStop = self.startTimeJudgingRounds.time().addSecs(self.timeData.round_type_durations["judging"] * 60 * self.timeData.minimum_slots_required["judging"])
+        jStop = self.startTimeJudgingRounds.time().addSecs(self.timeData.round_type_durations[JUDGING] * 60 * self.timeData.minimum_slots_required[JUDGING])
         self.judgingStopTime.setText(jStop.toString("HH:mm"))
 
         self.timeData.judging_rounds_start_time = self.startTimeJudgingRounds.time().toString("hh:mm")
@@ -818,7 +773,7 @@ class MainWindow(QWidget):
 
         self.progressBar.setMaximum(self.qLearning.training_episodes)
         self.qLearning.required_schedule_slots = sum(self.scheduleData.round_types_per_team.values()) * self.scheduleData.num_teams
-        self.qLearning.possible_schedule_slots = self.scheduleData.num_rooms * self.timeData.minimum_slots_required["judging"] + self.scheduleData.num_tables_and_sides * (self.timeData.minimum_slots_required["practice"] + self.timeData.minimum_slots_required["table"])
+        self.qLearning.possible_schedule_slots = self.scheduleData.num_rooms * self.timeData.minimum_slots_required[JUDGING] + self.scheduleData.num_tables_and_sides * (self.timeData.minimum_slots_required[PRACTICE] + self.timeData.minimum_slots_required[TABLE])
         self.qLearning.q_table_size_limit = len(self.qLearning.states) * self.scheduleData.num_teams
 
         # Update current stats
@@ -826,12 +781,12 @@ class MainWindow(QWidget):
         self.CurrentScheduleLengthLabel.setText(f"Required Schedule Slots: {self.qLearning.required_schedule_slots} ({self.qLearning.possible_schedule_slots} Possible)")
         self.q_tableSizeLabel.setText(f"Q-Table Size: {len(self.qLearning.q_table)}/{self.qLearning.q_table_size_limit}")
 
-        self.qLearning.practice_teams_available = list(self.scheduleData.teams.keys()) * self.scheduleData.round_types_per_team["practice"]
-        self.qLearning.table_teams_available = list(self.scheduleData.teams.keys()) * self.scheduleData.round_types_per_team["table"]
+        self.qLearning.practice_teams_available = list(self.scheduleData.teams.keys()) * self.scheduleData.round_types_per_team[PRACTICE]
+        self.qLearning.table_teams_available = list(self.scheduleData.teams.keys()) * self.scheduleData.round_types_per_team[TABLE]
 
         # Update TimeData with current GUI inputs
-        self.practiceRoundDuration.setText(f'{self.timeData.round_type_durations["practice"]} minutes')
-        self.tableRoundDuration.setText(f'{self.timeData.round_type_durations["table"]} minutes')
+        self.practiceRoundDuration.setText(f'{self.timeData.round_type_durations[PRACTICE]} minutes')
+        self.tableRoundDuration.setText(f'{self.timeData.round_type_durations[TABLE]} minutes')
         self.practiceTimeAvailable.setText(f'{self.timeData.available_practice_duration} minutes')
         self.tableTimeAvailable.setText(f'{self.timeData.available_table_duration} minutes')
 
@@ -903,7 +858,48 @@ class MainWindow(QWidget):
         if not self.thread.isRunning():
             print(f"Thread {self.thread} Stopped")
             return
-        
+
+
+'''    
+# TODO Removing visualizations for now 
+def create_visualizations(self): 
+    """Creates the visualizations for the Q-learning scheduler."""
+    # Initialize the visualizationsLayout
+    self.visualizationsLayout = QVBoxLayout()
+
+    # Create MplWidget objects for different plots
+    self.qValueConvergencePlot = MplWidget(self)
+    self.qValueHeatmapPlot = MplWidget(self)
+    self.exploreExploitPlot = MplWidget(self)
+    self.scheduleScoresPlot = MplWidget(self)
+
+
+# TODO Implement a translation feature
+def changeEvent(self, event): # TODO
+    """Handles the change event for the application."""
+    if event.type() == QEvent.LanguageChange:
+        self.retranslateUi()
+    super().changeEvent(event)
+
+def retranslateUi(self): # TODO
+    """Retranslates the UI components based on the current language."""
+    self.setWindowTitle(QCoreApplication.translate("MainWindow", "FIRST LEGO League Challenge Q-Learning Tournament Scheduler"))
+    self.translate_button.setText(QCoreApplication.translate("MainWindow", "Translate"))
+
+@Slot()
+def translate(self): # TODO
+    """Slot to handle the translation of the application."""
+    if self.current_language == "en":
+        self.current_language = "es"  # Switch to Spanish
+        self.translator.load("../translations/es.qm")
+    else:
+        self.current_language = "en"  # Switch back to English
+        self.translator.load("")  # Empty string to remove translations
+
+    QCoreApplication.installTranslator(self.translator)
+    self.retranslateUi()
+'''
+
 if __name__ == "__main__":
     """Run the main application."""
     app = QApplication([])

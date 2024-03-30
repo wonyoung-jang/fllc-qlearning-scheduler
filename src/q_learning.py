@@ -195,7 +195,6 @@ class QLearning:
 
         self.completed_percentage = self.current_schedule_length / self.required_schedule_slots
         self.completion_percentage["Benchmarks"].append(self.completed_percentage)
-        self.scores["Benchmarks"].append(self.schedule_score)
 
     def train_one_episode(self, episode) -> None:
         """Train the Q-Learning algorithm for one episode."""
@@ -303,7 +302,6 @@ class QLearning:
         # Evaluate the schedule
         self.completed_percentage = self.current_schedule_length / self.required_schedule_slots
         self.completion_percentage["Training"].append(self.completed_percentage)
-        self.scores["Training"].append(self.schedule_score)
 
     def generate_optimal_schedule(self) -> None:
         """Generate the optimal schedule using the Q-Learning algorithm."""
@@ -351,7 +349,6 @@ class QLearning:
 
         self.completed_percentage = self.current_schedule_length / self.required_schedule_slots
         self.completion_percentage["Optimal"].append(self.completed_percentage)
-        self.scores["Optimal"].append(self.schedule_score)
 
     def update_available_actions(self, state) -> List[int]:
         """Update the available actions for the current state."""

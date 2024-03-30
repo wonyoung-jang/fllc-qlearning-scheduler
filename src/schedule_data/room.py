@@ -1,4 +1,5 @@
 """This module contains the Room class."""
+from config import Config
 
 
 class Room:
@@ -6,7 +7,7 @@ class Room:
     
     def __init__(self, room_id):
         """Initialize a Room object."""
-        self.location_type = 'room'
+        self.location_type = Config.LOCATION_TYPE_ROOM
         self.location_id = room_id
         self.table_side = None
         self.scheduled_teams = []

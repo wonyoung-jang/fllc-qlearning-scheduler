@@ -1,5 +1,5 @@
 """This module contains the Team class."""
-
+from config import Config
 
 class Team:
     """A team at the competition."""
@@ -7,7 +7,11 @@ class Team:
     def __init__(self, team_id):
         """Initialize a Team object."""
         self.team_id = team_id
-        self.scheduled_round_types = {'judging': 0, 'practice': 0, 'table': 0}
+        self.scheduled_round_types = {
+            Config.JUDGING  : 0, 
+            Config.PRACTICE : 0, 
+            Config.TABLE    : 0
+        }
         self.scheduled_times = []
         self.scheduled_tables = []
         self.scheduled_opponents = []

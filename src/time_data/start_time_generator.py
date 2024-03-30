@@ -1,6 +1,10 @@
 """This module contains the StartTimeGenerator class."""
 from .time_utilities import TimeUtilities
+from config import Config
 
+JUDGING = Config.JUDGING
+PRACTICE = Config.PRACTICE
+TABLE = Config.TABLE
 
 class StartTimeGenerator:
     """Class for generating start times for rounds."""
@@ -19,16 +23,16 @@ class StartTimeGenerator:
         """Generate start times for each round type."""
         time_data.judging_round_start_times = self.generate_start_times_for_round(
             time_data.judging_rounds_start_time,
-            time_data.minimum_slots_required["judging"],
-            time_data.round_type_durations["judging"],
+            time_data.minimum_slots_required[JUDGING],
+            time_data.round_type_durations[JUDGING],
         )
         time_data.practice_round_start_times = self.generate_start_times_for_round(
             time_data.practice_rounds_start_time,
-            time_data.minimum_slots_required["practice"],
-            time_data.round_type_durations["practice"],
+            time_data.minimum_slots_required[PRACTICE],
+            time_data.round_type_durations[PRACTICE],
         )
         time_data.table_round_start_times = self.generate_start_times_for_round(
             time_data.table_rounds_start_time,
-            time_data.minimum_slots_required["table"],
-            time_data.round_type_durations["table"],
+            time_data.minimum_slots_required[TABLE],
+            time_data.round_type_durations[TABLE],
         )

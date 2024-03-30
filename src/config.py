@@ -1,24 +1,36 @@
 """This module contains the configuration settings for the Q-Learning algorithm and the GUI."""
-
+from PySide6.QtGui import QFont
 
 class Config:
     """Class to store configuration settings for the Q-Learning algorithm and the GUI."""
     
+    #############
+    # Constants #
+    #############
+    
     # String Constants
-    JUDGING = 'judging'
-    PRACTICE = 'practice'
-    TABLE = 'table'
+    JUDGING     = 'judging'
+    PRACTICE    = 'practice'
+    TABLE       = 'table'
+    LOCATION_TYPE_ROOM  = 'room'
+    LOCATION_TYPE_TABLE = 'table'
+    
     
     # GUI Constants
-    FONT_SIZE_HEADER = 12
+    FONT_SIZE_HEADER    = 12
     FONT_SIZE_SUBHEADER = 10
-    FONT_WEIGHT_BOLD = QFont.Bold
+    FONT_WEIGHT_BOLD    = QFont.Bold
     
     # Soft Constraint Constants
     TABLE_CONSISTENCY       = 'Table Consistency'
     OPPONENT_VARIETY        = 'Opponent Variety'
     BACK_TO_BACK_PENALTY    = 'Back to Back Penalty'
     BREAK_TIME              = 'Break Time'
+    
+    
+    ##########################
+    # Data Inputs (Defaults) #
+    ##########################
     
     # Schedule Data settings
     num_teams   = 42
@@ -48,6 +60,8 @@ class Config:
         TABLE   : 0
     }
     
+    TIME_FORMAT = '%H:%M'
+    
     # Q-Learning hyperparameters
     learning_rate       = 0.20
     discount_factor     = 0.80
@@ -55,15 +69,27 @@ class Config:
     epsilon_end         = 0.01
     epsilon_decay       = 0.995
     training_episodes   = 5
+    
+    # Soft Constraint weights
+    TABLE_CONSISTENCY_WEIGHT    = 1.0
+    OPPONENT_VARIETY_WEIGHT     = 1.0
+    BACK_TO_BACK_PENALTY_WEIGHT = 1.0
+    BREAK_TIME_WEIGHT           = 1.0
 
+    
+    ###########################
+    # GUI Settings (Defaults) #
+    ###########################
+    
     # GUI settings
     gui_refresh_interval = 1
 
-    # Reward function weights
-    table_consistency_weight    = 1.0
-    opponent_variety_weight     = 1.0
-    back_to_back_penalty_weight = 1.0
-    break_time_weight           = 1.0
-
-    # Other settings
-    # ...
+    
+    ################
+    # Data Exports #
+    ################
+    
+    # Export settings
+    exports_directory           = './exports'
+    grid_optimal_schedule_excel = './exports/grid_optimal_schedule.xlsx'
+    eval_results_csv_path       = './exports/schedule_evaluation/evaluation_results.csv'

@@ -4,6 +4,7 @@ from .table import Table
 from .room import Room
 from config import Config
 
+
 class ScheduleData:
     """A class to store the data for the schedule."""
     

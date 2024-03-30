@@ -23,10 +23,10 @@ OPPONENT_VARIETY = Config.OPPONENT_VARIETY
 BACK_TO_BACK_PENALTY = Config.BACK_TO_BACK_PENALTY
 BREAK_TIME = Config.BREAK_TIME
 
-table_consistency_weight = Config.table_consistency_weight
-opponent_variety_weight = Config.opponent_variety_weight
-back_to_back_penalty_weight = Config.back_to_back_penalty_weight
-break_time_weight = Config.break_time_weight
+TABLE_CONSISTENCY_WEIGHT = Config.TABLE_CONSISTENCY_WEIGHT
+OPPONENT_VARIETY_WEIGHT = Config.OPPONENT_VARIETY_WEIGHT
+BACK_TO_BACK_PENALTY_WEIGHT = Config.BACK_TO_BACK_PENALTY_WEIGHT
+BREAK_TIME_WEIGHT = Config.BREAK_TIME_WEIGHT
 
 class QLearning:
     """Q-Learning algorithm for scheduling."""
@@ -53,10 +53,10 @@ class QLearning:
         self.average_reward_changes: List[float] = []
 
         self.soft_constraints_weight = {
-            TABLE_CONSISTENCY: table_consistency_weight,
-            OPPONENT_VARIETY: opponent_variety_weight,
-            BACK_TO_BACK_PENALTY: back_to_back_penalty_weight,
-            BREAK_TIME: break_time_weight,
+            TABLE_CONSISTENCY: TABLE_CONSISTENCY_WEIGHT,
+            OPPONENT_VARIETY: OPPONENT_VARIETY_WEIGHT,
+            BACK_TO_BACK_PENALTY: BACK_TO_BACK_PENALTY_WEIGHT,
+            BREAK_TIME: BREAK_TIME_WEIGHT,
         }
 
         self.schedule_data = schedule_data

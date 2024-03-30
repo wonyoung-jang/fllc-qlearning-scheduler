@@ -2,7 +2,7 @@
 import csv
 import os
 import pandas as pd
-
+from config import Config
 
 class QLearningExporter:
     """Class to export Q-Learning data to CSV and Excel files."""
@@ -11,11 +11,11 @@ class QLearningExporter:
         """Initialize QLearningExporter object."""
         self.clear_exports_directory()
         self.dataframe = None
-        self.excel_file_path = "./exports/grid_optimal_schedule.xlsx"
+        self.excel_file_path = Config.grid_optimal_schedule_excel
 
     def clear_exports_directory(self):
         """Clear the exports directory."""
-        exports_directory = "./exports"
+        exports_directory = Config.exports_directory
         for root, _, files in os.walk(exports_directory):
             for filename in files:
                 file_path = os.path.join(root, filename)

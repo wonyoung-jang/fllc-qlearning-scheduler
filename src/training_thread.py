@@ -5,6 +5,7 @@ import pandas as pd
 from collections import defaultdict
 from PySide6.QtCore import QObject, QThread, Signal, Slot, QWaitCondition, QMutex, Qt
 from gui_signals import GUISignals
+from config import Config
 
 
 class TrainingWorker(QObject):
@@ -17,8 +18,10 @@ class TrainingWorker(QObject):
 
         self.q_learning = q_learning
         self.signals = GUISignals()
+        
         self.wait_condition = QWaitCondition()  # Add a wait condition
         self.mutex = QMutex()  # Add a mutex
+        
         self.signals.gui_updated_signal.connect(self.gui_updated, Qt.DirectConnection)
 
     def parse_scores(self, evaluation_data):
@@ -33,7 +36,7 @@ class TrainingWorker(QObject):
     def write_evaluation_results_to_csv(self, evaluation_data):
         """Write the evaluation results to a CSV file."""
         max_length = max(len(x) for x in evaluation_data.values() if isinstance(x, list))
-        with open("./exports/schedule_evaluation/evaluation_results.csv", "w", newline="") as csv_file:
+        with open(Config.eval_results_csv_path, 'w', newline='') as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=evaluation_data.keys())
             writer.writeheader()
             for i in range(max_length):

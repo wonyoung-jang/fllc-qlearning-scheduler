@@ -142,19 +142,19 @@ class MainWindow(QWidget):
         self.roundTypeLabels = {}
 
         for name, spinbox in self.roundTypeSpinboxes.items():
-            self.roundTypeLabels[name] = QLabel(f"{self.scheduleData.num_teams * self.scheduleData.round_types_per_team[name]} Rounds")
+            self.roundTypeLabels[name] = QLabel(f"{self.scheduleData.NUM_TEAMS * self.scheduleData.ROUND_TYPE_PER_TEAM[name]} Rounds")
 
         self.roundTypeSpinboxes[JUDGING].setFont(QFont("Sans", 8, FONT_WEIGHT_BOLD))
         
     def initialize_schedule_data_inputs(self): 
         """Initializes the schedule data inputs based on the values stored in the `scheduleData` object."""
-        self.numTeamsSpinbox.setValue(self.scheduleData.num_teams)
-        self.numRoomsSpinbox.setValue(self.scheduleData.num_rooms)
-        self.numTablesSpinbox.setValue(self.scheduleData.num_tables)
+        self.numTeamsSpinbox.setValue(self.scheduleData.NUM_TEAMS)
+        self.numRoomsSpinbox.setValue(self.scheduleData.NUM_ROOMS)
+        self.numTablesSpinbox.setValue(self.scheduleData.NUM_TABLES)
         for name, spinbox in self.roundTypeSpinboxes.items():
             if name == JUDGING:
                 continue
-            spinbox.setValue(self.scheduleData.round_types_per_team[name])
+            spinbox.setValue(self.scheduleData.ROUND_TYPE_PER_TEAM[name])
 
     def setup_schedule_data_inputs(self): 
         """Sets up the schedule data inputs in the GUI."""
@@ -196,8 +196,8 @@ class MainWindow(QWidget):
         # Set the duration labels for judging rounds, practice rounds, and table rounds
         self.judgingRoundDuration = QLabel(f'{45} minutes')
         self.judgingRoundDuration.setFont(QFont("Sans", 8, FONT_WEIGHT_BOLD))
-        self.practiceRoundDuration = QLabel(f'{self.timeData.round_type_durations[PRACTICE]} minutes')
-        self.tableRoundDuration = QLabel(f'{self.timeData.round_type_durations[TABLE]} minutes')
+        self.practiceRoundDuration = QLabel(f'{self.timeData.ROUND_TYPE_DURATIONS[PRACTICE]} minutes')
+        self.tableRoundDuration = QLabel(f'{self.timeData.ROUND_TYPE_DURATIONS[TABLE]} minutes')
 
         # Create time edit widgets for minimum practice duration and minimum table duration
         self.minimumPracticeDuration = QTimeEdit(self)
@@ -215,13 +215,13 @@ class MainWindow(QWidget):
     
     def initialize_time_data_inputs(self): 
         """Initializes the time data inputs based on the values stored in the `timeData` object."""
-        self.minimumPracticeDuration.setTime(QTime.fromString(str(self.timeData.round_type_durations[PRACTICE]), 'mm'))
-        self.minimumTableDuration.setTime(QTime.fromString(str(self.timeData.round_type_durations[TABLE]), 'mm'))
-        self.startTimeJudgingRounds.setTime(QTime.fromString(self.timeData.judging_rounds_start_time, 'HH:mm'))
-        self.startTimePracticeRounds.setTime(QTime.fromString(self.timeData.practice_rounds_start_time, 'HH:mm'))
-        self.stopTimePractice.setTime(QTime.fromString(self.timeData.practice_rounds_stop_time, 'HH:mm'))
-        self.startTimeTableRounds.setTime(QTime.fromString(self.timeData.table_rounds_start_time, 'HH:mm'))
-        self.stopTimeTableRounds.setTime(QTime.fromString(self.timeData.table_rounds_stop_time, 'HH:mm'))
+        self.minimumPracticeDuration.setTime(QTime.fromString(str(self.timeData.ROUND_TYPE_DURATIONS[PRACTICE]), 'mm'))
+        self.minimumTableDuration.setTime(QTime.fromString(str(self.timeData.ROUND_TYPE_DURATIONS[TABLE]), 'mm'))
+        self.startTimeJudgingRounds.setTime(QTime.fromString(self.timeData.JUDGING_ROUNDS_START_TIME, 'HH:mm'))
+        self.startTimePracticeRounds.setTime(QTime.fromString(self.timeData.PRACTICE_ROUNDS_START_TIME, 'HH:mm'))
+        self.stopTimePractice.setTime(QTime.fromString(self.timeData.PRACTICE_ROUNDS_STOP_TIME, 'HH:mm'))
+        self.startTimeTableRounds.setTime(QTime.fromString(self.timeData.TABLE_ROUNDS_START_TIME, 'HH:mm'))
+        self.stopTimeTableRounds.setTime(QTime.fromString(self.timeData.TABLE_ROUNDS_STOP_TIME, 'HH:mm'))
     
     def setup_time_data_inputs(self): 
         """Sets up the time data inputs in the GUI."""
@@ -249,7 +249,7 @@ class MainWindow(QWidget):
         self.timeDataLayout.addWidget(self.startTimeJudgingRounds, 5, 1)
         
         self.judgingStopTimeProjectionLabel = QLabel(f'Judging Rounds-Stop')
-        self.judgingStopTime = self.startTimeJudgingRounds.time().addSecs(self.timeData.round_type_durations[JUDGING] * 60 * self.timeData.minimum_slots_required[JUDGING])
+        self.judgingStopTime = self.startTimeJudgingRounds.time().addSecs(self.timeData.ROUND_TYPE_DURATIONS[JUDGING] * 60 * self.timeData.MINIMUM_SLOTS_REQUIRED[JUDGING])
         self.judgingStopTime = QLabel(self.judgingStopTime.toString("HH:mm"))
         self.timeDataLayout.addWidget(self.judgingStopTimeProjectionLabel, 6, 0)
         self.timeDataLayout.addWidget(self.judgingStopTime, 6, 1)
@@ -416,19 +416,19 @@ class MainWindow(QWidget):
         """Creates the schedule display for the Q-learning scheduler."""
         # Judging Rounds Table
         self.judgingTable = QTableWidget()
-        self.judgingTable.setColumnCount(self.scheduleData.num_rooms + 1)  # Time + Room columns
-        self.judgingTable.setHorizontalHeaderLabels(['Time'] + [f'Room {i+1}' for i in range(self.scheduleData.num_rooms)])
+        self.judgingTable.setColumnCount(self.scheduleData.NUM_ROOMS + 1)  # Time + Room columns
+        self.judgingTable.setHorizontalHeaderLabels(['Time'] + [f'Room {i+1}' for i in range(self.scheduleData.NUM_ROOMS)])
 
         # Practice Rounds Table
         self.practiceTable = QTableWidget()
-        self.practiceTable.setColumnCount(self.scheduleData.num_tables * 2 + 1)  # Time + Table columns
-        practice_headers = ['Time'] + [f'Table {chr(65 + i // 2)}{i % 2 + 1}' for i in range(self.scheduleData.num_tables * 2)]
+        self.practiceTable.setColumnCount(self.scheduleData.NUM_TABLES * 2 + 1)  # Time + Table columns
+        practice_headers = ['Time'] + [f'Table {chr(65 + i // 2)}{i % 2 + 1}' for i in range(self.scheduleData.NUM_TABLES * 2)]
         self.practiceTable.setHorizontalHeaderLabels(practice_headers)
 
         # Table Rounds Table
         self.tableRoundTable = QTableWidget()
-        self.tableRoundTable.setColumnCount(self.scheduleData.num_tables * 2 + 1)  # Time + Table columns
-        table_round_headers = ['Time'] + [f'Table {chr(65 + i // 2)}{i % 2 + 1}' for i in range(self.scheduleData.num_tables * 2)]
+        self.tableRoundTable.setColumnCount(self.scheduleData.NUM_TABLES * 2 + 1)  # Time + Table columns
+        table_round_headers = ['Time'] + [f'Table {chr(65 + i // 2)}{i % 2 + 1}' for i in range(self.scheduleData.NUM_TABLES * 2)]
         self.tableRoundTable.setHorizontalHeaderLabels(table_round_headers)
     
     def initialize_schedule_display(self):
@@ -526,12 +526,12 @@ class MainWindow(QWidget):
 
             if table is self.judgingTable:
                 # Set column count and header labels for judging table
-                table.setColumnCount(self.scheduleData.num_rooms + 1)
-                table.setHorizontalHeaderLabels(['Time'] + [f'Room {i+1}' for i in range(self.scheduleData.num_rooms)])
+                table.setColumnCount(self.scheduleData.NUM_ROOMS + 1)
+                table.setHorizontalHeaderLabels(['Time'] + [f'Room {i+1}' for i in range(self.scheduleData.NUM_ROOMS)])
             else:
                 # Set column count and header labels for practice and table round tables
-                table.setColumnCount((self.scheduleData.num_tables * 2) + 1)
-                table.setHorizontalHeaderLabels(['Time'] + [f'Table {chr(65 + i // 2)}{i % 2 + 1}' for i in range(self.scheduleData.num_tables * 2)])
+                table.setColumnCount((self.scheduleData.NUM_TABLES * 2) + 1)
+                table.setHorizontalHeaderLabels(['Time'] + [f'Table {chr(65 + i // 2)}{i % 2 + 1}' for i in range(self.scheduleData.NUM_TABLES * 2)])
 
     def get_table_widget(self, round_type):
         """Returns the table widget based on the round type."""
@@ -699,7 +699,7 @@ class MainWindow(QWidget):
         start_practice = self.startTimePracticeRounds.time()
         end_practice = self.stopTimePractice.time()
         min_duration = self.minimumPracticeDuration.time()
-        duration = self.timeData.round_type_durations[PRACTICE]
+        duration = self.timeData.ROUND_TYPE_DURATIONS[PRACTICE]
         duration = QTime(0, duration, 0)
         
         # Compare the duration with the minimum duration
@@ -714,7 +714,7 @@ class MainWindow(QWidget):
         start_table = self.startTimeTableRounds.time()
         end_table = self.stopTimeTableRounds.time()
         min_duration = self.minimumTableDuration.time()
-        duration = self.timeData.round_type_durations[TABLE]
+        duration = self.timeData.ROUND_TYPE_DURATIONS[TABLE]
         duration = QTime(0, duration, 0)
 
         if duration < min_duration:
@@ -724,27 +724,27 @@ class MainWindow(QWidget):
     @Slot()
     def update_schedule_data(self):
         """Updates the GUI based on the current inputs."""
-        self.scheduleData.num_teams = self.numTeamsSpinbox.value()
-        self.scheduleData.num_rooms = self.numRoomsSpinbox.value()
-        self.scheduleData.num_tables = self.numTablesSpinbox.value()
-        self.scheduleData.round_types_per_team['practice'] = self.roundTypeSpinboxes['practice'].value()
-        self.scheduleData.round_types_per_team['table'] = self.roundTypeSpinboxes['table'].value()
-        self.scheduleData.num_tables_and_sides = self.scheduleData.num_tables * 2
+        self.scheduleData.NUM_TEAMS = self.numTeamsSpinbox.value()
+        self.scheduleData.NUM_ROOMS = self.numRoomsSpinbox.value()
+        self.scheduleData.NUM_TABLES = self.numTablesSpinbox.value()
+        self.scheduleData.ROUND_TYPE_PER_TEAM['practice'] = self.roundTypeSpinboxes['practice'].value()
+        self.scheduleData.ROUND_TYPE_PER_TEAM['table'] = self.roundTypeSpinboxes['table'].value()
+        self.scheduleData.num_tables_and_sides = self.scheduleData.NUM_TABLES * 2
         self.numTablesAndSidesLabel.setText(str(self.scheduleData.num_tables_and_sides))
         for name in [JUDGING, PRACTICE, TABLE]:
-            self.roundTypeLabels[name].setText(f"{self.scheduleData.num_teams * self.scheduleData.round_types_per_team[name]} Rounds")
+            self.roundTypeLabels[name].setText(f"{self.scheduleData.NUM_TEAMS * self.scheduleData.ROUND_TYPE_PER_TEAM[name]} Rounds")
 
     @Slot()
     def update_time_data(self):
         """Updates the TimeData with current GUI inputs."""
-        jStop = self.startTimeJudgingRounds.time().addSecs(self.timeData.round_type_durations[JUDGING] * 60 * self.timeData.minimum_slots_required[JUDGING])
+        jStop = self.startTimeJudgingRounds.time().addSecs(self.timeData.ROUND_TYPE_DURATIONS[JUDGING] * 60 * self.timeData.MINIMUM_SLOTS_REQUIRED[JUDGING])
         self.judgingStopTime.setText(jStop.toString("HH:mm"))
 
-        self.timeData.judging_rounds_start_time = self.startTimeJudgingRounds.time().toString("hh:mm")
-        self.timeData.practice_rounds_start_time = self.startTimePracticeRounds.time().toString("hh:mm")
-        self.timeData.practice_rounds_stop_time = self.stopTimePractice.time().toString("hh:mm")
-        self.timeData.table_rounds_start_time = self.startTimeTableRounds.time().toString("hh:mm")
-        self.timeData.table_rounds_stop_time = self.stopTimeTableRounds.time().toString("hh:mm")
+        self.timeData.JUDGING_ROUNDS_START_TIME = self.startTimeJudgingRounds.time().toString("hh:mm")
+        self.timeData.PRACTICE_ROUNDS_START_TIME = self.startTimePracticeRounds.time().toString("hh:mm")
+        self.timeData.PRACTICE_ROUNDS_STOP_TIME = self.stopTimePractice.time().toString("hh:mm")
+        self.timeData.TABLE_ROUNDS_START_TIME = self.startTimeTableRounds.time().toString("hh:mm")
+        self.timeData.TABLE_ROUNDS_STOP_TIME = self.stopTimeTableRounds.time().toString("hh:mm")
         self.timeData.update_time_data()
 
     @Slot()
@@ -773,21 +773,21 @@ class MainWindow(QWidget):
         self.epsilonTotalLabel.setText(f'{total_decay} Episodes')
 
         self.progressBar.setMaximum(self.qLearning.training_episodes)
-        self.qLearning.required_schedule_slots = sum(self.scheduleData.round_types_per_team.values()) * self.scheduleData.num_teams
-        self.qLearning.possible_schedule_slots = self.scheduleData.num_rooms * self.timeData.minimum_slots_required[JUDGING] + self.scheduleData.num_tables_and_sides * (self.timeData.minimum_slots_required[PRACTICE] + self.timeData.minimum_slots_required[TABLE])
-        self.qLearning.q_table_size_limit = len(self.qLearning.states) * self.scheduleData.num_teams
+        self.qLearning.required_schedule_slots = sum(self.scheduleData.ROUND_TYPE_PER_TEAM.values()) * self.scheduleData.NUM_TEAMS
+        self.qLearning.possible_schedule_slots = self.scheduleData.NUM_ROOMS * self.timeData.MINIMUM_SLOTS_REQUIRED[JUDGING] + self.scheduleData.num_tables_and_sides * (self.timeData.MINIMUM_SLOTS_REQUIRED[PRACTICE] + self.timeData.MINIMUM_SLOTS_REQUIRED[TABLE])
+        self.qLearning.q_table_size_limit = len(self.qLearning.states) * self.scheduleData.NUM_TEAMS
 
         # Update current stats
         self.q_learningLabel.setText(f"Epsilon: {self.qLearning.epsilon:.2f} \nAlpha: {self.qLearning.learning_rate:.2f} \nGamma: {self.qLearning.discount_factor:.2f} \nEpisodes: {self.qLearning.training_episodes}")
         self.CurrentScheduleLengthLabel.setText(f"Required Schedule Slots: {self.qLearning.required_schedule_slots} ({self.qLearning.possible_schedule_slots} Possible)")
         self.q_tableSizeLabel.setText(f"Q-Table Size: {len(self.qLearning.q_table)}/{self.qLearning.q_table_size_limit}")
 
-        self.qLearning.practice_teams_available = list(self.scheduleData.teams.keys()) * self.scheduleData.round_types_per_team[PRACTICE]
-        self.qLearning.table_teams_available = list(self.scheduleData.teams.keys()) * self.scheduleData.round_types_per_team[TABLE]
+        self.qLearning.practice_teams_available = list(self.scheduleData.teams.keys()) * self.scheduleData.ROUND_TYPE_PER_TEAM[PRACTICE]
+        self.qLearning.table_teams_available = list(self.scheduleData.teams.keys()) * self.scheduleData.ROUND_TYPE_PER_TEAM[TABLE]
 
         # Update TimeData with current GUI inputs
-        self.practiceRoundDuration.setText(f'{self.timeData.round_type_durations[PRACTICE]} minutes')
-        self.tableRoundDuration.setText(f'{self.timeData.round_type_durations[TABLE]} minutes')
+        self.practiceRoundDuration.setText(f'{self.timeData.ROUND_TYPE_DURATIONS[PRACTICE]} minutes')
+        self.tableRoundDuration.setText(f'{self.timeData.ROUND_TYPE_DURATIONS[TABLE]} minutes')
         self.practiceTimeAvailable.setText(f'{self.timeData.available_practice_duration} minutes')
         self.tableTimeAvailable.setText(f'{self.timeData.available_table_duration} minutes')
 

@@ -25,30 +25,30 @@ class TimeSlotCreator:
             raise ValueError(f"Invalid round type: {round_type}. Expected 'practice' or 'table'")
         
         if round_type == PRACTICE:
-            start_time = time_data.practice_rounds_start_time
+            start_time = time_data.PRACTICE_ROUNDS_START_TIME
             start_times = time_data.practice_round_start_times
             current_time = start_time
-            end_time = time_data.practice_rounds_stop_time
-            time_length = time_data.round_type_durations[PRACTICE]
+            end_time = time_data.PRACTICE_ROUNDS_STOP_TIME
+            time_length = time_data.ROUND_TYPE_DURATIONS[PRACTICE]
             available_duration = time_data.available_practice_duration
         
         if round_type == TABLE:
-            start_time = time_data.table_rounds_start_time
+            start_time = time_data.TABLE_ROUNDS_START_TIME
             start_times = time_data.table_round_start_times
             current_time = start_time
-            end_time = time_data.table_rounds_stop_time
-            time_length = time_data.round_type_durations[TABLE]
+            end_time = time_data.TABLE_ROUNDS_STOP_TIME
+            time_length = time_data.ROUND_TYPE_DURATIONS[TABLE]
             available_duration = time_data.available_table_duration
         
         round_type_time_slots_round = self.calculate_end_times(start_times, time_length)
         
         while round_type_time_slots_round[-1][-1] > end_time:
-            time_data.minimum_slots_required[round_type] += 1
-            time_length = round(available_duration / time_data.minimum_slots_required[round_type], 0)
+            time_data.MINIMUM_SLOTS_REQUIRED[round_type] += 1
+            time_length = round(available_duration / time_data.MINIMUM_SLOTS_REQUIRED[round_type], 0)
             start_times = [start_time]
             current_time = start_time
         
-            for _ in range(time_data.minimum_slots_required[round_type] - 1):
+            for _ in range(time_data.MINIMUM_SLOTS_REQUIRED[round_type] - 1):
                 current_time = TimeUtilities.add_minutes_to_time(current_time, time_length)
                 start_times.append(current_time)
         
@@ -59,7 +59,7 @@ class TimeSlotCreator:
     def create_round_type_time_slots(self, time_data):
         """Create time slots for each round type."""
         time_data.round_type_time_slots = {
-            JUDGING: self.calculate_end_times(time_data.judging_round_start_times, time_data.round_type_durations["judging"]),
+            JUDGING: self.calculate_end_times(time_data.judging_round_start_times, time_data.ROUND_TYPE_DURATIONS["judging"]),
             PRACTICE: self.adjust_rounds_round_type_time_slots(PRACTICE, time_data),
             TABLE: self.adjust_rounds_round_type_time_slots(TABLE, time_data),
         }

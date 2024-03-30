@@ -4,6 +4,14 @@ from PySide6.QtGui import QFont
 class Config:
     """Class to store configuration settings for the Q-Learning algorithm and the GUI."""
     
+    ###########
+    # Logging #
+    ###########
+    
+    # Logging settings
+    LOGGING_FILE_NAME = 'FLLC-Q_Log.txt'
+    LOGGING_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
+    
     #############
     # Constants #
     #############
@@ -34,28 +42,33 @@ class Config:
     ##########################
     
     # Schedule Data settings
-    num_teams   = 42
-    num_rooms   = 7
-    num_tables  = 4
-    round_types_per_team = {
+    NUM_TEAMS   = 42
+    NUM_ROOMS   = 7
+    NUM_TABLES  = 4
+    
+    ROUND_TYPE_PER_TEAM = {
         JUDGING   : 1, 
         PRACTICE  : 2, 
         TABLE     : 3
     }
     
+    TABLE_SIDE_1 = '1'
+    TABLE_SIDE_2 = '2'
+    
     # Time Data settings
-    judging_rounds_start_time   = '08:00'
-    practice_rounds_start_time  = '09:00'
-    practice_rounds_stop_time   = '12:00'
-    table_rounds_start_time     = '13:30'
-    table_rounds_stop_time      = '16:21'
-    minimum_slots_required = {
+    JUDGING_ROUNDS_START_TIME   = '08:00'
+    PRACTICE_ROUNDS_START_TIME  = '09:00'
+    PRACTICE_ROUNDS_STOP_TIME   = '12:00'
+    TABLE_ROUNDS_START_TIME     = '13:30'
+    TABLE_ROUNDS_STOP_TIME      = '16:21'
+    
+    MINIMUM_SLOTS_REQUIRED = {
         JUDGING   : 1,
         PRACTICE  : 2,
         TABLE     : 3
     }
     
-    round_type_durations = {
+    ROUND_TYPE_DURATIONS = {
         JUDGING : 45,
         PRACTICE: 0,
         TABLE   : 0
@@ -64,12 +77,12 @@ class Config:
     TIME_FORMAT = '%H:%M'
     
     # Q-Learning hyperparameters
-    learning_rate       = 0.20
-    discount_factor     = 0.80
-    epsilon_start       = 1.00
-    epsilon_end         = 0.01
-    epsilon_decay       = 0.995
-    training_episodes   = 5
+    LEARNING_RATE       = 0.20
+    DISCOUNT_FACTOR     = 0.80
+    EPSILON_START       = 1.00
+    EPSILON_END         = 0.01
+    EPSILON_DECAY       = 0.995
+    TRAINING_EPISODES   = 25
     
     # Soft Constraint weights
     TABLE_CONSISTENCY_WEIGHT    = 1.0
@@ -83,7 +96,7 @@ class Config:
     ###########################
     
     # GUI settings
-    gui_refresh_interval = 1
+    GUI_REFRESH_INTERVAL = 1
 
     
     ################
@@ -94,6 +107,11 @@ class Config:
     EXPORTS_DIRECTORY                   = './exports'
     OPTIMAL_SCHEDULE_GRID_EXCEL_PATH    = './exports/grid_optimal_schedule.xlsx'
     EVAL_RESULTS_CSV_PATH               = './exports/schedule_evaluation/evaluation_results.csv'
+    BENCHMARK_SCHEDULE_CSV_PATH         = './exports/training_schedules_output/schedule_episode_benchmark.csv'
+    TRAINING_SCHEDULE_CSV_PATH_FRONT    = './exports/training_schedules_output/schedule_episode_'
+    TRAINING_SCHEDULE_CSV_PATH_EXT      = '.csv'
+    Q_TABLE_CSV_PATH                    = './exports/q_table.csv'
+    OPTIMAL_SCHEDULE_CSV_PATH           = './exports/optimal_schedule.csv'
     
     # Column names
     COL_TIME        = 'Time'

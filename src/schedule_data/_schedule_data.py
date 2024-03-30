@@ -10,17 +10,17 @@ class ScheduleData:
     
     def __init__(self):
         """Initialize a ScheduleData object."""
-        self.num_teams  = Config.num_teams
-        self.num_rooms  = Config.num_rooms
-        self.num_tables = Config.num_tables
-        self.round_types_per_team = Config.round_types_per_team
+        self.NUM_TEAMS  = Config.NUM_TEAMS
+        self.NUM_ROOMS  = Config.NUM_ROOMS
+        self.NUM_TABLES = Config.NUM_TABLES
+        self.ROUND_TYPE_PER_TEAM = Config.ROUND_TYPE_PER_TEAM
         
-        self.num_tables_and_sides = self.num_tables * 2
+        self.num_tables_and_sides = self.NUM_TABLES * 2
         self.teams, self.rooms, self.tables = self.initialize_teams_rooms_tables()
 
     def __str__(self):
         """Return a string representation of a ScheduleData object."""
-        return f'ScheduleData(num_teams={self.num_teams}, num_rooms={self.num_rooms}, num_tables={self.num_tables})'
+        return f'ScheduleData(NUM_TEAMS={self.NUM_TEAMS}, NUM_ROOMS={self.NUM_ROOMS}, NUM_TABLES={self.NUM_TABLES})'
 
     def __repr__(self):
         """Return a string representation of a ScheduleData object."""
@@ -28,10 +28,10 @@ class ScheduleData:
 
     def initialize_teams_rooms_tables(self):
         """Initialize the teams, rooms, and tables for the competition."""
-        self.teams = {team_id: Team(team_id) for team_id in range(1, self.num_teams + 1)}
-        self.rooms = {room_id: Room(room_id) for room_id in range(1, self.num_rooms + 1)}
+        self.teams = {team_id: Team(team_id) for team_id in range(1, self.NUM_TEAMS + 1)}
+        self.rooms = {room_id: Room(room_id) for room_id in range(1, self.NUM_ROOMS + 1)}
         
-        table_ids = [chr(65 + i) for i in range(self.num_tables)]
+        table_ids = [chr(65 + i) for i in range(self.NUM_TABLES)]
         self.tables = {(table_id, side): Table(table_id, side) for table_id in table_ids for side in [1, 2]}
 
         return self.teams, self.rooms, self.tables

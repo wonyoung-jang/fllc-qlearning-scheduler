@@ -11,35 +11,66 @@ from collections import defaultdict
 from time_data.time_utilities import TimeUtilities
 from config import Config
 
-logging.basicConfig(filename='FLLC-Q_Log.txt', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+LOGGING_FILE_NAME = Config.LOGGING_FILE_NAME
+LOGGING_FORMAT = Config.LOGGING_FORMAT
 
-JUDGING = Config.JUDGING
-PRACTICE = Config.PRACTICE
-TABLE = Config.TABLE
+JUDGING     = Config.JUDGING
+PRACTICE    = Config.PRACTICE
+TABLE       = Config.TABLE
 
-TABLE_CONSISTENCY = Config.TABLE_CONSISTENCY
-OPPONENT_VARIETY = Config.OPPONENT_VARIETY
-BACK_TO_BACK_PENALTY = Config.BACK_TO_BACK_PENALTY
-BREAK_TIME = Config.BREAK_TIME
+LOCATION_TYPE_ROOM  = Config.LOCATION_TYPE_ROOM
+LOCATION_TYPE_TABLE = Config.LOCATION_TYPE_TABLE
 
-TABLE_CONSISTENCY_WEIGHT = Config.TABLE_CONSISTENCY_WEIGHT
-OPPONENT_VARIETY_WEIGHT = Config.OPPONENT_VARIETY_WEIGHT
+TABLE_SIDE_1 = Config.TABLE_SIDE_1
+TABLE_SIDE_2 = Config.TABLE_SIDE_2
+
+TABLE_CONSISTENCY       = Config.TABLE_CONSISTENCY
+OPPONENT_VARIETY        = Config.OPPONENT_VARIETY
+BACK_TO_BACK_PENALTY    = Config.BACK_TO_BACK_PENALTY
+BREAK_TIME              = Config.BREAK_TIME
+
+TABLE_CONSISTENCY_WEIGHT    = Config.TABLE_CONSISTENCY_WEIGHT
+OPPONENT_VARIETY_WEIGHT     = Config.OPPONENT_VARIETY_WEIGHT
 BACK_TO_BACK_PENALTY_WEIGHT = Config.BACK_TO_BACK_PENALTY_WEIGHT
-BREAK_TIME_WEIGHT = Config.BREAK_TIME_WEIGHT
+BREAK_TIME_WEIGHT           = Config.BREAK_TIME_WEIGHT
+
+LEARNING_RATE       = Config.LEARNING_RATE
+DISCOUNT_FACTOR     = Config.DISCOUNT_FACTOR
+EPSILON_START       = Config.EPSILON_START
+EPSILON_END         = Config.EPSILON_END
+EPSILON_DECAY       = Config.EPSILON_DECAY
+TRAINING_EPISODES   = Config.TRAINING_EPISODES
+
+GUI_REFRESH_INTERVAL    = Config.GUI_REFRESH_INTERVAL
+
+BENCHMARK_SCHEDULE_CSV_PATH = Config.BENCHMARK_SCHEDULE_CSV_PATH
+TRAINING_SCHEDULE_CSV_PATH_FRONT = Config.TRAINING_SCHEDULE_CSV_PATH_FRONT
+TRAINING_SCHEDULE_CSV_PATH_EXT = Config.TRAINING_SCHEDULE_CSV_PATH_EXT
+Q_TABLE_CSV_PATH = Config.Q_TABLE_CSV_PATH
+OPTIMAL_SCHEDULE_CSV_PATH = Config.OPTIMAL_SCHEDULE_CSV_PATH
+
+logging.basicConfig(filename=LOGGING_FILE_NAME, level=logging.DEBUG, format=LOGGING_FORMAT)
+
 
 class QLearning:
-    """Q-Learning algorithm for scheduling."""
+    """
+    Q-Learning algorithm for scheduling.
+    
+    """
 
     def __init__(self, schedule_data, time_data):
-        """Initialize the Q-Learning algorithm for scheduling."""
-        self.learning_rate = Config.learning_rate  # Alpha
-        self.discount_factor = Config.discount_factor  # Gamma
-        self.epsilon_start = Config.epsilon_start
-        self.epsilon_end = Config.epsilon_end
-        self.epsilon_decay = Config.epsilon_decay
-        self.training_episodes = Config.training_episodes
+        """
+        Initialize the Q-Learning algorithm for scheduling.
         
-        self.gui_refresh_interval = Config.gui_refresh_interval
+        """
+        self.learning_rate = LEARNING_RATE
+        self.discount_factor = DISCOUNT_FACTOR
+        self.epsilon_start = EPSILON_START
+        self.epsilon_end = EPSILON_END
+        self.epsilon_decay = EPSILON_DECAY
+        self.training_episodes = TRAINING_EPISODES
+        
+        self.gui_refresh_interval = GUI_REFRESH_INTERVAL
         
         self.epsilon = self.epsilon_start
 
@@ -61,14 +92,14 @@ class QLearning:
         self.schedule_data = schedule_data
         self.time_data = time_data
 
-        self.required_schedule_slots = self.schedule_data.num_teams * sum(
-            self.schedule_data.round_types_per_team.values()
+        self.required_schedule_slots = self.schedule_data.NUM_TEAMS * sum(
+            self.schedule_data.ROUND_TYPE_PER_TEAM.values()
         )
 
-        self.possible_schedule_slots = self.schedule_data.num_rooms * self.time_data.minimum_slots_required[
+        self.possible_schedule_slots = self.schedule_data.NUM_ROOMS * self.time_data.MINIMUM_SLOTS_REQUIRED[
             JUDGING
         ] + self.schedule_data.num_tables_and_sides * (
-            self.time_data.minimum_slots_required[PRACTICE] + self.time_data.minimum_slots_required[TABLE]
+            self.time_data.MINIMUM_SLOTS_REQUIRED[PRACTICE] + self.time_data.MINIMUM_SLOTS_REQUIRED[TABLE]
         )
 
         self.initialize_schedule_and_states()
@@ -76,31 +107,36 @@ class QLearning:
         self.scores = defaultdict(list)
 
         self.q_table_size_limit = len(self.states) * len(self.schedule_data.teams)
-        self.max_num_rounds_per_team = sum(self.schedule_data.round_types_per_team.values())
+        self.max_num_rounds_per_team = sum(self.schedule_data.ROUND_TYPE_PER_TEAM.values())
 
         self.exporter = QLearningExporter()
 
     def initialize_schedule_and_states(self) -> None:
-        """Initialize the schedule and states for training."""
+        """
+        Initialize the schedule and states for training.
+        
+        """
         self.schedule = self.initialize_schedule()
         self.staticStates = [tuple(i) for i in self.schedule]
 
         self.initialize_judging_rounds()
-        self.states = [tuple(i) for i in self.schedule if i[2] != 'judging']
+        self.states = [tuple(i) for i in self.schedule if i[2] != JUDGING]
         self.exploration_count = 0
         self.exploitation_count = 0
         self.practice_teams_available = (
-            list(self.schedule_data.teams.keys()) * self.schedule_data.round_types_per_team[PRACTICE]
+            list(self.schedule_data.teams.keys()) * self.schedule_data.ROUND_TYPE_PER_TEAM[PRACTICE]
         )
         self.table_teams_available = (
-            list(self.schedule_data.teams.keys()) * self.schedule_data.round_types_per_team[TABLE]
+            list(self.schedule_data.teams.keys()) * self.schedule_data.ROUND_TYPE_PER_TEAM[TABLE]
         )
         self.current_schedule_length = 0
 
     def initialize_schedule(self) -> List[List]:
-        """Initialize the schedule for training."""
-        (
-            self.schedule_data.teams,
+        """
+        Initialize the schedule for training.
+        
+        """
+        (   self.schedule_data.teams,
             self.schedule_data.rooms,
             self.schedule_data.tables,
         ) = self.schedule_data.initialize_teams_rooms_tables()
@@ -108,8 +144,8 @@ class QLearning:
         for round_type, slots in self.time_data.round_type_time_slots.items():
             for time_start, time_end in slots:
                 if round_type == JUDGING:
-                    for room_id in range(1, self.schedule_data.num_rooms + 1):
-                        schedule.append([time_start, time_end, round_type, "room", room_id, None])
+                    for room_id in range(1, self.schedule_data.NUM_ROOMS + 1):
+                        schedule.append([time_start, time_end, round_type, LOCATION_TYPE_ROOM, room_id, None])
                 else:
                     for table, details in self.schedule_data.tables.items():
                         table_id, side = table
@@ -126,7 +162,10 @@ class QLearning:
         return schedule
 
     def initialize_judging_rounds(self) -> None:
-        """Initialize the judging rounds for training."""
+        """
+        Initialize the judging rounds for training.
+        
+        """
         current_team_id = list(self.schedule_data.teams.keys())[0]
 
         for i, schedule in enumerate(self.schedule):
@@ -138,19 +177,24 @@ class QLearning:
                 current_team_id += 1
 
     def train_benchmark_episodes(self) -> None:
-        """Train the Q-Learning algorithm for benchmarking."""
+        """
+        Train the Q-Learning algorithm for benchmarking.
+        
+        """
         self.initialize_schedule_and_states()
         self.current_schedule_length = 0
         actions = tuple(self.schedule_data.teams.keys())
+        
         while self.states:
             current_state = random.choice(self.states)
-            current_start_time = current_state[0]
-            current_end_time = current_state[1]
-            current_round_type = current_state[2]
-            current_location_type = current_state[3]
-            current_location_id = current_state[4]
+            
+            current_start_time      = current_state[0]
+            current_end_time        = current_state[1]
+            current_round_type      = current_state[2]
+            current_location_type   = current_state[3]
+            current_location_id     = current_state[4]
             current_location_letter = current_location_id[0]
-            current_location_side = current_location_id[1]
+            current_location_side   = current_location_id[1]
 
             if self.is_terminal_state():
                 break
@@ -158,6 +202,7 @@ class QLearning:
             actions = self.update_available_actions(current_state)
             if actions:
                 selected_action = random.choice(actions)
+                
                 if selected_action is not None:
                     self.update_team_availability(
                         selected_action,
@@ -181,7 +226,6 @@ class QLearning:
                         f"{current_location_letter}{current_location_side}",
                         selected_action,
                     )
-
                 else:
                     self.states.remove(current_state)
             else:
@@ -190,14 +234,13 @@ class QLearning:
             if not self.states:
                 break
 
-        scheduleCSVFileName = "./exports/training_schedules_output/schedule_episode_benchmark.csv"
-        self.exporter.export_schedule_to_csv(scheduleCSVFileName, self.schedule)
-
-        self.completed_percentage = self.current_schedule_length / self.required_schedule_slots
-        self.completion_percentage["Benchmarks"].append(self.completed_percentage)
+        self.exporter.export_schedule_to_csv(BENCHMARK_SCHEDULE_CSV_PATH, self.schedule)
 
     def train_one_episode(self, episode) -> None:
-        """Train the Q-Learning algorithm for one episode."""
+        """
+        Train the Q-Learning algorithm for one episode.
+        
+        """
         logging.info(f"Starting training episode {episode}")
 
         self.initialize_schedule_and_states()
@@ -210,22 +253,24 @@ class QLearning:
 
             logging.debug(f"Current state: {current_state}")
 
-            current_start_time = current_state[0]
-            current_end_time = current_state[1]
-            current_round_type = current_state[2]
-            current_location_type = current_state[3]
-            current_location_id = current_state[4]
+            current_start_time      = current_state[0]
+            current_end_time        = current_state[1]
+            current_round_type      = current_state[2]
+            current_location_type   = current_state[3]
+            current_location_id     = current_state[4]
             current_location_letter = current_location_id[0]
-            current_location_side = current_location_id[1]
+            current_location_side   = current_location_id[1]
 
             if self.is_terminal_state():
                 break
 
             actions = self.update_available_actions(current_state)
+            
             if actions:
                 selected_action = self.select_action(
                     current_state, actions
                 )  # Select an action using the epsilon-greedy policy
+                
                 if selected_action is not None:
                     self.update_team_availability(
                         selected_action,
@@ -234,16 +279,18 @@ class QLearning:
                         current_location_letter,
                         current_location_side,
                     )
+                    
                     self.update_table_availability(
                         current_location_id,
                         selected_action,
                         (current_start_time, current_end_time),
                     )
+                    
                     self.update_schedule(current_state, selected_action)
                     reward = self.get_reward(current_state, selected_action)
                     episode_reward += reward
-
                     self.states.remove(current_state)
+                    
                     self.staticStates[self.staticStates.index(current_state)] = (
                         current_start_time,
                         current_end_time,
@@ -296,15 +343,14 @@ class QLearning:
         self.num_exploitation_counts.append(self.exploitation_count)
 
         # Export the schedule for evaluation
-        scheduleCSVFileName = f"./exports/training_schedules_output/schedule_episode_{episode}.csv"
+        scheduleCSVFileName = f'{TRAINING_SCHEDULE_CSV_PATH_FRONT}{episode}{TRAINING_SCHEDULE_CSV_PATH_EXT}'
         self.exporter.export_schedule_to_csv(scheduleCSVFileName, self.schedule)
 
-        # Evaluate the schedule
-        self.completed_percentage = self.current_schedule_length / self.required_schedule_slots
-        self.completion_percentage["Training"].append(self.completed_percentage)
-
     def generate_optimal_schedule(self) -> None:
-        """Generate the optimal schedule using the Q-Learning algorithm."""
+        """
+        Generate the optimal schedule using the Q-Learning algorithm.
+        
+        """
         self.initialize_schedule_and_states()
         self.current_schedule_length = 0
 
@@ -317,6 +363,7 @@ class QLearning:
                     available_actions,
                     key=lambda action: self.q_table.get((current_state, action), float("-inf")),
                 )
+                
                 if best_action:
                     self.update_team_availability(
                         best_action,
@@ -325,11 +372,13 @@ class QLearning:
                         current_state[4][0],
                         current_state[4][1],
                     )
+                    
                     self.update_table_availability(
                         current_state[4],
                         best_action,
                         (current_state[0], current_state[1]),
                     )
+                    
                     self.update_schedule(current_state, best_action)
 
                     self.staticStates[self.staticStates.index(current_state)] = (
@@ -340,25 +389,28 @@ class QLearning:
                         current_state[4],
                         best_action,
                     )
-
+                    
             self.states.remove(current_state)
-        q_table_filename = f"./exports/q_table.csv"
-        self.exporter.export_q_table_to_csv(q_table_filename, self.q_table)
-        optimal_filename = f"./exports/optimal_schedule.csv"
-        self.exporter.export_optimal_schedule_to_excel(optimal_filename, self.schedule)
-
-        self.completed_percentage = self.current_schedule_length / self.required_schedule_slots
-        self.completion_percentage["Optimal"].append(self.completed_percentage)
+            
+        self.exporter.export_q_table_to_csv(Q_TABLE_CSV_PATH, self.q_table)
+        self.exporter.export_optimal_schedule_to_excel(OPTIMAL_SCHEDULE_CSV_PATH, self.schedule)
 
     def update_available_actions(self, state) -> List[int]:
-        """Update the available actions for the current state."""
+        """
+        Update the available actions for the current state.
+        
+        """
         time_start, time_end, round_type, location_type, location_id, team_id = state
         time_slot = (time_start, time_end)
 
         if round_type == PRACTICE:
-            potential_actions = [team for team in self.schedule_data.teams if team in self.practice_teams_available]
+            potential_actions = [
+                team for team in self.schedule_data.teams if team in self.practice_teams_available
+            ]
         elif round_type == TABLE:
-            potential_actions = [team for team in self.schedule_data.teams if team in self.table_teams_available]
+            potential_actions = [
+                team for team in self.schedule_data.teams if team in self.table_teams_available
+            ]
 
         remove_actions = []
         available_actions = []
@@ -367,7 +419,7 @@ class QLearning:
         for team_id in potential_actions:
             if (
                 self.schedule_data.teams[team_id].scheduled_round_types[round_type]
-                >= self.schedule_data.round_types_per_team[round_type]
+                >= self.schedule_data.ROUND_TYPE_PER_TEAM[round_type]
             ):
                 remove_actions.append(team_id)
 
@@ -379,7 +431,7 @@ class QLearning:
                     break  # No need to check further slots for this team
 
         # 3. "Is the current state's table side == 2?"
-        if location_id[-1] == "2":  # Check if table side is 2
+        if location_id[-1] == TABLE_SIDE_2:  # Check if table side is 2
             previous_state = self.find_previous_state(state)
             # 3a. "Is the table side 1 of the previous state scheduled?"
             if previous_state is not None:
@@ -400,7 +452,10 @@ class QLearning:
             return available_actions
 
     def update_team_availability(self, team_id, round_type, time_slot, location_id, side) -> None:
-        """Update the team availability for the current state."""
+        """
+        Update the team availability for the current state.
+        
+        """
         if team_id in self.schedule_data.teams:
             team_info = self.schedule_data.teams[team_id]
 
@@ -417,8 +472,9 @@ class QLearning:
             # Table side and opponent logic
             table_id = location_id[0]
 
-            if side == "2":  # Assuming side 2 indicates both are scheduled
-                other_side = "1"
+            if side == TABLE_SIDE_2:  # Assuming side 2 indicates both are scheduled
+                other_side = TABLE_SIDE_1
+                
                 # Find the team assigned to the other side, if any
                 for other_team_id, other_team_info in self.schedule_data.teams.items():
                     if (
@@ -434,7 +490,10 @@ class QLearning:
             print(f"Team {team_id} does not exist.")
 
     def update_table_availability(self, location_id, team_id, time_slot) -> None:
-        """Update the table availability for the current state."""
+        """
+        Update the table availability for the current state.
+        
+        """
         table_id = location_id[0]  # Extract table ID (e.g., 'A1' from 'A11')
         side = int(location_id[-1])  # Extract side (e.g., 1 from 'A11')
 
@@ -445,7 +504,10 @@ class QLearning:
             print(f"Table {table_id} side {side} does not exist.")
 
     def update_schedule(self, current_state, selected_action) -> None:
-        """Update the schedule for the current state."""
+        """
+        Update the schedule for the current state.
+        
+        """
         for i, schedule_row in enumerate(self.schedule):
             sched_row = tuple(schedule_row[:5])
             if sched_row == current_state[:5] and schedule_row[5] is None:
@@ -454,7 +516,10 @@ class QLearning:
         self.current_schedule_length += 1
 
     def update_q_value(self, state, action, reward, next_state, actions) -> None:
-        """Update the Q-value for the current state-action pair."""
+        """
+        Update the Q-value for the current state-action pair.
+        
+        """
         current_q = self.q_table.get((state, action), 0)
 
         if not actions:
@@ -468,7 +533,10 @@ class QLearning:
         self.q_table[(state, action)] = new_q
 
     def find_previous_state(self, state) -> Optional[Tuple]:
-        """Find the previous state for the current state."""
+        """
+        Find the previous state for the current state.
+        
+        """
         index = self.staticStates.index(state)
         prev_state = self.staticStates[index - 1]
         if prev_state[5] is None:
@@ -477,9 +545,11 @@ class QLearning:
             return prev_state
 
     def update_previous_state(self, prev_state) -> None:
-        """Update the previous state for the current state."""
-        (
-            prev_time_start,
+        """
+        Update the previous state for the current state.
+        
+        """
+        (   prev_time_start,
             prev_time_end,
             prev_round_type,
             prev_location_type,
@@ -504,7 +574,10 @@ class QLearning:
             self.table_teams_available.append(prev_team_id)
 
     def select_action(self, state, actions) -> Optional[int]:
-        """Select an action using the epsilon-greedy policy."""
+        """
+        Select an action using the epsilon-greedy policy.
+        
+        """
         if not actions:
             return None
 
@@ -523,14 +596,20 @@ class QLearning:
             return random.choice(best_actions)
 
     def normalize_reward(self, reward, min_reward, max_reward) -> float:
-        """Normalize the reward for the current state-action pair."""
+        """
+        Normalize the reward for the current state-action pair.
+        
+        """
         if max_reward - min_reward == 0:
             return 0
         else:
             return (reward - min_reward) / (max_reward - min_reward)
 
     def get_reward(self, state, action) -> float:
-        """Get the reward for the current state-action pair."""
+        """
+        Get the reward for the current state-action pair.
+        
+        """
         
         # Unpack state
         time_start, time_end, round_type, location_type, location_id, team_id = state
@@ -565,14 +644,17 @@ class QLearning:
         # Apply completion reward multiplier
         completion_reward = self.current_schedule_length / (
             self.required_schedule_slots
-            - (self.schedule_data.num_teams * self.schedule_data.round_types_per_team['judging'])
+            - (self.schedule_data.NUM_TEAMS * self.schedule_data.ROUND_TYPE_PER_TEAM[JUDGING])
         )
         reward += reward * completion_reward
 
         return reward
 
     def calculate_table_consistency_reward(self, scheduled_tables) -> float:
-        """Calculate the table consistency reward."""
+        """
+        Calculate the table consistency reward.
+        
+        """
         reward = 0
         length_of_tables_scheduled = len(scheduled_tables)
         if length_of_tables_scheduled > 1:
@@ -586,7 +668,10 @@ class QLearning:
         return reward
 
     def calculate_opponent_variety_reward(self, scheduled_opponents) -> float:
-        """Calculate the opponent variety reward."""
+        """
+        Calculate the opponent variety reward.
+        
+        """
         reward = 0
         length_of_opponents_scheduled = len(scheduled_opponents)
         if length_of_opponents_scheduled > 1:
@@ -608,7 +693,10 @@ class QLearning:
         return reward
 
     def calculate_back_to_back_penalty(self, scheduled_times, start_time_minutes, end_time_minutes) -> float:
-        """Calculate the back-to-back penalty."""
+        """
+        Calculate the back-to-back penalty.
+        
+        """
         reward = 0
         for i in range(len(scheduled_times)):
             timeActionStart = TimeUtilities.time_to_minutes(scheduled_times[i][0])
@@ -633,7 +721,10 @@ class QLearning:
         return reward
 
     def calculate_break_time_reward(self, scheduled_times, start_time_minutes, end_time_minutes) -> float:
-        """Calculate the break time reward."""
+        """
+        Calculate the break time reward.
+        
+        """
         reward = 0
         break_time = 30
         for i in range(1, len(scheduled_times)):
@@ -659,12 +750,14 @@ class QLearning:
         return reward
 
     def is_terminal_state(self) -> bool:
-        """Check if the current state is a terminal state."""
+        """
+        Check if the current state is a terminal state.
+        
+        """
         if len(self.practice_teams_available) == 0 and len(self.table_teams_available) == 0:
             return True
         else:
             return False
-
 
     ''' TODO 
     def transform_for_heatmap(self) -> Dict[Tuple[Tuple, Any], float]:

@@ -23,18 +23,18 @@ class TimeData:
         """
         self.schedule_data = schedule_data
         
-        self.judging_rounds_start_time = Config.judging_rounds_start_time
-        self.practice_rounds_start_time = Config.practice_rounds_start_time
-        self.practice_rounds_stop_time = Config.practice_rounds_stop_time
-        self.table_rounds_start_time = Config.table_rounds_start_time
-        self.table_rounds_stop_time = Config.table_rounds_stop_time
-        self.minimum_slots_required = Config.minimum_slots_required
+        self.JUDGING_ROUNDS_START_TIME = Config.JUDGING_ROUNDS_START_TIME
+        self.PRACTICE_ROUNDS_START_TIME = Config.PRACTICE_ROUNDS_START_TIME
+        self.PRACTICE_ROUNDS_STOP_TIME = Config.PRACTICE_ROUNDS_STOP_TIME
+        self.TABLE_ROUNDS_START_TIME = Config.TABLE_ROUNDS_START_TIME
+        self.TABLE_ROUNDS_STOP_TIME = Config.TABLE_ROUNDS_STOP_TIME
+        self.MINIMUM_SLOTS_REQUIRED = Config.MINIMUM_SLOTS_REQUIRED
             
             
         self.available_practice_duration = 0
         self.available_table_duration = 0
         
-        self.round_type_durations = Config.round_type_durations
+        self.ROUND_TYPE_DURATIONS = Config.ROUND_TYPE_DURATIONS
         
         self.judging_round_start_times = []
         self.practice_round_start_times = []
@@ -52,7 +52,7 @@ class TimeData:
         Return string representation of TimeData object.
         
         """
-        return f"TimeData(judging_rounds_start_time={self.judging_rounds_start_time}, practice_rounds_start_time={self.practice_rounds_start_time}, practice_rounds_stop_time={self.practice_rounds_stop_time}, table_rounds_start_time={self.table_rounds_start_time}, table_rounds_stop_time={self.table_rounds_stop_time}, minimum_slots_required={self.minimum_slots_required}, available_practice_duration={self.available_practice_duration}, available_table_duration={self.available_table_duration}, round_type_durations={self.round_type_durations}, judging_round_start_times={self.judging_round_start_times}, practice_round_start_times={self.practice_round_start_times}, table_round_start_times={self.table_round_start_times}, round_type_time_slots={self.round_type_time_slots})"
+        return f"TimeData(JUDGING_ROUNDS_START_TIME={self.JUDGING_ROUNDS_START_TIME}, PRACTICE_ROUNDS_START_TIME={self.PRACTICE_ROUNDS_START_TIME}, PRACTICE_ROUNDS_STOP_TIME={self.PRACTICE_ROUNDS_STOP_TIME}, TABLE_ROUNDS_START_TIME={self.TABLE_ROUNDS_START_TIME}, TABLE_ROUNDS_STOP_TIME={self.TABLE_ROUNDS_STOP_TIME}, MINIMUM_SLOTS_REQUIRED={self.MINIMUM_SLOTS_REQUIRED}, available_practice_duration={self.available_practice_duration}, available_table_duration={self.available_table_duration}, ROUND_TYPE_DURATIONS={self.ROUND_TYPE_DURATIONS}, judging_round_start_times={self.judging_round_start_times}, practice_round_start_times={self.practice_round_start_times}, table_round_start_times={self.table_round_start_times}, round_type_time_slots={self.round_type_time_slots})"
 
     def __repr__(self):
         """
@@ -61,7 +61,7 @@ class TimeData:
         """
         return self.__str__()
 
-    def calculate_minimum_slots_required(self, num_teams, divisor, round_type=None):
+    def calculate_minimum_slots_required(self, NUM_TEAMS, divisor, round_type=None):
         """
         Calculate the minimum number of slots required for a given number of teams and divisor.
         
@@ -69,12 +69,12 @@ class TimeData:
         if divisor == 0:
             raise ValueError("Divisor cannot be zero.")
         if round_type:
-            num_teams *= self.schedule_data.round_types_per_team[round_type]
-        slots_check = num_teams % divisor
+            NUM_TEAMS *= self.schedule_data.ROUND_TYPE_PER_TEAM[round_type]
+        slots_check = NUM_TEAMS % divisor
         if slots_check == 0:
-            return num_teams // divisor
+            return NUM_TEAMS // divisor
         else:
-            return (num_teams // divisor) + 1
+            return (NUM_TEAMS // divisor) + 1
 
     def update_time_data(self):
         """
@@ -93,15 +93,15 @@ class TimeData:
         Update the minimum number of slots required for each round type.
         
         """
-        self.minimum_slots_required = {
-            JUDGING: self.calculate_minimum_slots_required(self.schedule_data.num_teams, self.schedule_data.num_rooms),
+        self.MINIMUM_SLOTS_REQUIRED = {
+            JUDGING: self.calculate_minimum_slots_required(self.schedule_data.NUM_TEAMS, self.schedule_data.NUM_ROOMS),
             PRACTICE: self.calculate_minimum_slots_required(
-                self.schedule_data.num_teams,
+                self.schedule_data.NUM_TEAMS,
                 self.schedule_data.num_tables_and_sides,
                 PRACTICE,
             ),
             TABLE: self.calculate_minimum_slots_required(
-                self.schedule_data.num_teams,
+                self.schedule_data.NUM_TEAMS,
                 self.schedule_data.num_tables_and_sides,
                 TABLE,
             ),
@@ -112,14 +112,14 @@ class TimeData:
         Update the duration for each round type.
         
         """
-        self.available_practice_duration = TimeUtilities.time_to_minutes(self.practice_rounds_stop_time) - TimeUtilities.time_to_minutes(
-            self.practice_rounds_start_time
+        self.available_practice_duration = TimeUtilities.time_to_minutes(self.PRACTICE_ROUNDS_STOP_TIME) - TimeUtilities.time_to_minutes(
+            self.PRACTICE_ROUNDS_START_TIME
         )
-        self.available_table_duration = TimeUtilities.time_to_minutes(self.table_rounds_stop_time) - TimeUtilities.time_to_minutes(
-            self.table_rounds_start_time
+        self.available_table_duration = TimeUtilities.time_to_minutes(self.TABLE_ROUNDS_STOP_TIME) - TimeUtilities.time_to_minutes(
+            self.TABLE_ROUNDS_START_TIME
         )
-        self.round_type_durations = {
+        self.ROUND_TYPE_DURATIONS = {
             JUDGING     : 45,  # Fixed duration for judging rounds TODO
-            PRACTICE    : round(self.available_practice_duration / self.minimum_slots_required[PRACTICE]),
-            TABLE       : round(self.available_table_duration    / self.minimum_slots_required[TABLE]),
+            PRACTICE    : round(self.available_practice_duration / self.MINIMUM_SLOTS_REQUIRED[PRACTICE]),
+            TABLE       : round(self.available_table_duration    / self.MINIMUM_SLOTS_REQUIRED[TABLE]),
         }

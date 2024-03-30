@@ -22,17 +22,17 @@ class StartTimeGenerator:
     def generate_start_times(self, time_data):
         """Generate start times for each round type."""
         time_data.judging_round_start_times = self.generate_start_times_for_round(
-            time_data.judging_rounds_start_time,
-            time_data.minimum_slots_required[JUDGING],
-            time_data.round_type_durations[JUDGING],
+            time_data.JUDGING_ROUNDS_START_TIME,
+            time_data.MINIMUM_SLOTS_REQUIRED[JUDGING],
+            time_data.ROUND_TYPE_DURATIONS[JUDGING],
         )
         time_data.practice_round_start_times = self.generate_start_times_for_round(
-            time_data.practice_rounds_start_time,
-            time_data.minimum_slots_required[PRACTICE],
-            time_data.round_type_durations[PRACTICE],
+            time_data.PRACTICE_ROUNDS_START_TIME,
+            time_data.MINIMUM_SLOTS_REQUIRED[PRACTICE],
+            time_data.ROUND_TYPE_DURATIONS[PRACTICE],
         )
         time_data.table_round_start_times = self.generate_start_times_for_round(
-            time_data.table_rounds_start_time,
-            time_data.minimum_slots_required[TABLE],
-            time_data.round_type_durations[TABLE],
+            time_data.TABLE_ROUNDS_START_TIME,
+            time_data.MINIMUM_SLOTS_REQUIRED[TABLE],
+            time_data.ROUND_TYPE_DURATIONS[TABLE],
         )

@@ -37,14 +37,6 @@ class TrainingWorker(QObject):
         Run the training process.
         
         """
-        # Benchmarks
-        for episode in range(1, 11):
-            self.q_learning.train_benchmark_episodes()
-            self.signals.update_gui_signal.emit(-1)
-            self.mutex.lock()
-            self.wait_condition.wait(self.mutex)  # Wait on the condition
-            self.mutex.unlock()
-
         # Training
         for episode in range(1, self.q_learning.training_episodes + 1):
             self.q_learning.train_one_episode(episode)

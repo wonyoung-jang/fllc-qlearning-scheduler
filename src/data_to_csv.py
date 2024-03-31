@@ -7,8 +7,9 @@ import os
 import pandas as pd
 from config import Config
 
-OPTIMAL_SCHEDULE_GRID_EXCEL = Config.OPTIMAL_SCHEDULE_GRID_EXCEL_PATH
-EXPORTS_DIRECTORY = Config.EXPORTS_DIRECTORY
+XLSX_PATH_EXTENSION         = Config.XLSX_PATH_EXTENSION
+EXPORTS_DIRECTORY           = Config.EXPORTS_DIRECTORY
+OPTIMAL_SCHEDULE_GRID_EXCEL = Config.OPTIMAL_SCHEDULE_EXCEL_FILENAME
 
 COL_TIME        = Config.COL_TIME 
 COL_ROUND       = Config.COL_ROUND
@@ -30,7 +31,7 @@ class QLearningExporter:
         """
         self.clear_exports_directory()
         self.dataframe = None
-        self.excel_file_path = OPTIMAL_SCHEDULE_GRID_EXCEL
+        self.excel_file_path = f'{EXPORTS_DIRECTORY}{OPTIMAL_SCHEDULE_GRID_EXCEL}{XLSX_PATH_EXTENSION}'
 
     def clear_exports_directory(self):
         """

@@ -1,8 +1,10 @@
 """This module contains the configuration settings for the Q-Learning algorithm and the GUI."""
+import sys
 from PySide6.QtGui import QFont
 
 class Config:
     """Class to store configuration settings for the Q-Learning algorithm and the GUI."""
+    
     
     ###########
     # Logging #
@@ -28,7 +30,13 @@ class Config:
     # GUI Constants
     FONT_SIZE_HEADER    = 12
     FONT_SIZE_SUBHEADER = 10
+    FONT_SIZE_BODY      = 8
+    
+    FONT_STYLE          = 'Sans'
     FONT_WEIGHT_BOLD    = QFont.Bold
+    
+    FONT_SPINBOX        = QFont(FONT_STYLE, FONT_SIZE_BODY, FONT_WEIGHT_BOLD)
+    
     
     # Soft Constraint Constants
     TABLE_CONSISTENCY       = 'Table Consistency'
@@ -54,6 +62,15 @@ class Config:
     
     TABLE_SIDE_1 = '1'
     TABLE_SIDE_2 = '2'
+    
+    ROUND_TYPES_PER_TEAM_LABEL = 'Round Types per Team'
+    
+    SCHEDULE_DATA_INPUTS_GROUPBOX_LABEL = 'Schedule Data Inputs'
+    
+    NUM_TEAMS_LABEL             = 'Number of Teams'
+    NUM_ROOMS_LABEL             = 'Number of Rooms'
+    NUM_TABLES_LABEL            = 'Number of Tables'
+    NUM_TABLES_AND_SIDES_LABEL  = 'Number of Tables and Sides: '
     
     # Time Data settings
     JUDGING_ROUNDS_START_TIME   = '08:00'
@@ -104,11 +121,11 @@ class Config:
     ################
     
     # Export settings
+    CSV_PATH_EXTENSION                  = '.csv'
+    XLSX_PATH_EXTENSION                 = '.xlsx'
     EXPORTS_DIRECTORY                   = './exports'
-    OPTIMAL_SCHEDULE_GRID_EXCEL_PATH    = './exports/grid_optimal_schedule.xlsx'
-    BENCHMARK_SCHEDULE_CSV_PATH         = './exports/training_schedules_output/schedule_episode_benchmark.csv'
+    OPTIMAL_SCHEDULE_EXCEL_FILENAME    = '/grid_optimal_schedule'
     TRAINING_SCHEDULE_CSV_PATH_FRONT    = './exports/training_schedules_output/schedule_episode_'
-    TRAINING_SCHEDULE_CSV_PATH_EXT      = '.csv'
     Q_TABLE_CSV_PATH                    = './exports/q_table.csv'
     OPTIMAL_SCHEDULE_CSV_PATH           = './exports/optimal_schedule.csv'
     
@@ -118,4 +135,3 @@ class Config:
     COL_LOCATION    = 'Location'
     COL_TEAM        = 'Team'
     COL_QVALUE      = 'Q-Value'
-    

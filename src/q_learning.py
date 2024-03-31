@@ -43,7 +43,6 @@ TRAINING_EPISODES   = Config.TRAINING_EPISODES
 
 GUI_REFRESH_INTERVAL    = Config.GUI_REFRESH_INTERVAL
 
-BENCHMARK_SCHEDULE_CSV_PATH         = Config.BENCHMARK_SCHEDULE_CSV_PATH
 TRAINING_SCHEDULE_CSV_PATH_FRONT    = Config.TRAINING_SCHEDULE_CSV_PATH_FRONT
 TRAINING_SCHEDULE_CSV_PATH_EXT      = Config.TRAINING_SCHEDULE_CSV_PATH_EXT
 Q_TABLE_CSV_PATH                    = Config.Q_TABLE_CSV_PATH
@@ -175,66 +174,6 @@ class QLearning:
                 self.schedule_data.teams[current_team_id].scheduled_times.append((schedule[0], schedule[1]))
                 self.schedule_data.rooms[schedule[4]].scheduled_teams.append(current_team_id)
                 current_team_id += 1
-
-    def train_benchmark_episodes(self) -> None:
-        """
-        Train the Q-Learning algorithm for benchmarking.
-        
-        """
-        self.initialize_schedule_and_states()
-        self.current_schedule_length = 0
-        actions = tuple(self.schedule_data.teams.keys())
-        
-        while self.states:
-            current_state = random.choice(self.states)
-            
-            current_start_time      = current_state[0]
-            current_end_time        = current_state[1]
-            current_round_type      = current_state[2]
-            current_location_type   = current_state[3]
-            current_location_id     = current_state[4]
-            current_location_letter = current_location_id[0]
-            current_location_side   = current_location_id[1]
-
-            if self.is_terminal_state():
-                break
-
-            actions = self.update_available_actions(current_state)
-            if actions:
-                selected_action = random.choice(actions)
-                
-                if selected_action is not None:
-                    self.update_team_availability(
-                        selected_action,
-                        current_round_type,
-                        (current_start_time, current_end_time),
-                        current_location_letter,
-                        current_location_side,
-                    )
-                    self.update_table_availability(
-                        current_location_id,
-                        selected_action,
-                        (current_start_time, current_end_time),
-                    )
-                    self.update_schedule(current_state, selected_action)
-                    self.states.remove(current_state)
-                    self.static_states[self.static_states.index(current_state)] = (
-                        current_start_time,
-                        current_end_time,
-                        current_round_type,
-                        current_location_type,
-                        f"{current_location_letter}{current_location_side}",
-                        selected_action,
-                    )
-                else:
-                    self.states.remove(current_state)
-            else:
-                self.states.remove(current_state)
-
-            if not self.states:
-                break
-
-        self.exporter.export_schedule_to_csv(BENCHMARK_SCHEDULE_CSV_PATH, self.schedule)
 
     def train_one_episode(self, episode) -> None:
         """

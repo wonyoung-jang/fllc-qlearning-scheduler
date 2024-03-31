@@ -33,13 +33,13 @@ from time_data._time_data import TimeData
 from q_learning import QLearning
 from training_thread import TrainingWorker
 from config import Config
-# from descriptive_stats import MplWidget
 
 # TODO Refactor this code
 
 FONT_SIZE_HEADER = Config.FONT_SIZE_HEADER
 FONT_SIZE_SUBHEADER = Config.FONT_SIZE_SUBHEADER
 FONT_WEIGHT_BOLD = Config.FONT_WEIGHT_BOLD
+FONT_SPINBOX = Config.FONT_SPINBOX
 
 JUDGING = Config.JUDGING
 PRACTICE = Config.PRACTICE
@@ -114,6 +114,7 @@ class MainWindow(QWidget):
         self.setup_statistics()
         self.setup_schedule_display()
     
+    
     def create_schedule_data_inputs(self): 
         """Creates the schedule data inputs for the application."""
         self.num_teams_spinbox = QSpinBox(self)
@@ -134,7 +135,7 @@ class MainWindow(QWidget):
         for name, spinbox in self.round_type_spinboxes.items():
             self.round_type_labels[name] = QLabel(f"{self.schedule_data.NUM_TEAMS * self.schedule_data.ROUND_TYPE_PER_TEAM[name]} Rounds")
 
-        self.round_type_spinboxes[JUDGING].setFont(QFont("Sans", 8, FONT_WEIGHT_BOLD))
+        self.round_type_spinboxes[JUDGING].setFont(FONT_SPINBOX)
         
     def initialize_schedule_data_inputs(self): 
         """Initializes the schedule data inputs based on the values stored in the `schedule_data` object."""

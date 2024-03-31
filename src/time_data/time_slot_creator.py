@@ -8,11 +8,24 @@ TABLE = Config.TABLE
 
 
 class TimeSlotCreator:
-    """Class for creating time slots for rounds."""
+    """
+    Class for creating time slots for rounds.
+    
+    """
 
     @staticmethod
     def calculate_end_times(start_times, duration):
-        """Calculate the end times for a given list of start times and duration."""
+        """
+        Calculate the end times for a given list of start times and duration.
+        
+        Inputs:
+            start_times (list): List of start times.
+            duration (int): Duration of each time slot.
+            
+        Returns:
+            list: List of tuples containing the start and end times for each time slot.
+            
+        """
         end_times = []
         for start_time in start_times:
             end_time = TimeUtilities.add_minutes_to_time(start_time, duration)

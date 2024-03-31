@@ -11,8 +11,8 @@ from collections import defaultdict
 from time_data.time_utilities import TimeUtilities
 from config import Config
 
-LOGGING_FILE_NAME = Config.LOGGING_FILE_NAME
-LOGGING_FORMAT = Config.LOGGING_FORMAT
+LOGGING_FILE_NAME   = Config.LOGGING_FILE_NAME
+LOGGING_FORMAT      = Config.LOGGING_FORMAT
 
 JUDGING     = Config.JUDGING
 PRACTICE    = Config.PRACTICE
@@ -43,11 +43,11 @@ TRAINING_EPISODES   = Config.TRAINING_EPISODES
 
 GUI_REFRESH_INTERVAL    = Config.GUI_REFRESH_INTERVAL
 
-BENCHMARK_SCHEDULE_CSV_PATH = Config.BENCHMARK_SCHEDULE_CSV_PATH
-TRAINING_SCHEDULE_CSV_PATH_FRONT = Config.TRAINING_SCHEDULE_CSV_PATH_FRONT
-TRAINING_SCHEDULE_CSV_PATH_EXT = Config.TRAINING_SCHEDULE_CSV_PATH_EXT
-Q_TABLE_CSV_PATH = Config.Q_TABLE_CSV_PATH
-OPTIMAL_SCHEDULE_CSV_PATH = Config.OPTIMAL_SCHEDULE_CSV_PATH
+BENCHMARK_SCHEDULE_CSV_PATH         = Config.BENCHMARK_SCHEDULE_CSV_PATH
+TRAINING_SCHEDULE_CSV_PATH_FRONT    = Config.TRAINING_SCHEDULE_CSV_PATH_FRONT
+TRAINING_SCHEDULE_CSV_PATH_EXT      = Config.TRAINING_SCHEDULE_CSV_PATH_EXT
+Q_TABLE_CSV_PATH                    = Config.Q_TABLE_CSV_PATH
+OPTIMAL_SCHEDULE_CSV_PATH           = Config.OPTIMAL_SCHEDULE_CSV_PATH
 
 logging.basicConfig(filename=LOGGING_FILE_NAME, level=logging.DEBUG, format=LOGGING_FORMAT)
 
@@ -117,7 +117,7 @@ class QLearning:
         
         """
         self.schedule = self.initialize_schedule()
-        self.staticStates = [tuple(i) for i in self.schedule]
+        self.static_states = [tuple(i) for i in self.schedule]
 
         self.initialize_judging_rounds()
         self.states = [tuple(i) for i in self.schedule if i[2] != JUDGING]
@@ -218,7 +218,7 @@ class QLearning:
                     )
                     self.update_schedule(current_state, selected_action)
                     self.states.remove(current_state)
-                    self.staticStates[self.staticStates.index(current_state)] = (
+                    self.static_states[self.static_states.index(current_state)] = (
                         current_start_time,
                         current_end_time,
                         current_round_type,
@@ -291,7 +291,7 @@ class QLearning:
                     episode_reward += reward
                     self.states.remove(current_state)
                     
-                    self.staticStates[self.staticStates.index(current_state)] = (
+                    self.static_states[self.static_states.index(current_state)] = (
                         current_start_time,
                         current_end_time,
                         current_round_type,
@@ -381,7 +381,7 @@ class QLearning:
                     
                     self.update_schedule(current_state, best_action)
 
-                    self.staticStates[self.staticStates.index(current_state)] = (
+                    self.static_states[self.static_states.index(current_state)] = (
                         current_state[0],
                         current_state[1],
                         current_state[2],
@@ -537,8 +537,8 @@ class QLearning:
         Find the previous state for the current state.
         
         """
-        index = self.staticStates.index(state)
-        prev_state = self.staticStates[index - 1]
+        index = self.static_states.index(state)
+        prev_state = self.static_states[index - 1]
         if prev_state[5] is None:
             return None
         else:
@@ -566,7 +566,7 @@ class QLearning:
         self.schedule_data.tables[prev_table_key].scheduled_teams.remove(prev_team_id)
         self.schedule_data.tables[prev_table_key].scheduled_times.remove(prev_time_slot)
         
-        self.schedule[self.staticStates.index(prev_state)][5] = None
+        self.schedule[self.static_states.index(prev_state)][5] = None
         self.current_schedule_length -= 1
         if prev_round_type == PRACTICE:
             self.practice_teams_available.append(prev_team_id)
@@ -758,64 +758,3 @@ class QLearning:
             return True
         else:
             return False
-
-    ''' TODO 
-    def transform_for_heatmap(self) -> Dict[Tuple[Tuple, Any], float]:
-        """Transform the Q-table data for the heatmap."""
-        data = {}
-        for (
-            (
-                start_time,
-                end_time,
-                round_type,
-                location_type,
-                location_id,
-                team_in_state,
-            ),
-            action,
-        ), value in self.q_table.items():
-            # Use a more detailed state representation
-            detailed_state = (
-                start_time[:5],
-                round_type,
-            )  # Simplify start_time and combine with round_type
-            if (detailed_state, action) not in data:
-                data[(detailed_state, action)] = []
-            data[(detailed_state, action)].append(value)
-
-        # Aggregate values by averaging
-        aggregated_data = {k: sum(values) / len(values) for k, values in data.items()}
-        return aggregated_data
-    '''
-
-    ''' TODO
-    def aggregated_data_to_2d_array(self, aggregated_data) -> Tuple[np.ndarray, List[str], List[str]]:
-        """Convert the aggregated data to a 2D array for the heatmap."""
-        detailed_states = sorted(set(k[0] for k in aggregated_data.keys()), key=lambda x: (x[1], x[0]))
-        actions = sorted(set(k[1] for k in aggregated_data.keys()))  # Assuming actions are team IDs
-
-        heatmap_data = np.zeros((len(detailed_states), len(actions)))
-
-        for (detailed_state, action), value in aggregated_data.items():
-            row = detailed_states.index(detailed_state)
-            col = actions.index(action)
-            heatmap_data[row, col] = value
-
-        # Generate labels for heatmap axes
-        state_labels = [f"{state[0]}-{state[1]}" for state in detailed_states]  # Combining for label
-        action_labels = [str(action) for action in actions]  # Assuming actions are already meaningful
-
-        return heatmap_data, state_labels, action_labels
-    '''
-    
-    '''TODO
-    def save_model(self, filename: str) -> None:  # TODO
-        """Save the trained model to a file."""
-        with open(filename, 'wb') as file:
-            pickle.dump(self.q_table, file)
-
-    def load_model(self, filename: str) -> None:  # TODO
-        """Load the trained model from a file."""
-        with open(filename, 'rb') as file:
-            self.q_table = pickle.load(file)
-    '''

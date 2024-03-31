@@ -42,9 +42,9 @@ class Config:
     ##########################
     
     # Schedule Data settings
-    NUM_TEAMS   = 42
-    NUM_ROOMS   = 7
-    NUM_TABLES  = 4
+    NUM_TEAMS   = 8
+    NUM_ROOMS   = 2
+    NUM_TABLES  = 2
     
     ROUND_TYPE_PER_TEAM = {
         JUDGING   : 1, 
@@ -106,7 +106,6 @@ class Config:
     # Export settings
     EXPORTS_DIRECTORY                   = './exports'
     OPTIMAL_SCHEDULE_GRID_EXCEL_PATH    = './exports/grid_optimal_schedule.xlsx'
-    EVAL_RESULTS_CSV_PATH               = './exports/schedule_evaluation/evaluation_results.csv'
     BENCHMARK_SCHEDULE_CSV_PATH         = './exports/training_schedules_output/schedule_episode_benchmark.csv'
     TRAINING_SCHEDULE_CSV_PATH_FRONT    = './exports/training_schedules_output/schedule_episode_'
     TRAINING_SCHEDULE_CSV_PATH_EXT      = '.csv'
@@ -120,10 +119,3 @@ class Config:
     COL_TEAM        = 'Team'
     COL_QVALUE      = 'Q-Value'
     
-    # Evaluation data
-    EVAL_TYPES                      = ['Benchmarks', 'Training', 'Optimal']
-    EVAL_TYPE                       = 'Eval Type'
-    SCORES                          = 'Scores'
-    COMPLETION_PERCENTAGES          = 'Completion Percentages'
-    AVERAGE_SCORE                   = 'Average Score'
-    AVERAGE_COMPLETION_PERCENTAGE   = 'Average Completion Percentage'

@@ -40,7 +40,6 @@ from gui.q_learning_inputs import QLearningInputs
 from gui.soft_constraint_weights_inputs import SoftConstraintWeightsInputs
 from gui.statistics_and_progress_inputs import StatisticsAndProgressInputs
 from gui.schedule_display import ScheduleDisplay
-# TODO Refactor this code
 
 FONT_SIZE_HEADER = Config.FONT_SIZE_HEADER
 FONT_SIZE_SUBHEADER = Config.FONT_SIZE_SUBHEADER
@@ -145,8 +144,7 @@ class MainWindow(QWidget):
         
         self.initialize_main_gui()
         self.connect_signals_and_slots()
-        
-              
+  
     def create_exports_directory(self):
         """Creates the exports directory if it does not exist.
         
@@ -198,7 +196,6 @@ class MainWindow(QWidget):
         # Add the column splitter to the main layout
         main_layout.addWidget(column_splitter, 0, 0)          
  
-
     def connect_signals_and_slots(self):
         """Connects the signals and slots for the scheduler application."""
         # Time Data Inputs

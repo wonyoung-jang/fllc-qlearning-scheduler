@@ -40,6 +40,7 @@ from gui.q_learning_inputs import QLearningInputs
 from gui.soft_constraint_weights_inputs import SoftConstraintWeightsInputs
 from gui.statistics_and_progress_inputs import StatisticsAndProgressInputs
 from gui.schedule_display import ScheduleDisplay
+from gui.submission_buttons import SubmissionButtons
 
 FONT_SIZE_HEADER = Config.FONT_SIZE_HEADER
 FONT_SIZE_SUBHEADER = Config.FONT_SIZE_SUBHEADER
@@ -136,7 +137,8 @@ class MainWindow(QWidget):
         self.schedule_display_groupbox = self.schedule_display.schedule_display_groupbox
 
         # Create the submission buttons
-        self.train_button = self.create_submission_buttons()
+        self.submission_buttons = SubmissionButtons()
+        self.train_button = self.submission_buttons.train_button
         
         # Create a custom shortcut for the "Ctrl+G" key combination
         self.train_button_shortcut = QShortcut(QKeySequence(Qt.CTRL | Qt.Key_G), self)
@@ -161,13 +163,6 @@ class MainWindow(QWidget):
         if not os.path.exists(EXPORTS_DIRECTORY):
             os.makedirs(EXPORTS_DIRECTORY)
             os.makedirs(f'{EXPORTS_DIRECTORY}/training_schedules_output')
-        
-    def create_submission_buttons(self):
-        """Creates submission buttons for training and generating optimal schedule."""
-        # Submit(Train) Button
-        train_button = QPushButton("Train then Generate Optimal Schedule (Ctrl + G)", self)
-        train_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        return train_button
         
     def initialize_main_gui(self):
         """

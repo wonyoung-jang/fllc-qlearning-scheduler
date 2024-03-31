@@ -36,6 +36,8 @@ from training_thread import TrainingWorker
 from config import Config
 from gui.schedule_data_inputs import ScheduleDataInputs
 from gui.time_data_inputs import TimeDataInputs
+from gui.q_learning_inputs import QLearningInputs
+from gui.soft_constraint_weights_inputs import SoftConstraintWeightsInputs
 # TODO Refactor this code
 
 FONT_SIZE_HEADER = Config.FONT_SIZE_HEADER
@@ -71,6 +73,39 @@ class MainWindow(QWidget):
         self.round_type_groupbox = self.schedule_data_inputs.round_type_groupbox
         
         # Create the time data inputs
+        self.time_data_inputs = TimeDataInputs()
+        
+        self.start_time_judging_rounds = self.time_data_inputs.start_time_judging_rounds
+        self.start_time_practice_rounds = self.time_data_inputs.start_time_practice_rounds
+        self.stop_time_practice_rounds = self.time_data_inputs.stop_time_practice_rounds
+        self.minimum_practice_duration = self.time_data_inputs.minimum_practice_duration
+        self.minimum_table_duration = self.time_data_inputs.minimum_table_duration
+        self.start_time_table_rounds = self.time_data_inputs.start_time_table_rounds
+        self.stop_time_table_rounds = self.time_data_inputs.stop_time_table_rounds
+        
+        self.time_data_inputs_groupbox = self.time_data_inputs.time_data_inputs_groupbox
+        
+        # Create the Q-learning inputs
+        self.q_learning_inputs = QLearningInputs()
+        
+        self.alpha_spinbox = self.q_learning_inputs.alpha_spinbox
+        self.gamma_spinbox = self.q_learning_inputs.gamma_spinbox
+        self.epsilon_start_spinbox = self.q_learning_inputs.epsilon_start_spinbox
+        self.epsilon_end_spinbox = self.q_learning_inputs.epsilon_end_spinbox
+        self.epsilon_decay_spinbox = self.q_learning_inputs.epsilon_decay_spinbox
+        self.training_episodes_spinbox = self.q_learning_inputs.training_episodes_spinbox
+        
+        self.q_learning_inputs_groupbox = self.q_learning_inputs.q_learning_inputs_groupbox
+        
+        # Create the soft constraint weights inputs
+        self.soft_constraint_weights_inputs = SoftConstraintWeightsInputs()
+        
+        self.soft_constraint_weights = self.soft_constraint_weights_inputs.soft_constraint_weights
+        self.soft_constraint_weights_groupbox = self.soft_constraint_weights_inputs.soft_constraint_weights_groupbox
+        
+        for constraint, slider in self.soft_constraint_weights.items():
+            slider.valueChanged.connect(self.on_update)
+            
         
         
         ############################
@@ -110,29 +145,18 @@ class MainWindow(QWidget):
     
     def create_gui_components(self): 
         """Creates the GUI components for the scheduler application."""
-        
-        self.create_time_data_inputs() # TODO
-        
-        self.create_q_learning_inputs()
-        self.create_statistics_and_progress()
+        self.create_statistics_and_progress() # TODO
         self.create_schedule_display()
         self.create_submission_buttons()
-        self.create_soft_constraint_weights()
 
     def initialize_gui_components(self):
-        """Initializes the GUI components of the scheduler."""
-        self.initialize_time_data_inputs() # TODO
-        
-        self.initialize_q_learning_inputs()
-        self.initialize_statistics_and_progress()
+        """Initializes the GUI components of the scheduler."""        
+        self.initialize_statistics_and_progress() # TODO
         self.initialize_schedule_display()
 
     def setup_gui_components(self):
-        """Sets up the GUI components for the scheduler."""
-        self.setup_time_data_inputs() # TODO
-        
-        self.setup_q_learning_inputs()
-        self.setup_statistics()
+        """Sets up the GUI components for the scheduler."""        
+        self.setup_statistics() # TODO
         self.setup_schedule_display()
         
     def initialize_main_gui(self):
@@ -146,15 +170,14 @@ class MainWindow(QWidget):
                 
         # Add widgets to the left panel
         input_panel.addWidget(self.train_button)
-        
+
         input_panel.addWidget(self.inputs_groupbox)
         input_panel.addWidget(self.round_type_groupbox)
-        
-        input_panel.addWidget(self.time_data_inputs_groupbox) # TODO
-        
+        input_panel.addWidget(self.time_data_inputs_groupbox)
         input_panel.addWidget(self.q_learning_inputs_groupbox)
         input_panel.addWidget(self.soft_constraint_weights_groupbox)
-        input_panel.addWidget(self.statistics_groupbox)
+        
+        input_panel.addWidget(self.statistics_groupbox) # TODO
         
         # Add panels to the column splitter
         column_splitter = QSplitter(Qt.Horizontal)
@@ -163,66 +186,7 @@ class MainWindow(QWidget):
         
         # Add the column splitter to the main layout
         main_layout.addWidget(column_splitter, 0, 0)
-    
-    def create_q_learning_inputs(self):
-        """Creates the Q-learning inputs for the application."""
-        self.alpha_spinbox = QDoubleSpinBox(self)
-        self.gamma_spinbox = QDoubleSpinBox(self)
-        self.epsilon_start_spinbox = QDoubleSpinBox(self)
-        self.epsilon_end_spinbox = QDoubleSpinBox(self)
-        self.epsilon_decay_spinbox = QDoubleSpinBox(self, decimals=3)
-        self.training_episodes_spinbox = QSpinBox(self)
-    
-    def initialize_q_learning_inputs(self):
-        """Initializes the Q-learning inputs based on the values stored in the `q_learning` object."""
-        self.alpha_spinbox.setValue(self.q_learning.learning_rate)
-        self.alpha_spinbox.setRange(0.01, 1.00)
-        self.alpha_spinbox.setSingleStep(0.01)
-        
-        self.gamma_spinbox.setValue(self.q_learning.discount_factor)
-        self.gamma_spinbox.setRange(0.01, 1.00)
-        self.gamma_spinbox.setSingleStep(0.01)
-        
-        self.epsilon_start_spinbox.setValue(self.q_learning.epsilon_start)
-        self.epsilon_start_spinbox.setRange(0.01, 1.00)
-        self.epsilon_start_spinbox.setSingleStep(0.01)
-        
-        self.epsilon_end_spinbox.setValue(self.q_learning.epsilon_end)
-        self.epsilon_end_spinbox.setRange(0.01, 1.00) 
-        self.epsilon_end_spinbox.setSingleStep(0.01)     
-          
-        self.epsilon_decay_spinbox.setValue(self.q_learning.epsilon_decay)
-        self.epsilon_decay_spinbox.setRange(0.001, 1.000)
-        self.epsilon_decay_spinbox.setSingleStep(0.001)
-        
-        self.training_episodes_spinbox.setValue(self.q_learning.training_episodes)
-        self.training_episodes_spinbox.setRange(1, 100000)
-              
-    def setup_q_learning_inputs(self):
-        """Sets up the Q-learning inputs in the GUI."""
-        halfway_decay, total_decay, self.decays = self.calculate_epsilon_decay_episodes()
-        self.epsilon_halfway_label  = QLabel(f'{halfway_decay} Episodes')
-        self.epsilon_total_label    = QLabel(f'{total_decay} Episodes')
-        
-        self.q_learning_inputs_groupbox = QGroupBox("Q-Learning Inputs")
-        self.q_learning_layout = QGridLayout(self.q_learning_inputs_groupbox)
-        self.q_learning_layout.addWidget(QLabel("Learning Rate (α)"), 0, 0)
-        self.q_learning_layout.addWidget(self.alpha_spinbox, 0, 1)
-        self.q_learning_layout.addWidget(QLabel("Discount Factor (γ)"), 1, 0)
-        self.q_learning_layout.addWidget(self.gamma_spinbox, 1, 1)
-        self.q_learning_layout.addWidget(QLabel("Epsilon Start (Ɛ)"), 2, 0)
-        self.q_learning_layout.addWidget(self.epsilon_start_spinbox, 2, 1)
-        self.q_learning_layout.addWidget(QLabel("Epsilon End (Ɛ)"), 3, 0)
-        self.q_learning_layout.addWidget(self.epsilon_end_spinbox, 3, 1)
-        self.q_learning_layout.addWidget(QLabel("Epsilon Decay (Ɛ)"), 4, 0)
-        self.q_learning_layout.addWidget(self.epsilon_decay_spinbox, 4, 1)
-        self.q_learning_layout.addWidget(QLabel("Max Training Episodes"), 5, 0)
-        self.q_learning_layout.addWidget(self.training_episodes_spinbox, 5, 1)
-        self.q_learning_layout.addWidget(QLabel(f'Epsilon 50% at: '), 6, 0)
-        self.q_learning_layout.addWidget(self.epsilon_halfway_label, 6, 1)
-        self.q_learning_layout.addWidget(QLabel(f'Epsilon End at:'), 7, 0)
-        self.q_learning_layout.addWidget(self.epsilon_total_label, 7, 1) 
-        
+
     def create_statistics_and_progress(self): 
         """Creates the statistics and progress for the Q-learning scheduler."""
         self.progress_bar = QProgressBar(self)
@@ -262,45 +226,6 @@ class MainWindow(QWidget):
         
         self.statistics_layout.addLayout(self.gui_refresh_layout)
         
-        
-    def create_soft_constraint_weights(self):
-        """Creates the soft constraint weights for the Q-learning scheduler."""
-        # Create the group box and layout for the soft constraint weights
-        self.soft_constraint_weights_groupbox = QGroupBox("Soft Constraint Weights")
-        self.soft_constraint_weights_layout = QGridLayout(self.soft_constraint_weights_groupbox)
-
-        # Initialize dictionaries to store the sliders and labels for each constraint
-        self.soft_constraint_weights = {}
-        self.constraint_labels = {}
-
-        # Set the scale factor for the slider positions
-        scale_factor = 100.0  # Adjust this value based on the precision you need
-
-        # Initialize the row counter
-        row = 0
-
-        # Iterate over each constraint and create a slider and label for it
-        for constraint in ['Table Consistency', 'Opponent Variety', 'Back to Back Penalty', 'Break Time']:
-            # Create the slider for the constraint
-            self.soft_constraint_weights[constraint] = QSlider(Qt.Horizontal, self)
-            self.soft_constraint_weights[constraint].setRange(0, 100)  # Adjust this based on the range you need
-            self.soft_constraint_weights[constraint].setSingleStep(1)
-            self.soft_constraint_weights[constraint].setTickInterval(10)
-            self.soft_constraint_weights[constraint].setSliderPosition(self.q_learning.soft_constraints_weight[constraint] * scale_factor)
-
-            # Connect the valueChanged signal of the slider to the on_update method
-            self.soft_constraint_weights[constraint].valueChanged.connect(self.on_update)
-
-            # Create the label for the constraint
-            self.constraint_labels[constraint] = QLabel(f'{constraint}: {self.q_learning.soft_constraints_weight[constraint] * scale_factor:.2f}%')
-
-            # Add the label and slider to the layout
-            self.soft_constraint_weights_layout.addWidget(self.constraint_labels[constraint], row, 0, Qt.AlignLeft)
-            self.soft_constraint_weights_layout.addWidget(self.soft_constraint_weights[constraint], row, 1, Qt.AlignRight)
-
-            # Increment the row counter
-            row += 1
-    
     def create_schedule_display(self): 
         """Creates the schedule display for the Q-learning scheduler."""
         # Judging Rounds Table
@@ -459,7 +384,7 @@ class MainWindow(QWidget):
         self.start_time_judging_rounds.timeChanged.connect(self.on_update)  # Connects the timeChanged signal of start_time_judging_rounds to the on_update slot function
         
         self.start_time_practice_rounds.timeChanged.connect(self.on_update)  # Connects the timeChanged signal of start_time_practice_rounds to the on_update slot function
-        self.stop_time_practice.timeChanged.connect(self.on_update)  # Connects the timeChanged signal of stop_time_practice to the on_update slot function
+        self.stop_time_practice_rounds.timeChanged.connect(self.on_update)  # Connects the timeChanged signal of stop_time_practice_rounds to the on_update slot function
         
         self.minimum_practice_duration.timeChanged.connect(self.on_update)  # Connects the timeChanged signal of minimum_practice_duration to the on_update slot function
         self.minimum_table_duration.timeChanged.connect(self.on_update)  # Connects the timeChanged signal of minimum_table_duration to the on_update slot function
@@ -468,7 +393,7 @@ class MainWindow(QWidget):
         self.stop_time_table_rounds.timeChanged.connect(self.on_update)  # Connects the timeChanged signal of stop_time_table_rounds to the on_update slot function
         
         self.start_time_practice_rounds.timeChanged.connect(self.validate_practice_times)  # Connects the timeChanged signal of start_time_practice_rounds to the validate_practice_times slot function
-        self.stop_time_practice.timeChanged.connect(self.validate_practice_times)  # Connects the timeChanged signal of stop_time_practice to the validate_practice_times slot function
+        self.stop_time_practice_rounds.timeChanged.connect(self.validate_practice_times)  # Connects the timeChanged signal of stop_time_practice_rounds to the validate_practice_times slot function
         self.minimum_practice_duration.timeChanged.connect(self.validate_practice_times)  # Connects the timeChanged signal of minimum_practice_duration to the validate_practice_times slot function
         
         self.start_time_table_rounds.timeChanged.connect(self.validate_table_times)  # Connects the timeChanged signal of start_time_table_rounds to the validate_table_times slot function
@@ -516,38 +441,12 @@ class MainWindow(QWidget):
 
         self.thread.start()
 
-    def calculate_epsilon_decay_episodes(self):
-        """Calculates the epsilon decay episodes for the Q-learning scheduler."""
-        # Get the initial epsilon, epsilon end, and epsilon decay values
-        epsilon_start = self.epsilon_start_spinbox.value()
-        epsilon_end = self.epsilon_end_spinbox.value()
-        epsilon_decay = self.epsilon_decay_spinbox.value()
-
-        epsilon_halfway = 0.5
-        ep_count = 0
-        ep_count_half = 0
-        epsilon_decay_list = []
-
-        # Calculate epsilon decay until it reaches the end value
-        while epsilon_start > epsilon_end:
-            epsilon_start *= epsilon_decay
-            ep_count += 1
-
-            # Check if epsilon is greater than halfway
-            if epsilon_start > epsilon_halfway:
-                ep_count_half += 1
-
-            epsilon_decay_list.append(epsilon_start)
-            
-        return ep_count_half, ep_count, epsilon_decay_list
-
-    
     @Slot()
     def validate_practice_times(self):
         """Validates the practice times based on the minimum duration and the round type duration."""
         # Get the start and end practice times, minimum duration, and default duration
         start_practice = self.start_time_practice_rounds.time()
-        end_practice = self.stop_time_practice.time()
+        end_practice = self.stop_time_practice_rounds.time()
         min_duration = self.minimum_practice_duration.time()
         duration = self.time_data.ROUND_TYPE_DURATIONS[PRACTICE]
         duration = QTime(0, duration, 0)
@@ -556,7 +455,7 @@ class MainWindow(QWidget):
         if duration < min_duration:
             # Adjust the end practice time based on the difference in minutes
             end_practice = end_practice.addSecs((min_duration.minute() - duration.minute()) * 60)
-            self.stop_time_practice.setTime(end_practice)
+            self.stop_time_practice_rounds.setTime(end_practice)
     
     @Slot()
     def validate_table_times(self):
@@ -592,7 +491,7 @@ class MainWindow(QWidget):
 
         self.time_data.JUDGING_ROUNDS_START_TIME = self.start_time_judging_rounds.time().toString("hh:mm")
         self.time_data.PRACTICE_ROUNDS_START_TIME = self.start_time_practice_rounds.time().toString("hh:mm")
-        self.time_data.PRACTICE_ROUNDS_STOP_TIME = self.stop_time_practice.time().toString("hh:mm")
+        self.time_data.PRACTICE_ROUNDS_STOP_TIME = self.stop_time_practice_rounds.time().toString("hh:mm")
         self.time_data.TABLE_ROUNDS_START_TIME = self.start_time_table_rounds.time().toString("hh:mm")
         self.time_data.TABLE_ROUNDS_STOP_TIME = self.stop_time_table_rounds.time().toString("hh:mm")
         self.time_data.update_time_data()

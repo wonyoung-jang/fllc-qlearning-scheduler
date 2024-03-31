@@ -4,16 +4,26 @@ from .table import Table
 from .room import Room
 from config import Config
 
+NUM_TEAMS = Config.NUM_TEAMS
+NUM_ROOMS = Config.NUM_ROOMS
+NUM_TABLES = Config.NUM_TABLES
+ROUND_TYPE_PER_TEAM = Config.ROUND_TYPE_PER_TEAM
 
 class ScheduleData:
-    """A class to store the data for the schedule."""
+    """
+    A class to store the data for the schedule.
+    
+    """
     
     def __init__(self):
-        """Initialize a ScheduleData object."""
-        self.NUM_TEAMS  = Config.NUM_TEAMS
-        self.NUM_ROOMS  = Config.NUM_ROOMS
-        self.NUM_TABLES = Config.NUM_TABLES
-        self.ROUND_TYPE_PER_TEAM = Config.ROUND_TYPE_PER_TEAM
+        """
+        Initialize a ScheduleData object.
+        
+        """
+        self.NUM_TEAMS  = NUM_TEAMS
+        self.NUM_ROOMS  = NUM_ROOMS
+        self.NUM_TABLES = NUM_TABLES
+        self.ROUND_TYPE_PER_TEAM = ROUND_TYPE_PER_TEAM
         
         self.num_tables_and_sides = self.NUM_TABLES * 2
         self.teams, self.rooms, self.tables = self.initialize_teams_rooms_tables()

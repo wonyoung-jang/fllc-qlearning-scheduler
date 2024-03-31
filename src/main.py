@@ -62,8 +62,13 @@ class MainWindow(QWidget):
         super().__init__()
         self.setWindowTitle("FIRST LEGO League Challenge Q-Learning Tournament Scheduler")
         
+        self.create_exports_directory()
+        self.schedule_data = ScheduleData()
+        self.time_data = TimeData(self.schedule_data)
+        self.q_learning = QLearning(self.schedule_data, self.time_data)
+        
         # Create the schedule data inputs
-        self.schedule_data_inputs = ScheduleDataInputs()
+        self.schedule_data_inputs = ScheduleDataInputs(self.schedule_data)
         
         self.num_teams_spinbox = self.schedule_data_inputs.num_teams_spinbox
         self.num_rooms_spinbox = self.schedule_data_inputs.num_rooms_spinbox
@@ -75,7 +80,7 @@ class MainWindow(QWidget):
         self.round_type_groupbox = self.schedule_data_inputs.round_type_groupbox
         
         # Create the time data inputs
-        self.time_data_inputs = TimeDataInputs()
+        self.time_data_inputs = TimeDataInputs(self.schedule_data, self.time_data)
         
         self.start_time_judging_rounds = self.time_data_inputs.start_time_judging_rounds
         self.start_time_practice_rounds = self.time_data_inputs.start_time_practice_rounds
@@ -88,7 +93,7 @@ class MainWindow(QWidget):
         self.time_data_inputs_groupbox = self.time_data_inputs.time_data_inputs_groupbox
         
         # Create the Q-learning inputs
-        self.q_learning_inputs = QLearningInputs()
+        self.q_learning_inputs = QLearningInputs(self.schedule_data, self.time_data, self.q_learning)
         
         self.alpha_spinbox = self.q_learning_inputs.alpha_spinbox
         self.gamma_spinbox = self.q_learning_inputs.gamma_spinbox
@@ -100,13 +105,13 @@ class MainWindow(QWidget):
         self.q_learning_inputs_groupbox = self.q_learning_inputs.q_learning_inputs_groupbox
         
         # Create the soft constraint weights inputs
-        self.soft_constraint_weights_inputs = SoftConstraintWeightsInputs()
+        self.soft_constraint_weights_inputs = SoftConstraintWeightsInputs(self.schedule_data, self.time_data, self.q_learning)
         
         self.soft_constraint_weights = self.soft_constraint_weights_inputs.soft_constraint_weights
         self.soft_constraint_weights_groupbox = self.soft_constraint_weights_inputs.soft_constraint_weights_groupbox
         
         # Create the statistics and progress inputs
-        self.statistics_and_progress_inputs = StatisticsAndProgressInputs()
+        self.statistics_and_progress_inputs = StatisticsAndProgressInputs(self.schedule_data, self.time_data, self.q_learning)
         
         self.progress_bar = self.statistics_and_progress_inputs.progress_bar
         self.avg_reward_label = self.statistics_and_progress_inputs.avg_reward_label
@@ -120,7 +125,7 @@ class MainWindow(QWidget):
         self.statistics_groupbox = self.statistics_and_progress_inputs.statistics_groupbox
         
         # Create the schedule display
-        self.schedule_display = ScheduleDisplay()
+        self.schedule_display = ScheduleDisplay(self.schedule_data, self.time_data, self.q_learning)
         
         self.judging_table = self.schedule_display.judging_table
         self.practice_table = self.schedule_display.practice_table
@@ -130,8 +135,6 @@ class MainWindow(QWidget):
         self.practice_display_groupbox = self.schedule_display.practice_display_groupbox
         self.table_display_groupbox = self.schedule_display.table_display_groupbox
         self.schedule_display_groupbox = self.schedule_display.schedule_display_groupbox
-        
-        
 
         # Create the submission buttons
         self.train_button = self.create_submission_buttons()
@@ -140,15 +143,9 @@ class MainWindow(QWidget):
         self.train_button_shortcut = QShortcut(QKeySequence(Qt.CTRL | Qt.Key_G), self)
         self.train_button_shortcut.activated.connect(self.start_training_thread)
         
-        ############################
-        self.create_exports_directory()
-        self.schedule_data = ScheduleData()
-        self.time_data = TimeData(self.schedule_data)
-        self.q_learning = QLearning(self.schedule_data, self.time_data)
-        
-        self.connect_signals_and_slots()
-            
         self.initialize_main_gui()
+        self.connect_signals_and_slots()
+        
               
     def create_exports_directory(self):
         """Creates the exports directory if it does not exist.
@@ -166,6 +163,13 @@ class MainWindow(QWidget):
         if not os.path.exists(EXPORTS_DIRECTORY):
             os.makedirs(EXPORTS_DIRECTORY)
             os.makedirs(f'{EXPORTS_DIRECTORY}/training_schedules_output')
+        
+    def create_submission_buttons(self):
+        """Creates submission buttons for training and generating optimal schedule."""
+        # Submit(Train) Button
+        train_button = QPushButton("Train then Generate Optimal Schedule (Ctrl + G)", self)
+        train_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        return train_button
         
     def initialize_main_gui(self):
         """
@@ -194,13 +198,7 @@ class MainWindow(QWidget):
         # Add the column splitter to the main layout
         main_layout.addWidget(column_splitter, 0, 0)          
  
-    def create_submission_buttons(self):
-        """Creates submission buttons for training and generating optimal schedule."""
-        # Submit(Train) Button
-        train_button = QPushButton("Train then Generate Optimal Schedule (Ctrl + G)", self)
-        train_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        return train_button
-        
+
     def connect_signals_and_slots(self):
         """Connects the signals and slots for the scheduler application."""
         # Time Data Inputs

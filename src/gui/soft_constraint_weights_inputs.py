@@ -1,16 +1,13 @@
 from PySide6.QtWidgets import QGroupBox, QGridLayout, QSlider, QLabel
 from PySide6.QtCore import Qt
-from q_learning import QLearning
-from schedule_data._schedule_data import ScheduleData
-from time_data._time_data import TimeData
 from config import Config
 
 
 class SoftConstraintWeightsInputs:
-    def __init__(self):
-        self.schedule_data = ScheduleData()
-        self.time_data = TimeData(self.schedule_data)
-        self.q_learning = QLearning(self.schedule_data, self.time_data)
+    def __init__(self, schedule_data, time_data, q_learning):
+        self.schedule_data = schedule_data
+        self.time_data = time_data
+        self.q_learning = q_learning
         
         """Creates the soft constraint weights for the Q-learning scheduler."""
         # Create the group box and layout for the soft constraint weights

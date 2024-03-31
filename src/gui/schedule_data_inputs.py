@@ -2,13 +2,11 @@
 This module contains the ScheduleDataInputs class, which is a QWidget that contains the schedule data inputs for the GUI. 
 
 """
-
 import sys
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QSpinBox, QLabel, QGroupBox, QGridLayout, QWidget
 from config import Config
-from schedule_data._schedule_data import ScheduleData
 
 JUDGING     = Config.JUDGING
 PRACTICE    = Config.PRACTICE
@@ -27,12 +25,12 @@ ROUND_TYPES_PER_TEAM_LABEL = Config.ROUND_TYPES_PER_TEAM_LABEL
 SCHEDULE_DATA_INPUTS_GROUPBOX_LABEL = Config.SCHEDULE_DATA_INPUTS_GROUPBOX_LABEL
 
 class ScheduleDataInputs:
-    def __init__(self):
+    def __init__(self, schedule_data):
         """
         Initialize the ScheduleDataInputs object.
         
         """
-        self.schedule_data = ScheduleData()
+        self.schedule_data = schedule_data
         self.num_teams_spinbox  = QSpinBox()
         self.num_rooms_spinbox  = QSpinBox()
         self.num_tables_spinbox = QSpinBox()

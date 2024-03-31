@@ -5,11 +5,11 @@ from time_data._time_data import TimeData
 from config import Config
 
 class StatisticsAndProgressInputs:
-    def __init__(self): 
+    def __init__(self, schedule_data, time_data, q_learning): 
         """Creates the statistics and progress for the Q-learning scheduler."""
-        self.schedule_data = ScheduleData()
-        self.time_data = TimeData(self.schedule_data)
-        self.q_learning = QLearning(self.schedule_data, self.time_data)
+        self.schedule_data = schedule_data
+        self.time_data = time_data
+        self.q_learning = q_learning
         
         self.progress_bar = QProgressBar()
         self.avg_reward_label = QLabel("Average Reward: ")

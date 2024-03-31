@@ -2,8 +2,6 @@ from PySide6.QtCore import QTime
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QTimeEdit, QLabel, QGroupBox, QGridLayout, QWidget
 from config import Config
-from schedule_data._schedule_data import ScheduleData
-from time_data._time_data import TimeData
 
 JUDGING     = Config.JUDGING
 PRACTICE    = Config.PRACTICE
@@ -13,13 +11,13 @@ FONT_WEIGHT_BOLD = Config.FONT_WEIGHT_BOLD
 
 
 class TimeDataInputs:
-    def __init__(self): 
+    def __init__(self, schedule_data, time_data): 
         """
         Initializes the time data inputs for the application.
         
         """
-        self.schedule_data = ScheduleData()
-        self.time_data = TimeData(self.schedule_data)
+        self.schedule_data = schedule_data
+        self.time_data = time_data
         
         # Create time edit widgets for start time and stop time of judging rounds, practice rounds, and table rounds
         self.start_time_judging_rounds = QTimeEdit()

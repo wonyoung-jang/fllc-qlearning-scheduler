@@ -51,6 +51,8 @@ OPTIMAL_SCHEDULE_CSV_FILENAME       = Config.OPTIMAL_SCHEDULE_CSV_FILENAME
 
 logging.basicConfig(filename=LOGGING_FILE_NAME, level=logging.DEBUG, format=LOGGING_FORMAT)
 
+# TODO Refactor
+
 
 class QLearning:
     """

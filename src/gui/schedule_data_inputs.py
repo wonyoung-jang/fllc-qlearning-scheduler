@@ -107,4 +107,3 @@ class ScheduleDataInputs:
             count += 1
         
         return round_type_groupbox
-    

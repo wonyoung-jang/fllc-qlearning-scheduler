@@ -7,7 +7,7 @@ import os
 import pandas as pd
 from config import Config
 
-XLSX_PATH_EXTENSION         = Config.XLSX_PATH_EXTENSION
+XLSX_EXT         = Config.XLSX_EXT
 EXPORTS_DIRECTORY           = Config.EXPORTS_DIRECTORY
 OPTIMAL_SCHEDULE_GRID_EXCEL = Config.OPTIMAL_SCHEDULE_EXCEL_FILENAME
 
@@ -31,7 +31,7 @@ class QLearningExporter:
         """
         self.clear_exports_directory()
         self.dataframe = None
-        self.excel_file_path = f'{EXPORTS_DIRECTORY}{OPTIMAL_SCHEDULE_GRID_EXCEL}{XLSX_PATH_EXTENSION}'
+        self.excel_file_path = f'{EXPORTS_DIRECTORY}{OPTIMAL_SCHEDULE_GRID_EXCEL}{XLSX_EXT}'
 
     def clear_exports_directory(self):
         """

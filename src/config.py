@@ -121,13 +121,13 @@ class Config:
     ################
     
     # Export settings
-    CSV_PATH_EXTENSION                  = '.csv'
-    XLSX_PATH_EXTENSION                 = '.xlsx'
+    CSV_EXT                  = '.csv'
+    XLSX_EXT                 = '.xlsx'
     EXPORTS_DIRECTORY                   = './exports'
-    OPTIMAL_SCHEDULE_EXCEL_FILENAME    = '/grid_optimal_schedule'
-    TRAINING_SCHEDULE_CSV_PATH_FRONT    = './exports/training_schedules_output/schedule_episode_'
-    Q_TABLE_CSV_PATH                    = './exports/q_table.csv'
-    OPTIMAL_SCHEDULE_CSV_PATH           = './exports/optimal_schedule.csv'
+    TRAINING_SCHEDULE_CSV_FILENAME      = '/training_schedules_output/schedule_episode_'
+    OPTIMAL_SCHEDULE_CSV_FILENAME       = '/optimal_schedule'
+    OPTIMAL_SCHEDULE_EXCEL_FILENAME     = '/grid_optimal_schedule'
+    Q_TABLE_CSV_FILENAME                = '/q_table'
     
     # Column names
     COL_TIME        = 'Time'

@@ -43,10 +43,11 @@ TRAINING_EPISODES   = Config.TRAINING_EPISODES
 
 GUI_REFRESH_INTERVAL    = Config.GUI_REFRESH_INTERVAL
 
-TRAINING_SCHEDULE_CSV_PATH_FRONT    = Config.TRAINING_SCHEDULE_CSV_PATH_FRONT
-TRAINING_SCHEDULE_CSV_PATH_EXT      = Config.TRAINING_SCHEDULE_CSV_PATH_EXT
-Q_TABLE_CSV_PATH                    = Config.Q_TABLE_CSV_PATH
-OPTIMAL_SCHEDULE_CSV_PATH           = Config.OPTIMAL_SCHEDULE_CSV_PATH
+EXPORTS_DIRECTORY                   = Config.EXPORTS_DIRECTORY
+TRAINING_SCHEDULE_CSV_FILENAME      = Config.TRAINING_SCHEDULE_CSV_FILENAME
+CSV_EXT                  = Config.CSV_EXT
+Q_TABLE_CSV_FILENAME                = Config.Q_TABLE_CSV_FILENAME
+OPTIMAL_SCHEDULE_CSV_FILENAME       = Config.OPTIMAL_SCHEDULE_CSV_FILENAME
 
 logging.basicConfig(filename=LOGGING_FILE_NAME, level=logging.DEBUG, format=LOGGING_FORMAT)
 
@@ -282,7 +283,7 @@ class QLearning:
         self.num_exploitation_counts.append(self.exploitation_count)
 
         # Export the schedule for evaluation
-        scheduleCSVFileName = f'{TRAINING_SCHEDULE_CSV_PATH_FRONT}{episode}{TRAINING_SCHEDULE_CSV_PATH_EXT}'
+        scheduleCSVFileName = f'{EXPORTS_DIRECTORY}{TRAINING_SCHEDULE_CSV_FILENAME}{episode}{CSV_EXT}'
         self.exporter.export_schedule_to_csv(scheduleCSVFileName, self.schedule)
 
     def generate_optimal_schedule(self) -> None:
@@ -331,8 +332,8 @@ class QLearning:
                     
             self.states.remove(current_state)
             
-        self.exporter.export_q_table_to_csv(Q_TABLE_CSV_PATH, self.q_table)
-        self.exporter.export_optimal_schedule_to_excel(OPTIMAL_SCHEDULE_CSV_PATH, self.schedule)
+        self.exporter.export_q_table_to_csv(f'{EXPORTS_DIRECTORY}{Q_TABLE_CSV_FILENAME}{CSV_EXT}', self.q_table)
+        self.exporter.export_optimal_schedule_to_excel(f'{EXPORTS_DIRECTORY}{OPTIMAL_SCHEDULE_CSV_FILENAME}{CSV_EXT}', self.schedule)
 
     def update_available_actions(self, state) -> List[int]:
         """

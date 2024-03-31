@@ -36,9 +36,6 @@ class SoftConstraintWeightsInputs:
             self.soft_constraint_weights[constraint].setTickInterval(10)
             self.soft_constraint_weights[constraint].setSliderPosition(self.q_learning.soft_constraints_weight[constraint] * scale_factor)
 
-            # Connect the valueChanged signal of the slider to the on_update method
-            #self.soft_constraint_weights[constraint].valueChanged.connect(self.on_update)
-
             # Create the label for the constraint
             self.constraint_labels[constraint] = QLabel(f'{constraint}: {self.q_learning.soft_constraints_weight[constraint] * scale_factor:.2f}%')
 

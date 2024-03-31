@@ -38,6 +38,7 @@ from gui.schedule_data_inputs import ScheduleDataInputs
 from gui.time_data_inputs import TimeDataInputs
 from gui.q_learning_inputs import QLearningInputs
 from gui.soft_constraint_weights_inputs import SoftConstraintWeightsInputs
+from gui.statistics_and_progress_inputs import StatisticsAndProgressInputs
 # TODO Refactor this code
 
 FONT_SIZE_HEADER = Config.FONT_SIZE_HEADER
@@ -106,6 +107,20 @@ class MainWindow(QWidget):
         for constraint, slider in self.soft_constraint_weights.items():
             slider.valueChanged.connect(self.on_update)
             
+        # Create the statistics and progress inputs
+        self.statistics_and_progress_inputs = StatisticsAndProgressInputs()
+        
+        self.progress_bar = self.statistics_and_progress_inputs.progress_bar
+        self.avg_reward_label = self.statistics_and_progress_inputs.avg_reward_label
+        self.current_schedule_length_label = self.statistics_and_progress_inputs.current_schedule_length_label
+        self.status_label = self.statistics_and_progress_inputs.status_label
+        self.q_learning_label = self.statistics_and_progress_inputs.q_learning_label
+        self.q_table_size_label = self.statistics_and_progress_inputs.q_table_size_label
+        self.gui_refresh_rate = self.statistics_and_progress_inputs.gui_refresh_rate
+        self.gui_refresh_layout = self.statistics_and_progress_inputs.gui_refresh_layout
+        
+        self.statistics_groupbox = self.statistics_and_progress_inputs.statistics_groupbox
+            
         
         
         ############################
@@ -145,19 +160,16 @@ class MainWindow(QWidget):
     
     def create_gui_components(self): 
         """Creates the GUI components for the scheduler application."""
-        self.create_statistics_and_progress() # TODO
-        self.create_schedule_display()
+        self.create_schedule_display() # TODO
         self.create_submission_buttons()
 
     def initialize_gui_components(self):
         """Initializes the GUI components of the scheduler."""        
-        self.initialize_statistics_and_progress() # TODO
-        self.initialize_schedule_display()
+        self.initialize_schedule_display() # TODO
 
     def setup_gui_components(self):
         """Sets up the GUI components for the scheduler."""        
-        self.setup_statistics() # TODO
-        self.setup_schedule_display()
+        self.setup_schedule_display() # TODO
         
     def initialize_main_gui(self):
         """
@@ -176,56 +188,16 @@ class MainWindow(QWidget):
         input_panel.addWidget(self.time_data_inputs_groupbox)
         input_panel.addWidget(self.q_learning_inputs_groupbox)
         input_panel.addWidget(self.soft_constraint_weights_groupbox)
-        
-        input_panel.addWidget(self.statistics_groupbox) # TODO
+        input_panel.addWidget(self.statistics_groupbox)
         
         # Add panels to the column splitter
         column_splitter = QSplitter(Qt.Horizontal)
         column_splitter.addWidget(input_panel)
-        column_splitter.addWidget(self.schedule_display_groupbox)
+        column_splitter.addWidget(self.schedule_display_groupbox) # TODO
         
         # Add the column splitter to the main layout
         main_layout.addWidget(column_splitter, 0, 0)
 
-    def create_statistics_and_progress(self): 
-        """Creates the statistics and progress for the Q-learning scheduler."""
-        self.progress_bar = QProgressBar(self)
-        self.avg_reward_label = QLabel("Average Reward: ")
-        self.current_schedule_length_label = QLabel(f"Required Schedule Slots: {self.q_learning.required_schedule_slots} ({self.q_learning.possible_schedule_slots} Possible)")
-        
-        self.status_label = QLabel("Waiting for User to Complete Initialization")
-        self.q_learning_label = QLabel(f"Epsilon: {self.q_learning.epsilon:.2f}\nAlpha: {self.q_learning.learning_rate:.2f}\nGamma: {self.q_learning.discount_factor:.2f}\nEpisodes: {self.q_learning.training_episodes}")
-        self.q_table_size_label = QLabel(f"Q-Table Size: {len(self.q_learning.q_table)}/{self.q_learning.q_table_size_limit}")
-        
-        self.gui_refresh_layout = QHBoxLayout()
-        
-        self.gui_refresh_label = QLabel("Refresh GUI every: ")
-        self.gui_refresh_rate = QSpinBox(self)
-        
-        self.gui_refresh_layout.addWidget(self.gui_refresh_label)
-        self.gui_refresh_layout.addWidget(self.gui_refresh_rate)
-        self.gui_refresh_layout.addWidget(QLabel("Episodes"))
-        
-    def initialize_statistics_and_progress(self):
-        """Initializes the statistics and progress for the Q-learning scheduler."""
-        self.progress_bar.setMaximum(self.q_learning.training_episodes)
-        self.current_schedule_length_label.setText(f"Required Schedule Slots: {self.q_learning.required_schedule_slots} ({self.q_learning.possible_schedule_slots} Possible)")
-        self.gui_refresh_rate.setValue(self.q_learning.gui_refresh_interval)
-    
-    def setup_statistics(self): 
-        """Sets up the statistics and progress for the Q-learning scheduler."""
-        self.statistics_groupbox = QGroupBox("Training Statistics")
-        self.statistics_layout = QVBoxLayout(self.statistics_groupbox)
-        self.statistics_layout.addWidget(self.status_label)
-        self.statistics_layout.addWidget(self.avg_reward_label)
-        self.statistics_layout.addWidget(self.current_schedule_length_label)
-        self.statistics_layout.addWidget(self.q_table_size_label)
-        self.statistics_layout.addWidget(self.q_learning_label)
-        
-        self.statistics_layout.addWidget(self.progress_bar)
-        
-        self.statistics_layout.addLayout(self.gui_refresh_layout)
-        
     def create_schedule_display(self): 
         """Creates the schedule display for the Q-learning scheduler."""
         # Judging Rounds Table

@@ -1,7 +1,4 @@
 from PySide6.QtWidgets import QProgressBar, QLabel, QHBoxLayout, QSpinBox, QGroupBox, QVBoxLayout
-from q_learning import QLearning
-from schedule_data._schedule_data import ScheduleData
-from time_data._time_data import TimeData
 from config import Config
 
 class StatisticsAndProgressInputs:

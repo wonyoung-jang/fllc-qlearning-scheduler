@@ -31,7 +31,7 @@ from PySide6.QtCore import QTime, Qt, QThread, QMetaObject, Q_ARG, Slot, QTransl
 from PySide6.QtGui import QFont, QShortcut, QKeySequence, QBrush, QColor
 from schedule_data._schedule_data import ScheduleData
 from time_data._time_data import TimeData
-from q_learning import QLearning
+from q_learning._q_learning import QLearning
 from training_thread import TrainingWorker
 from config import Config
 from gui.schedule_data_inputs import ScheduleDataInputs

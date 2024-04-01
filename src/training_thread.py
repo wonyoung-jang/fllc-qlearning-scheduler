@@ -7,7 +7,7 @@ import ast
 import pandas as pd
 from collections import defaultdict
 from PySide6.QtCore import QObject, QThread, Signal, Slot, QWaitCondition, QMutex, Qt
-from gui_signals import GUISignals
+from gui.signals import GUISignals
 
 
 class TrainingWorker(QObject):

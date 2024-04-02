@@ -21,10 +21,8 @@ class TimeDataInputs:
         
         # Create time edit widgets for start time and stop time of judging rounds, practice rounds, and table rounds
         self.start_time_judging_rounds = QTimeEdit()
-        
         self.start_time_practice_rounds = QTimeEdit()
         self.stop_time_practice_rounds = QTimeEdit()
-        
         self.start_time_table_rounds = QTimeEdit()
         self.stop_time_table_rounds = QTimeEdit()
 
@@ -48,11 +46,6 @@ class TimeDataInputs:
         self.practice_time_available = QLabel(f'{self.time_data.available_practice_duration} minutes')
         self.table_time_available = QLabel(f'{self.time_data.available_table_duration} minutes')
         
-        self.initialize_time_data_inputs()
-        self.setup_time_data_inputs()
-    
-    def initialize_time_data_inputs(self): 
-        """Initializes the time data inputs based on the values stored in the `time_data` object."""
         self.minimum_practice_duration.setTime(QTime.fromString(str(self.time_data.ROUND_TYPE_DURATIONS[PRACTICE]), 'mm'))
         self.minimum_table_duration.setTime(QTime.fromString(str(self.time_data.ROUND_TYPE_DURATIONS[TABLE]), 'mm'))
         self.start_time_judging_rounds.setTime(QTime.fromString(self.time_data.JUDGING_ROUNDS_START_TIME, 'HH:mm'))
@@ -60,14 +53,21 @@ class TimeDataInputs:
         self.stop_time_practice_rounds.setTime(QTime.fromString(self.time_data.PRACTICE_ROUNDS_STOP_TIME, 'HH:mm'))
         self.start_time_table_rounds.setTime(QTime.fromString(self.time_data.TABLE_ROUNDS_START_TIME, 'HH:mm'))
         self.stop_time_table_rounds.setTime(QTime.fromString(self.time_data.TABLE_ROUNDS_STOP_TIME, 'HH:mm'))
-    
-    def setup_time_data_inputs(self): 
-        """Sets up the time data inputs in the GUI."""
-        self.time_data_inputs_groupbox = QGroupBox("Time Data Inputs")
-        self.time_data_layout = QGridLayout(self.time_data_inputs_groupbox)
         
+        self.judging_stop_time_label = QLabel(f'Judging Rounds-Stop')
         self.judging_round_duration_label = QLabel("Judging Round Duration")
         self.judging_round_duration_label.setFont(QFont("Sans", 8, FONT_WEIGHT_BOLD))
+
+        self.time_data_inputs_groupbox = self.setup_time_data_inputs()
+    
+    def setup_time_data_inputs(self): 
+        """
+        Sets up the time data inputs in the GUI.
+        
+        """
+        time_data_inputs_groupbox = QGroupBox("Time Data Inputs")
+        self.time_data_layout = QGridLayout(time_data_inputs_groupbox)
+        
         self.time_data_layout.addWidget(self.judging_round_duration_label, 0, 0)
         self.time_data_layout.addWidget(self.judging_round_duration, 0, 1)
         
@@ -86,9 +86,9 @@ class TimeDataInputs:
         self.time_data_layout.addWidget(QLabel("Judging Rounds-Start"), 5, 0)
         self.time_data_layout.addWidget(self.start_time_judging_rounds, 5, 1)
         
-        self.judging_stop_time_label = QLabel(f'Judging Rounds-Stop')
         self.judging_stop_time = self.start_time_judging_rounds.time().addSecs(self.time_data.ROUND_TYPE_DURATIONS[JUDGING] * 60 * self.time_data.MINIMUM_SLOTS_REQUIRED[JUDGING])
         self.judging_stop_time = QLabel(self.judging_stop_time.toString("HH:mm"))
+        
         self.time_data_layout.addWidget(self.judging_stop_time_label, 6, 0)
         self.time_data_layout.addWidget(self.judging_stop_time, 6, 1)
         
@@ -109,4 +109,6 @@ class TimeDataInputs:
         
         self.time_data_layout.addWidget(QLabel("Table Time Available"), 12, 0)
         self.time_data_layout.addWidget(self.table_time_available, 12, 1)
+        
+        return time_data_inputs_groupbox
     

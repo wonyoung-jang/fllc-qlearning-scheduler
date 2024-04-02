@@ -35,15 +35,14 @@ class ScheduleDataInputs:
         self.num_rooms_spinbox  = QSpinBox()
         self.num_tables_spinbox = QSpinBox()
         
-        self.num_tables_and_sides_count = QLabel(str(self.schedule_data.num_tables_and_sides))
-                
         self.round_type_spinboxes = {
-            JUDGING     : QLabel('1'),
+            JUDGING     : QLabel(str(ROUND_TYPE_PER_TEAM[JUDGING])),
             PRACTICE    : QSpinBox(),
             TABLE       : QSpinBox(),
         }
-        self.round_type_spinboxes[JUDGING].setFont(FONT_SPINBOX)
         
+        self.num_tables_and_sides_label = QLabel(str(self.schedule_data.num_tables_and_sides))
+        self.round_type_spinboxes[JUDGING].setFont(FONT_SPINBOX)
         self.round_type_labels = {}
         for name, spinbox in self.round_type_spinboxes.items():
             round_type_result = self.schedule_data.NUM_TEAMS * self.schedule_data.ROUND_TYPE_PER_TEAM[name]
@@ -61,9 +60,15 @@ class ScheduleDataInputs:
         self.inputs_groupbox        = self.setup_schedule_data_inputs()
         self.round_type_groupbox    = self.setup_round_type_inputs()
         
-    def setup_schedule_data_inputs(self): 
+    def setup_schedule_data_inputs(self) -> QGroupBox: 
         """
         Sets up the schedule data inputs in the GUI.
+        
+        Args:   
+            None
+            
+        Returns:
+            schedule_data_groupbox (QGroupBox): The groupbox containing the schedule data inputs.
         
         """
         NUM_TEAMS_LABEL             = QLabel(Config.NUM_TEAMS_LABEL)
@@ -82,11 +87,11 @@ class ScheduleDataInputs:
         schedule_data_layout.addWidget(self.num_teams_spinbox,          0, 1)
         schedule_data_layout.addWidget(self.num_rooms_spinbox,          1, 1)
         schedule_data_layout.addWidget(self.num_tables_spinbox,         2, 1)
-        schedule_data_layout.addWidget(self.num_tables_and_sides_count, 3, 1, Qt.AlignRight)
+        schedule_data_layout.addWidget(self.num_tables_and_sides_label, 3, 1, Qt.AlignRight)
         
         return schedule_data_groupbox
         
-    def setup_round_type_inputs(self):
+    def setup_round_type_inputs(self) -> QGroupBox:
         """
         Sets up the round type inputs in the GUI.
         

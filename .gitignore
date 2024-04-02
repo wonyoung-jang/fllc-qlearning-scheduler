@@ -4,6 +4,8 @@ translations/*
 exports/*
 features_in_progress/*
 FLLC-Q_Log.txt
+output.csv
+output.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

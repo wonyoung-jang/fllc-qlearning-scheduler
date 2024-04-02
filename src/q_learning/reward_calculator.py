@@ -1,6 +1,6 @@
 from typing import Dict
 from config import Config
-from utiliy.time_utilities import TimeUtilities
+from utility.time_utilities import TimeUtilities
 
 TABLE_CONSISTENCY = Config.TABLE_CONSISTENCY
 OPPONENT_VARIETY = Config.OPPONENT_VARIETY
@@ -19,6 +19,14 @@ class RewardCalculator:
     def normalize_reward(self, reward, min_reward, max_reward) -> float:
         """
         Normalize the reward for the current state-action pair.
+        
+        Args:
+            reward (float): The reward to be normalized.
+            min_reward (float): The minimum possible reward.
+            max_reward (float): The maximum possible reward.
+            
+        Returns:
+            float: The normalized reward.
         
         """
         if max_reward - min_reward == 0:

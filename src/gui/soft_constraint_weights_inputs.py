@@ -9,14 +9,6 @@ class SoftConstraintWeightsInputs:
         self.time_data = time_data
         self.q_learning = q_learning
         
-        """Creates the soft constraint weights for the Q-learning scheduler."""
-        # Create the group box and layout for the soft constraint weights
-        self.soft_constraint_weights_groupbox = QGroupBox("Soft Constraint Weights")
-        self.soft_constraint_weights_layout = QGridLayout(self.soft_constraint_weights_groupbox)
-
-        # Initialize dictionaries to store the sliders and labels for each constraint
-        self.soft_constraint_weights = {}
-        self.constraint_labels = {}
 
         # Set the scale factor for the slider positions
         scale_factor = 100.0  # Adjust this value based on the precision you need
@@ -24,7 +16,10 @@ class SoftConstraintWeightsInputs:
         # Initialize the row counter
         row = 0
 
-        # Iterate over each constraint and create a slider and label for it
+        self.soft_constraint_weights_groupbox = QGroupBox("Soft Constraint Weights")
+        self.soft_constraint_weights_layout = QGridLayout(self.soft_constraint_weights_groupbox)
+        self.soft_constraint_weights = {}
+        self.constraint_labels = {}
         for constraint in ['Table Consistency', 'Opponent Variety', 'Back to Back Penalty', 'Break Time']:
             # Create the slider for the constraint
             self.soft_constraint_weights[constraint] = QSlider(Qt.Horizontal)

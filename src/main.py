@@ -2,38 +2,49 @@
 import os
 import sys
 import pandas as pd
+import colorsys
 from datetime import datetime
 from openpyxl import Workbook
-from PySide6.QtWidgets import (
-    QApplication,
-    QMessageBox,
-    QWidget,
-    QVBoxLayout,
-    QLineEdit,
-    QLabel,
-    QPushButton,
-    QSpinBox,
-    QTimeEdit,
-    QComboBox,
-    QGroupBox,
-    QGridLayout,
-    QHBoxLayout,
-    QDoubleSpinBox,
-    QTableWidget,
-    QTableWidgetItem,
-    QProgressBar,
-    QSlider,
-    QSizePolicy,
-    QSplitter
-)
-import colorsys
-from PySide6.QtCore import QTime, Qt, QThread, QMetaObject, Q_ARG, Slot, QTranslator, QCoreApplication, QLocale, QEvent, QKeyCombination
+from PySide6.QtWidgets import ( QApplication,
+                                QMessageBox,
+                                QWidget,
+                                QVBoxLayout,
+                                QLineEdit,
+                                QLabel,
+                                QPushButton,
+                                QSpinBox,
+                                QTimeEdit,
+                                QComboBox,
+                                QGroupBox,
+                                QGridLayout,
+                                QHBoxLayout,
+                                QDoubleSpinBox,
+                                QTableWidget,
+                                QTableWidgetItem,
+                                QProgressBar,
+                                QSlider,
+                                QSizePolicy,
+                                QSplitter   )
+from PySide6.QtCore import (QTime,
+                            Qt, 
+                            QThread,
+                            QMetaObject,
+                            Q_ARG,
+                            Slot,
+                            QTranslator,
+                            QCoreApplication,
+                            QLocale,
+                            QEvent,
+                            QKeyCombination)
 from PySide6.QtGui import QFont, QShortcut, QKeySequence, QBrush, QColor
+
 from schedule_data._schedule_data import ScheduleData
 from time_data._time_data import TimeData
 from q_learning._q_learning import QLearning
+
 from training_thread import TrainingWorker
 from config import Config
+
 from gui.schedule_data_inputs import ScheduleDataInputs
 from gui.time_data_inputs import TimeDataInputs
 from gui.q_learning_inputs import QLearningInputs
@@ -53,6 +64,7 @@ PRACTICE = Config.PRACTICE
 TABLE = Config.TABLE
 
 EXPORTS_DIRECTORY = Config.EXPORTS_DIRECTORY
+TRAINING_SCHEDULES_DIRECTORY = Config.TRAINING_SCHEDULES_DIRECTORY
 
 
 class MainWindow(QWidget):
@@ -102,48 +114,76 @@ class MainWindow(QWidget):
         Creates the schedule data inputs for the scheduler application.
         
         """
+        # Initialize Schedule Data Inputs
         self.schedule_data_inputs = ScheduleDataInputs(self.schedule_data)
+        
+        # Assign spinboxes
         self.num_teams_spinbox      = self.schedule_data_inputs.num_teams_spinbox
         self.num_rooms_spinbox      = self.schedule_data_inputs.num_rooms_spinbox
         self.num_tables_spinbox     = self.schedule_data_inputs.num_tables_spinbox
         self.round_type_spinboxes   = self.schedule_data_inputs.round_type_spinboxes
+        
+        # Assign labels
         self.round_type_labels      = self.schedule_data_inputs.round_type_labels
-        self.inputs_groupbox        = self.schedule_data_inputs.inputs_groupbox
-        self.round_type_groupbox    = self.schedule_data_inputs.round_type_groupbox
-        self.num_tables_and_sides_label = self.schedule_data_inputs.num_tables_and_sides_count
+        self.num_tables_and_sides_label = self.schedule_data_inputs.num_tables_and_sides_label
+        
+        # Assign groupboxes
+        self.schedule_data_inputs_groupbox          = self.schedule_data_inputs.inputs_groupbox
+        self.round_type_groupbox                    = self.schedule_data_inputs.round_type_groupbox
 
     def create_time_data_inputs(self):
         """
         Creates the time data inputs for the scheduler application.
         
         """
+        # Initialize Time Data Inputs
         self.time_data_inputs = TimeDataInputs(self.schedule_data, self.time_data)
+        
+        # Assign time edit widgets
         self.start_time_judging_rounds  = self.time_data_inputs.start_time_judging_rounds
         self.start_time_practice_rounds = self.time_data_inputs.start_time_practice_rounds
         self.stop_time_practice_rounds  = self.time_data_inputs.stop_time_practice_rounds
-        self.minimum_practice_duration  = self.time_data_inputs.minimum_practice_duration
-        self.minimum_table_duration     = self.time_data_inputs.minimum_table_duration
         self.start_time_table_rounds    = self.time_data_inputs.start_time_table_rounds
         self.stop_time_table_rounds     = self.time_data_inputs.stop_time_table_rounds
-        self.time_data_inputs_groupbox  = self.time_data_inputs.time_data_inputs_groupbox
-        self.judging_stop_time          = self.time_data_inputs.judging_stop_time
+        self.minimum_practice_duration  = self.time_data_inputs.minimum_practice_duration
+        self.minimum_table_duration     = self.time_data_inputs.minimum_table_duration
+        
+        # Assign labels
+        self.judging_round_duration     = self.time_data_inputs.judging_round_duration
         self.practice_round_duration    = self.time_data_inputs.practice_round_duration
         self.table_round_duration       = self.time_data_inputs.table_round_duration
+        self.minimum_practice_duration_label = self.time_data_inputs.minimum_practice_duration_label
+        self.minimum_table_duration_label    = self.time_data_inputs.minimum_table_duration_label
         self.practice_time_available    = self.time_data_inputs.practice_time_available
         self.table_time_available       = self.time_data_inputs.table_time_available
+        
+        self.time_data_inputs_groupbox  = self.time_data_inputs.time_data_inputs_groupbox
+        self.judging_stop_time          = self.time_data_inputs.judging_stop_time
+        self.judging_stop_time_label    = self.time_data_inputs.judging_stop_time_label
+        self.judging_round_duration_label = self.time_data_inputs.judging_round_duration_label
+        self.practice_time_available    = self.time_data_inputs.practice_time_available
+        self.table_time_available       = self.time_data_inputs.table_time_available
+        
+        # Assign groupbox
+        self.time_data_inputs_groupbox  = self.time_data_inputs.time_data_inputs_groupbox
 
     def create_q_learning_inputs(self):
         """
         Creates the Q-learning inputs for the scheduler application.
         
         """
+        # Initialize Q-Learning Inputs
         self.q_learning_inputs = QLearningInputs(self.schedule_data, self.time_data, self.q_learning)
+        
+        # Assign spinboxes
         self.alpha_spinbox              = self.q_learning_inputs.alpha_spinbox
         self.gamma_spinbox              = self.q_learning_inputs.gamma_spinbox
         self.epsilon_start_spinbox      = self.q_learning_inputs.epsilon_start_spinbox
         self.epsilon_end_spinbox        = self.q_learning_inputs.epsilon_end_spinbox
         self.epsilon_decay_spinbox      = self.q_learning_inputs.epsilon_decay_spinbox
         self.training_episodes_spinbox  = self.q_learning_inputs.training_episodes_spinbox
+        
+        # Assign groupbox
         self.q_learning_inputs_groupbox = self.q_learning_inputs.q_learning_inputs_groupbox
     
     def create_soft_constraint_weights_inputs(self):
@@ -151,45 +191,67 @@ class MainWindow(QWidget):
         Creates the soft constraint weights inputs for the scheduler application.
         
         """
+        # Initialize Soft Constraint Weights Inputs
         self.soft_constraint_weights_inputs = SoftConstraintWeightsInputs(self.schedule_data, self.time_data, self.q_learning)        
+        
+        # Assign sliders and labels
         self.soft_constraint_weights            = self.soft_constraint_weights_inputs.soft_constraint_weights
-        self.soft_constraint_weights_groupbox   = self.soft_constraint_weights_inputs.soft_constraint_weights_groupbox
         self.constraint_labels                  = self.soft_constraint_weights_inputs.constraint_labels
+        
+        # Assign groupbox
+        self.soft_constraint_weights_groupbox   = self.soft_constraint_weights_inputs.soft_constraint_weights_groupbox
 
     def create_statistics_and_progress_inputs(self):
         """
         Creates the statistics and progress inputs for the scheduler application.
         
         """
-        statistics_and_progress_inputs = StatisticsAndProgressInputs(self.schedule_data, self.time_data, self.q_learning)        
-        self.progress_bar                   = statistics_and_progress_inputs.progress_bar
-        self.avg_reward_label               = statistics_and_progress_inputs.avg_reward_label
-        self.current_schedule_length_label  = statistics_and_progress_inputs.current_schedule_length_label
-        self.status_label                   = statistics_and_progress_inputs.status_label
-        self.q_learning_label               = statistics_and_progress_inputs.q_learning_label
-        self.q_table_size_label             = statistics_and_progress_inputs.q_table_size_label
-        self.gui_refresh_rate               = statistics_and_progress_inputs.gui_refresh_rate
-        self.gui_refresh_layout             = statistics_and_progress_inputs.gui_refresh_layout
-        self.statistics_groupbox            = statistics_and_progress_inputs.statistics_groupbox
+        # Initialize Statistics and Progress Inputs
+        self.statistics_and_progress_inputs = StatisticsAndProgressInputs(self.schedule_data, self.time_data, self.q_learning)        
+        
+        # Assign progress bar
+        self.progress_bar                   = self.statistics_and_progress_inputs.progress_bar
+        
+        # Assign labels
+        self.avg_reward_label               = self.statistics_and_progress_inputs.avg_reward_label
+        self.current_schedule_length_label  = self.statistics_and_progress_inputs.current_schedule_length_label
+        self.status_label                   = self.statistics_and_progress_inputs.status_label
+        self.q_learning_label               = self.statistics_and_progress_inputs.q_learning_label
+        self.q_table_size_label             = self.statistics_and_progress_inputs.q_table_size_label
+        self.gui_refresh_label              = self.statistics_and_progress_inputs.gui_refresh_label
+        
+        # Assign spinbox
+        self.gui_refresh_rate               = self.statistics_and_progress_inputs.gui_refresh_rate
+
+        # Assign groupbox
+        self.statistics_groupbox            = self.statistics_and_progress_inputs.statistics_groupbox
     
     def create_schedule_display(self):
         """
         Creates the schedule display for the scheduler application.
         
         """
+        # Initialize Schedule Display
         self.schedule_display = ScheduleDisplay(self.schedule_data, self.time_data, self.q_learning)
+        
+        # Assign tables
         self.judging_table              = self.schedule_display.judging_table
         self.practice_table             = self.schedule_display.practice_table
-        self.table_round_table          = self.schedule_display.table_round_table     
-        self.judging_display_groupbox   = self.schedule_display.judging_display_groupbox
-        self.practice_display_groupbox  = self.schedule_display.practice_display_groupbox
-        self.table_display_groupbox     = self.schedule_display.table_display_groupbox
+        self.table_round_table          = self.schedule_display.table_round_table
+        
+        # Assign groupbox
         self.schedule_display_groupbox  = self.schedule_display.schedule_display_groupbox
     
     def create_submission_buttons(self):
-        submission_buttons = SubmissionButtons()
-        self.train_button = submission_buttons.train_button
-
+        """
+        Creates the submission buttons for the scheduler application.
+        
+        """
+        # Initialize Submission Buttons
+        self.submission_buttons = SubmissionButtons()
+        
+        # Assign buttons
+        self.train_button = self.submission_buttons.train_button
 
     def initialize_export_directory(self):
         """
@@ -198,34 +260,34 @@ class MainWindow(QWidget):
         """
         if not os.path.exists(EXPORTS_DIRECTORY):
             os.makedirs(EXPORTS_DIRECTORY)
-            os.makedirs(f'{EXPORTS_DIRECTORY}/training_schedules_output')
+            os.makedirs(f'{EXPORTS_DIRECTORY}{TRAINING_SCHEDULES_DIRECTORY}')
         
     def initialize_main_gui(self):
         """
         Initializes the main GUI for the scheduler application.
         
         """
-        main_layout = QGridLayout(self)
+        self.main_layout = QGridLayout(self)
         
-        input_panel = QSplitter(Qt.Vertical)
+        self.inputs_panel = QSplitter(Qt.Vertical)
                 
         # Add widgets to the left panel
-        input_panel.addWidget(self.train_button)
+        self.inputs_panel.addWidget(self.train_button)
 
-        input_panel.addWidget(self.inputs_groupbox)
-        input_panel.addWidget(self.round_type_groupbox)
-        input_panel.addWidget(self.time_data_inputs_groupbox)
-        input_panel.addWidget(self.q_learning_inputs_groupbox)
-        input_panel.addWidget(self.soft_constraint_weights_groupbox)
-        input_panel.addWidget(self.statistics_groupbox)
+        self.inputs_panel.addWidget(self.schedule_data_inputs_groupbox)
+        self.inputs_panel.addWidget(self.round_type_groupbox)
+        self.inputs_panel.addWidget(self.time_data_inputs_groupbox)
+        self.inputs_panel.addWidget(self.q_learning_inputs_groupbox)
+        self.inputs_panel.addWidget(self.soft_constraint_weights_groupbox)
+        self.inputs_panel.addWidget(self.statistics_groupbox)
         
         # Add panels to the column splitter
-        column_splitter = QSplitter(Qt.Horizontal)
-        column_splitter.addWidget(input_panel)
-        column_splitter.addWidget(self.schedule_display_groupbox)
+        self.column_splitter = QSplitter(Qt.Horizontal)
+        self.column_splitter.addWidget(self.inputs_panel)
+        self.column_splitter.addWidget(self.schedule_display_groupbox)
         
         # Add the column splitter to the main layout
-        main_layout.addWidget(column_splitter, 0, 0)          
+        self.main_layout.addWidget(self.column_splitter, 0, 0)          
  
  
     def connect_signals_and_slots(self):
@@ -291,7 +353,7 @@ class MainWindow(QWidget):
         """
         training_episodes = int(self.training_episodes_spinbox.value())  # Assuming you have an input field for training_episodes
         self.q_learning.training_episodes = training_episodes
-        self.schedule_display.initialize_schedule_display()
+        self.schedule_display.initialize_schedule_display(self.q_learning)
 
         self.thread = QThread()
         self.worker = TrainingWorker(self.q_learning)  # Assuming q_learning is your QLearning instance
@@ -344,8 +406,8 @@ class MainWindow(QWidget):
         self.schedule_data.NUM_TEAMS = self.num_teams_spinbox.value()
         self.schedule_data.NUM_ROOMS = self.num_rooms_spinbox.value()
         self.schedule_data.NUM_TABLES = self.num_tables_spinbox.value()
-        self.schedule_data.ROUND_TYPE_PER_TEAM['practice'] = self.round_type_spinboxes['practice'].value()
-        self.schedule_data.ROUND_TYPE_PER_TEAM['table'] = self.round_type_spinboxes['table'].value()
+        self.schedule_data.ROUND_TYPE_PER_TEAM[PRACTICE] = self.round_type_spinboxes[PRACTICE].value()
+        self.schedule_data.ROUND_TYPE_PER_TEAM[TABLE] = self.round_type_spinboxes[TABLE].value()
         self.schedule_data.num_tables_and_sides = self.schedule_data.NUM_TABLES * 2
         self.num_tables_and_sides_label.setText(str(self.schedule_data.num_tables_and_sides))
         for name in [JUDGING, PRACTICE, TABLE]:
@@ -412,7 +474,9 @@ class MainWindow(QWidget):
         self.table_time_available.setText(f'{self.time_data.available_table_duration} minutes')
 
         self.status_label.setText(f"Waiting for User to Complete Initialization")
-        self.schedule_display.initialize_schedule_display()
+        
+        # Update the schedule display
+        self.schedule_display.initialize_schedule_display(self.q_learning)
 
         self.validate_practice_times()
         self.validate_table_times()
@@ -429,7 +493,9 @@ class MainWindow(QWidget):
             # self.scheduleScoresPlot.plot_schedule_scores('optimal', episode, self.q_learning.scores, self.q_learning.completion_percentage)
             
             # Update the schedule display
-            self.schedule_display.initialize_schedule_display()
+            if self.q_learning.schedule is not None:
+                self.schedule_display.initialize_schedule_display(self.q_learning)
+            
             self.progress_bar.setValue(self.q_learning.training_episodes)
             self.train_button.setDisabled(False)
             self.train_button.setText("Close Window")
@@ -443,7 +509,9 @@ class MainWindow(QWidget):
             self.q_table_size_label.setText(f"Q-Table Size: {len(self.q_learning.q_table)}/{self.q_learning.q_table_size_limit}")
             
             # Update the schedule display
-            self.schedule_display.initialize_schedule_display()
+            if self.q_learning.schedule is not None:
+                self.schedule_display.initialize_schedule_display(self.q_learning)
+            
             self.progress_bar.setValue(episode)
             self.train_button.setText(f'Training in Progress...{episode}/{self.q_learning.training_episodes}')
             self.worker.signals.gui_updated_signal.emit()

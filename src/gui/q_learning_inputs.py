@@ -3,24 +3,21 @@ from config import Config
 
 class QLearningInputs:
     def __init__(self, schedule_data, time_data, q_learning):
-        """Creates the Q-learning inputs for the application."""
+        """
+        Creates the Q-learning inputs for the application.
+        
+        """
         self.schedule_data = schedule_data
         self.time_data = time_data
         self.q_learning = q_learning
         
-        self.alpha_spinbox = QDoubleSpinBox()
-        self.gamma_spinbox = QDoubleSpinBox()
-        self.epsilon_start_spinbox = QDoubleSpinBox()
-        self.epsilon_end_spinbox = QDoubleSpinBox()
-        self.epsilon_decay_spinbox = QDoubleSpinBox(decimals=3)
+        self.alpha_spinbox          = QDoubleSpinBox()
+        self.gamma_spinbox          = QDoubleSpinBox()
+        self.epsilon_start_spinbox  = QDoubleSpinBox()
+        self.epsilon_end_spinbox    = QDoubleSpinBox()
+        self.epsilon_decay_spinbox  = QDoubleSpinBox(decimals=3)
         self.training_episodes_spinbox = QSpinBox()
         
-        self.initialize_q_learning_inputs()
-        self.setup_q_learning_inputs()
-        
-    
-    def initialize_q_learning_inputs(self):
-        """Initializes the Q-learning inputs based on the values stored in the `q_learning` object."""
         self.alpha_spinbox.setValue(self.q_learning.learning_rate)
         self.alpha_spinbox.setRange(0.01, 1.00)
         self.alpha_spinbox.setSingleStep(0.01)
@@ -43,6 +40,8 @@ class QLearningInputs:
         
         self.training_episodes_spinbox.setValue(self.q_learning.training_episodes)
         self.training_episodes_spinbox.setRange(1, 100000)
+        
+        self.q_learning_inputs_groupbox = self.setup_q_learning_inputs()
               
     def setup_q_learning_inputs(self):
         """Sets up the Q-learning inputs in the GUI."""
@@ -50,8 +49,9 @@ class QLearningInputs:
         self.epsilon_halfway_label  = QLabel(f'{halfway_decay} Episodes')
         self.epsilon_total_label    = QLabel(f'{total_decay} Episodes')
         
-        self.q_learning_inputs_groupbox = QGroupBox("Q-Learning Inputs")
-        self.q_learning_layout = QGridLayout(self.q_learning_inputs_groupbox)
+        q_learning_inputs_groupbox = QGroupBox("Q-Learning Inputs")
+        self.q_learning_layout = QGridLayout(q_learning_inputs_groupbox)
+        
         self.q_learning_layout.addWidget(QLabel("Learning Rate (α)"), 0, 0)
         self.q_learning_layout.addWidget(self.alpha_spinbox, 0, 1)
         self.q_learning_layout.addWidget(QLabel("Discount Factor (γ)"), 1, 0)
@@ -67,7 +67,9 @@ class QLearningInputs:
         self.q_learning_layout.addWidget(QLabel(f'Epsilon 50% at: '), 6, 0)
         self.q_learning_layout.addWidget(self.epsilon_halfway_label, 6, 1)
         self.q_learning_layout.addWidget(QLabel(f'Epsilon End at:'), 7, 0)
-        self.q_learning_layout.addWidget(self.epsilon_total_label, 7, 1) 
+        self.q_learning_layout.addWidget(self.epsilon_total_label, 7, 1)
+        
+        return q_learning_inputs_groupbox
     
     
     def calculate_epsilon_decay_episodes(self):

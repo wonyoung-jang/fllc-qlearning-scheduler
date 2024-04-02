@@ -10,7 +10,6 @@ class ScheduleDisplay:
         """Creates the schedule display for the Q-learning scheduler."""
         self.schedule_data = schedule_data
         self.time_data = time_data
-        self.q_learning = q_learning
         
         # Judging Rounds Table
         self.judging_table = QTableWidget()
@@ -29,12 +28,13 @@ class ScheduleDisplay:
         table_round_headers = ['Time'] + [f'Table {chr(65 + i // 2)}{i % 2 + 1}' for i in range(self.schedule_data.NUM_TABLES * 2)]
         self.table_round_table.setHorizontalHeaderLabels(table_round_headers)
         
-        self.initialize_schedule_display()
+        self.initialize_schedule_display(q_learning)
         self.setup_schedule_display()
     
-    def initialize_schedule_display(self):
+    def initialize_schedule_display(self, q_learning):
         """Initializes the schedule display for the Q-learning scheduler."""
-
+        schedule = q_learning.schedule
+        
         # Ensure tables are clear and set up before populating
         self.clear_and_setup_tables()
 
@@ -45,7 +45,7 @@ class ScheduleDisplay:
         color_map = {}
 
         # Iterate over each entry in the sorted schedule
-        for entry in sorted(self.q_learning.schedule, key=lambda x: (x[0], x[2], x[4])):
+        for entry in sorted(schedule, key=lambda x: (x[0], x[2], x[4])):
             time_start, _, round_type, _, location_id, team_id = entry
 
             table_widget = self.get_table_widget(round_type)
@@ -76,6 +76,7 @@ class ScheduleDisplay:
                                 
             # Set the cell background color using QBrush
             item.setBackground(QBrush(color_map[team_id]))
+        
 
     def setup_schedule_display(self): 
         """Sets up the schedule display for the Q-learning scheduler."""

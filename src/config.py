@@ -122,10 +122,11 @@ class Config:
     CSV_EXT                  = '.csv'
     XLSX_EXT                 = '.xlsx'
     EXPORTS_DIRECTORY                   = './exports'
-    TRAINING_SCHEDULE_CSV_FILENAME      = '/training_schedules_output/schedule_episode_'
     OPTIMAL_SCHEDULE_CSV_FILENAME       = '/optimal_schedule'
     OPTIMAL_SCHEDULE_EXCEL_FILENAME     = '/grid_optimal_schedule'
     Q_TABLE_CSV_FILENAME                = '/q_table'
+    TRAINING_SCHEDULES_DIRECTORY        = '/training_schedules_output'
+    TRAINING_SCHEDULE_CSV_FILENAME      = '/training_schedules_output/schedule_episode_'
     
     # Column names
     COL_TIME        = 'Time'

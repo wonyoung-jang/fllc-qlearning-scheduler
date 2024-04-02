@@ -4,8 +4,6 @@ from PySide6.QtGui import QFont
 
 class Config:
     """Class to store configuration settings for the Q-Learning algorithm and the GUI."""
-    
-    
     ###########
     # Logging #
     ###########

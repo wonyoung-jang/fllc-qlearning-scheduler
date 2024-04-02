@@ -42,6 +42,7 @@ from gui.statistics_and_progress_inputs import StatisticsAndProgressInputs
 from gui.schedule_display import ScheduleDisplay
 from gui.submission_buttons import SubmissionButtons
 
+# Configuration Constants
 FONT_SIZE_HEADER = Config.FONT_SIZE_HEADER
 FONT_SIZE_SUBHEADER = Config.FONT_SIZE_SUBHEADER
 FONT_WEIGHT_BOLD = Config.FONT_WEIGHT_BOLD
@@ -55,110 +56,145 @@ EXPORTS_DIRECTORY = Config.EXPORTS_DIRECTORY
 
 
 class MainWindow(QWidget):
-    """The main window class for the scheduler application."""
+    """
+    The main window class for the scheduler application.
     
+    """
     def __init__(self): 
-        """Initializes the main class of the scheduler application."""
+        """
+        Initializes the main class of the scheduler application.
+        
+        """
         super().__init__()
+        
+        # Set the window title
         self.setWindowTitle("FIRST LEGO League Challenge Q-Learning Tournament Scheduler")
         
-        self.create_exports_directory()
+        # Initialize the schedule data, time data, and Q-learning classes
         self.schedule_data = ScheduleData()
         self.time_data = TimeData(self.schedule_data)
         self.q_learning = QLearning(self.schedule_data, self.time_data)
         
-        # Create the schedule data inputs
-        self.schedule_data_inputs = ScheduleDataInputs(self.schedule_data)
-        
-        self.num_teams_spinbox = self.schedule_data_inputs.num_teams_spinbox
-        self.num_rooms_spinbox = self.schedule_data_inputs.num_rooms_spinbox
-        self.num_tables_spinbox = self.schedule_data_inputs.num_tables_spinbox
-        self.round_type_spinboxes = self.schedule_data_inputs.round_type_spinboxes
-        self.round_type_labels = self.schedule_data_inputs.round_type_labels
-        
-        self.inputs_groupbox = self.schedule_data_inputs.inputs_groupbox
-        self.round_type_groupbox = self.schedule_data_inputs.round_type_groupbox
-        
-        # Create the time data inputs
-        self.time_data_inputs = TimeDataInputs(self.schedule_data, self.time_data)
-        
-        self.start_time_judging_rounds = self.time_data_inputs.start_time_judging_rounds
-        self.start_time_practice_rounds = self.time_data_inputs.start_time_practice_rounds
-        self.stop_time_practice_rounds = self.time_data_inputs.stop_time_practice_rounds
-        self.minimum_practice_duration = self.time_data_inputs.minimum_practice_duration
-        self.minimum_table_duration = self.time_data_inputs.minimum_table_duration
-        self.start_time_table_rounds = self.time_data_inputs.start_time_table_rounds
-        self.stop_time_table_rounds = self.time_data_inputs.stop_time_table_rounds
-        
-        self.time_data_inputs_groupbox = self.time_data_inputs.time_data_inputs_groupbox
-        
-        # Create the Q-learning inputs
-        self.q_learning_inputs = QLearningInputs(self.schedule_data, self.time_data, self.q_learning)
-        
-        self.alpha_spinbox = self.q_learning_inputs.alpha_spinbox
-        self.gamma_spinbox = self.q_learning_inputs.gamma_spinbox
-        self.epsilon_start_spinbox = self.q_learning_inputs.epsilon_start_spinbox
-        self.epsilon_end_spinbox = self.q_learning_inputs.epsilon_end_spinbox
-        self.epsilon_decay_spinbox = self.q_learning_inputs.epsilon_decay_spinbox
-        self.training_episodes_spinbox = self.q_learning_inputs.training_episodes_spinbox
-        
-        self.q_learning_inputs_groupbox = self.q_learning_inputs.q_learning_inputs_groupbox
-        
-        # Create the soft constraint weights inputs
-        self.soft_constraint_weights_inputs = SoftConstraintWeightsInputs(self.schedule_data, self.time_data, self.q_learning)
-        
-        self.soft_constraint_weights = self.soft_constraint_weights_inputs.soft_constraint_weights
-        self.soft_constraint_weights_groupbox = self.soft_constraint_weights_inputs.soft_constraint_weights_groupbox
-        
-        # Create the statistics and progress inputs
-        self.statistics_and_progress_inputs = StatisticsAndProgressInputs(self.schedule_data, self.time_data, self.q_learning)
-        
-        self.progress_bar = self.statistics_and_progress_inputs.progress_bar
-        self.avg_reward_label = self.statistics_and_progress_inputs.avg_reward_label
-        self.current_schedule_length_label = self.statistics_and_progress_inputs.current_schedule_length_label
-        self.status_label = self.statistics_and_progress_inputs.status_label
-        self.q_learning_label = self.statistics_and_progress_inputs.q_learning_label
-        self.q_table_size_label = self.statistics_and_progress_inputs.q_table_size_label
-        self.gui_refresh_rate = self.statistics_and_progress_inputs.gui_refresh_rate
-        self.gui_refresh_layout = self.statistics_and_progress_inputs.gui_refresh_layout
-        
-        self.statistics_groupbox = self.statistics_and_progress_inputs.statistics_groupbox
-        
-        # Create the schedule display
-        self.schedule_display = ScheduleDisplay(self.schedule_data, self.time_data, self.q_learning)
-        
-        self.judging_table = self.schedule_display.judging_table
-        self.practice_table = self.schedule_display.practice_table
-        self.table_round_table = self.schedule_display.table_round_table
-                
-        self.judging_display_groupbox = self.schedule_display.judging_display_groupbox
-        self.practice_display_groupbox = self.schedule_display.practice_display_groupbox
-        self.table_display_groupbox = self.schedule_display.table_display_groupbox
-        self.schedule_display_groupbox = self.schedule_display.schedule_display_groupbox
+        # Create the main window widgets
+        self.create_schedule_data_inputs()
+        self.create_time_data_inputs()
+        self.create_q_learning_inputs()
+        self.create_soft_constraint_weights_inputs()
+        self.create_statistics_and_progress_inputs()
+        self.create_schedule_display()
+        self.create_submission_buttons()
 
-        # Create the submission buttons
-        self.submission_buttons = SubmissionButtons()
-        self.train_button = self.submission_buttons.train_button
-        
-        # Create a custom shortcut for the "Ctrl+G" key combination
+        # Add a custom shortcut for the "Ctrl+G" key combination
         self.train_button_shortcut = QShortcut(QKeySequence(Qt.CTRL | Qt.Key_G), self)
         self.train_button_shortcut.activated.connect(self.start_training_thread)
         
-        self.initialize_main_gui()
-        self.connect_signals_and_slots()
-  
-    def create_exports_directory(self):
-        """Creates the exports directory if it does not exist.
+        # Initialize the exports directory
+        self.initialize_export_directory()
         
-        Structure for ./exports directory:
-            ./exports
-            ├── /training_schedules_output
-                ├── schedule_episode_{int}.csv
-                ├── schedule_episode_benchmark.csv
-            ├── grid_optimal_schedule.xlsx
-            ├── optimal_schedule.csv
-            ├── q_table.csv
-            
+        # Initialize the main GUI
+        self.initialize_main_gui()
+        
+        # Connect signals and slots
+        self.connect_signals_and_slots()
+    
+    def create_schedule_data_inputs(self):
+        """
+        Creates the schedule data inputs for the scheduler application.
+        
+        """
+        self.schedule_data_inputs = ScheduleDataInputs(self.schedule_data)
+        self.num_teams_spinbox      = self.schedule_data_inputs.num_teams_spinbox
+        self.num_rooms_spinbox      = self.schedule_data_inputs.num_rooms_spinbox
+        self.num_tables_spinbox     = self.schedule_data_inputs.num_tables_spinbox
+        self.round_type_spinboxes   = self.schedule_data_inputs.round_type_spinboxes
+        self.round_type_labels      = self.schedule_data_inputs.round_type_labels
+        self.inputs_groupbox        = self.schedule_data_inputs.inputs_groupbox
+        self.round_type_groupbox    = self.schedule_data_inputs.round_type_groupbox
+        self.num_tables_and_sides_label = self.schedule_data_inputs.num_tables_and_sides_count
+
+    def create_time_data_inputs(self):
+        """
+        Creates the time data inputs for the scheduler application.
+        
+        """
+        self.time_data_inputs = TimeDataInputs(self.schedule_data, self.time_data)
+        self.start_time_judging_rounds  = self.time_data_inputs.start_time_judging_rounds
+        self.start_time_practice_rounds = self.time_data_inputs.start_time_practice_rounds
+        self.stop_time_practice_rounds  = self.time_data_inputs.stop_time_practice_rounds
+        self.minimum_practice_duration  = self.time_data_inputs.minimum_practice_duration
+        self.minimum_table_duration     = self.time_data_inputs.minimum_table_duration
+        self.start_time_table_rounds    = self.time_data_inputs.start_time_table_rounds
+        self.stop_time_table_rounds     = self.time_data_inputs.stop_time_table_rounds
+        self.time_data_inputs_groupbox  = self.time_data_inputs.time_data_inputs_groupbox
+        self.judging_stop_time          = self.time_data_inputs.judging_stop_time
+        self.practice_round_duration    = self.time_data_inputs.practice_round_duration
+        self.table_round_duration       = self.time_data_inputs.table_round_duration
+        self.practice_time_available    = self.time_data_inputs.practice_time_available
+        self.table_time_available       = self.time_data_inputs.table_time_available
+
+    def create_q_learning_inputs(self):
+        """
+        Creates the Q-learning inputs for the scheduler application.
+        
+        """
+        self.q_learning_inputs = QLearningInputs(self.schedule_data, self.time_data, self.q_learning)
+        self.alpha_spinbox              = self.q_learning_inputs.alpha_spinbox
+        self.gamma_spinbox              = self.q_learning_inputs.gamma_spinbox
+        self.epsilon_start_spinbox      = self.q_learning_inputs.epsilon_start_spinbox
+        self.epsilon_end_spinbox        = self.q_learning_inputs.epsilon_end_spinbox
+        self.epsilon_decay_spinbox      = self.q_learning_inputs.epsilon_decay_spinbox
+        self.training_episodes_spinbox  = self.q_learning_inputs.training_episodes_spinbox
+        self.q_learning_inputs_groupbox = self.q_learning_inputs.q_learning_inputs_groupbox
+    
+    def create_soft_constraint_weights_inputs(self):
+        """
+        Creates the soft constraint weights inputs for the scheduler application.
+        
+        """
+        self.soft_constraint_weights_inputs = SoftConstraintWeightsInputs(self.schedule_data, self.time_data, self.q_learning)        
+        self.soft_constraint_weights            = self.soft_constraint_weights_inputs.soft_constraint_weights
+        self.soft_constraint_weights_groupbox   = self.soft_constraint_weights_inputs.soft_constraint_weights_groupbox
+        self.constraint_labels                  = self.soft_constraint_weights_inputs.constraint_labels
+
+    def create_statistics_and_progress_inputs(self):
+        """
+        Creates the statistics and progress inputs for the scheduler application.
+        
+        """
+        statistics_and_progress_inputs = StatisticsAndProgressInputs(self.schedule_data, self.time_data, self.q_learning)        
+        self.progress_bar                   = statistics_and_progress_inputs.progress_bar
+        self.avg_reward_label               = statistics_and_progress_inputs.avg_reward_label
+        self.current_schedule_length_label  = statistics_and_progress_inputs.current_schedule_length_label
+        self.status_label                   = statistics_and_progress_inputs.status_label
+        self.q_learning_label               = statistics_and_progress_inputs.q_learning_label
+        self.q_table_size_label             = statistics_and_progress_inputs.q_table_size_label
+        self.gui_refresh_rate               = statistics_and_progress_inputs.gui_refresh_rate
+        self.gui_refresh_layout             = statistics_and_progress_inputs.gui_refresh_layout
+        self.statistics_groupbox            = statistics_and_progress_inputs.statistics_groupbox
+    
+    def create_schedule_display(self):
+        """
+        Creates the schedule display for the scheduler application.
+        
+        """
+        self.schedule_display = ScheduleDisplay(self.schedule_data, self.time_data, self.q_learning)
+        self.judging_table              = self.schedule_display.judging_table
+        self.practice_table             = self.schedule_display.practice_table
+        self.table_round_table          = self.schedule_display.table_round_table     
+        self.judging_display_groupbox   = self.schedule_display.judging_display_groupbox
+        self.practice_display_groupbox  = self.schedule_display.practice_display_groupbox
+        self.table_display_groupbox     = self.schedule_display.table_display_groupbox
+        self.schedule_display_groupbox  = self.schedule_display.schedule_display_groupbox
+    
+    def create_submission_buttons(self):
+        submission_buttons = SubmissionButtons()
+        self.train_button = submission_buttons.train_button
+
+
+    def initialize_export_directory(self):
+        """
+        Creates the exports directory and subdirectory for training schedules if it does not exist.
+        
         """
         if not os.path.exists(EXPORTS_DIRECTORY):
             os.makedirs(EXPORTS_DIRECTORY)
@@ -191,8 +227,12 @@ class MainWindow(QWidget):
         # Add the column splitter to the main layout
         main_layout.addWidget(column_splitter, 0, 0)          
  
+ 
     def connect_signals_and_slots(self):
-        """Connects the signals and slots for the scheduler application."""
+        """
+        Connects the signals and slots for the scheduler application.
+        
+        """
         # Time Data Inputs
         self.start_time_judging_rounds.timeChanged.connect(self.on_update)  # Connects the timeChanged signal of start_time_judging_rounds to the on_update slot function
         
@@ -242,8 +282,13 @@ class MainWindow(QWidget):
         # Buttons
         self.train_button.clicked.connect(self.start_training_thread)  # Connects the clicked signal of train_button to the start_training_thread slot function
     
+    
+    
     def start_training_thread(self):
-        """Starts the training thread for the Q-learning scheduler."""
+        """
+        Starts the training thread for the Q-learning scheduler.
+        
+        """
         training_episodes = int(self.training_episodes_spinbox.value())  # Assuming you have an input field for training_episodes
         self.q_learning.training_episodes = training_episodes
         self.schedule_display.initialize_schedule_display()
@@ -276,7 +321,10 @@ class MainWindow(QWidget):
     
     @Slot()
     def validate_table_times(self):
-        """Validates the table times based on the minimum duration and the round type duration."""
+        """
+        Validates the table times based on the minimum duration and the round type duration.
+        
+        """
         start_table = self.start_time_table_rounds.time()
         end_table = self.stop_time_table_rounds.time()
         min_duration = self.minimum_table_duration.time()
@@ -289,7 +337,10 @@ class MainWindow(QWidget):
 
     @Slot()
     def update_schedule_data(self):
-        """Updates the GUI based on the current inputs."""
+        """
+        Updates the GUI based on the current inputs.
+        
+        """
         self.schedule_data.NUM_TEAMS = self.num_teams_spinbox.value()
         self.schedule_data.NUM_ROOMS = self.num_rooms_spinbox.value()
         self.schedule_data.NUM_TABLES = self.num_tables_spinbox.value()
@@ -302,7 +353,10 @@ class MainWindow(QWidget):
 
     @Slot()
     def update_time_data(self):
-        """Updates the TimeData with current GUI inputs."""
+        """
+        Updates the TimeData with current GUI inputs.
+        
+        """
         jStop = self.start_time_judging_rounds.time().addSecs(self.time_data.ROUND_TYPE_DURATIONS[JUDGING] * 60 * self.time_data.MINIMUM_SLOTS_REQUIRED[JUDGING])
         self.judging_stop_time.setText(jStop.toString("HH:mm"))
 
@@ -332,11 +386,11 @@ class MainWindow(QWidget):
         self.q_learning.epsilon_end = self.epsilon_end_spinbox.value()
         self.q_learning.epsilon_decay = self.epsilon_decay_spinbox.value()
         self.q_learning.training_episodes = self.training_episodes_spinbox.value()
-        self.q_learning.initialize_schedule_and_states()
+        self.q_learning.schedule_initializer.initialize_schedule_and_states()
 
-        halfway_decay, total_decay, self.decays = self.calculate_epsilon_decay_episodes()
-        self.epsilon_halfway_label.setText(f'{halfway_decay} Episodes')
-        self.epsilon_total_label.setText(f'{total_decay} Episodes')
+        halfway_decay, total_decay, self.decays = self.q_learning_inputs.calculate_epsilon_decay_episodes()
+        self.q_learning_inputs.epsilon_halfway_label.setText(f'{halfway_decay} Episodes')
+        self.q_learning_inputs.epsilon_total_label.setText(f'{total_decay} Episodes')
 
         self.progress_bar.setMaximum(self.q_learning.training_episodes)
         self.q_learning.required_schedule_slots = sum(self.schedule_data.ROUND_TYPE_PER_TEAM.values()) * self.schedule_data.NUM_TEAMS

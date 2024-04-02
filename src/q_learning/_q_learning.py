@@ -7,8 +7,11 @@ from collections import defaultdict
 from datetime import datetime
 from typing import List, Tuple, Dict, Optional, Any
 from PySide6.QtCore import QObject, Signal
+
 from config import Config
-from time_data.time_utilities import TimeUtilities
+
+from utility.time_utilities import TimeUtilities
+
 from .exporter import QLearningExporter
 from .reward_calculator import RewardCalculator
 from .schedule_initializer import ScheduleInitializer
@@ -16,6 +19,7 @@ from .state_manager import StateManager
 from .availability_updater import AvailabilityUpdater
 from .schedule_updater import ScheduleUpdater
 
+# Config Constants
 LOGGING_FILE_NAME   = Config.LOGGING_FILE_NAME
 LOGGING_FORMAT      = Config.LOGGING_FORMAT
 
@@ -49,17 +53,12 @@ TRAINING_EPISODES   = Config.TRAINING_EPISODES
 GUI_REFRESH_INTERVAL    = Config.GUI_REFRESH_INTERVAL
 
 EXPORTS_DIRECTORY                   = Config.EXPORTS_DIRECTORY
+CSV_EXT                             = Config.CSV_EXT
 TRAINING_SCHEDULE_CSV_FILENAME      = Config.TRAINING_SCHEDULE_CSV_FILENAME
-CSV_EXT                  = Config.CSV_EXT
 Q_TABLE_CSV_FILENAME                = Config.Q_TABLE_CSV_FILENAME
 OPTIMAL_SCHEDULE_CSV_FILENAME       = Config.OPTIMAL_SCHEDULE_CSV_FILENAME
 
 logging.basicConfig(filename=LOGGING_FILE_NAME, level=logging.DEBUG, format=LOGGING_FORMAT)
-
-# TODO Refactoring q_learning.py
-# Plan:
-# 1. 
-# # ...
 
 class QLearning:
     """
@@ -112,10 +111,15 @@ class QLearning:
         )
 
         self.schedule_initializer = ScheduleInitializer(self.schedule_data, self.time_data)
-        self.schedule, self.states, self.static_states, self.current_schedule_length, self.practice_teams_available, self.table_teams_available, self.exploration_count, self.exploitation_count = self.schedule_initializer.initialize_schedule_and_states()
-        self.completion_percentage = defaultdict(list)
-        self.scores = defaultdict(list)
-
+        (self.schedule, 
+         self.states, 
+         self.static_states, 
+         self.current_schedule_length, 
+         self.practice_teams_available, 
+         self.table_teams_available, 
+         self.exploration_count, 
+         self.exploitation_count) = self.schedule_initializer.initialize_schedule_and_states()
+        
         self.q_table_size_limit = len(self.states) * len(self.schedule_data.teams)
         self.max_num_rounds_per_team = sum(self.schedule_data.ROUND_TYPE_PER_TEAM.values())
 
@@ -127,14 +131,22 @@ class QLearning:
             self.soft_constraints_weight,
             self.max_num_rounds_per_team
         )
+        
         self.schedule_updater = ScheduleUpdater()
-        self.availability_updater = AvailabilityUpdater(self.schedule_data, self.practice_teams_available, self.table_teams_available)
+        
+        self.availability_updater = AvailabilityUpdater(
+            self.schedule_data, 
+            self.practice_teams_available, 
+            self.table_teams_available
+        )
+        
         self.state_manager = StateManager(
             self.schedule_data,
             self.static_states,
             self.current_schedule_length,
             self.practice_teams_available,
-            self.table_teams_available
+            self.table_teams_available,
+            self.schedule
         )
         
     def train_one_episode(self, episode) -> None:
@@ -144,8 +156,15 @@ class QLearning:
         """
         logging.info(f"Starting training episode {episode}")
 
-        self.schedule_initializer.initialize_schedule_and_states()
-        self.current_schedule_length = 0
+        (self.schedule, 
+         self.states, 
+         self.static_states, 
+         self.current_schedule_length, 
+         self.practice_teams_available, 
+         self.table_teams_available, 
+         self.exploration_count, 
+         self.exploitation_count) = self.schedule_initializer.initialize_schedule_and_states()
+        
         actions = tuple(self.schedule_data.teams.keys())
         episode_reward = 0
 
@@ -252,7 +271,14 @@ class QLearning:
         Generate the optimal schedule using the Q-Learning algorithm.
         
         """
-        self.schedule_initializer.initialize_schedule_and_states()
+        (self.schedule, 
+         self.states, 
+         self.static_states, 
+         self.current_schedule_length, 
+         self.practice_teams_available, 
+         self.table_teams_available, 
+         self.exploration_count, 
+         self.exploitation_count) = self.schedule_initializer.initialize_schedule_and_states()
         self.current_schedule_length = 0
 
         while self.states:

@@ -7,13 +7,13 @@ TABLE_SIDE_1 = Config.TABLE_SIDE_1
 TABLE_SIDE_2 = Config.TABLE_SIDE_2
 
 class StateManager:
-    def __init__(self, schedule_data, static_states, current_schedule_length, practice_teams_available, table_teams_available):
+    def __init__(self, schedule_data, static_states, current_schedule_length, practice_teams_available, table_teams_available, schedule):
         self.schedule_data = schedule_data
         self.static_states = static_states
         self.current_schedule_length = current_schedule_length
         self.practice_teams_available = practice_teams_available
         self.table_teams_available = table_teams_available
-        self.schedule = []
+        self.schedule = schedule
     
     def update_available_actions(self, state) -> List[int]:
         """

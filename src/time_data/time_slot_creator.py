@@ -1,5 +1,5 @@
 """This module contains the TimeSlotCreator class."""
-from .time_utilities import TimeUtilities
+from utility.time_utilities import TimeUtilities
 from config import Config
 
 JUDGING = Config.JUDGING

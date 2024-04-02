@@ -1,8 +1,8 @@
 """This module is responsible for generating the time slots for each round type based on the number of teams and rooms/tables/sides."""
 from datetime import datetime, timedelta
-from .time_utilities import TimeUtilities
 from .start_time_generator import StartTimeGenerator
 from .time_slot_creator import TimeSlotCreator
+from utility.time_utilities import TimeUtilities
 from config import Config
 
 JUDGING = Config.JUDGING

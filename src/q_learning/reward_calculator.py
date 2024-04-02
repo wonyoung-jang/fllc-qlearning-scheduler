@@ -1,6 +1,6 @@
 from typing import Dict
 from config import Config
-from time_data.time_utilities import TimeUtilities
+from utiliy.time_utilities import TimeUtilities
 
 TABLE_CONSISTENCY = Config.TABLE_CONSISTENCY
 OPPONENT_VARIETY = Config.OPPONENT_VARIETY

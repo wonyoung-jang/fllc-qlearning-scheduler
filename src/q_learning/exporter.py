@@ -7,7 +7,7 @@ import os
 import pandas as pd
 from config import Config
 
-XLSX_EXT         = Config.XLSX_EXT
+XLSX_EXT                    = Config.XLSX_EXT
 EXPORTS_DIRECTORY           = Config.EXPORTS_DIRECTORY
 OPTIMAL_SCHEDULE_GRID_EXCEL = Config.OPTIMAL_SCHEDULE_EXCEL_FILENAME
 
@@ -45,8 +45,8 @@ class QLearningExporter:
                 try:
                     if os.path.isfile(file_path):
                         os.unlink(file_path)
-                except OSError as e:
-                    print(f"Failed to delete {file_path}. Reason: {e}")    
+                except OSError as error:
+                    print(f"Failed to delete {file_path}. Reason: {error}")    
 
     def transform_dataframe_to_grid(self, dataframe, sheet_name, writer):
         """

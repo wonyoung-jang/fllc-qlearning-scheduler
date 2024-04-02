@@ -1,7 +1,7 @@
 # TODO schedule_initializer.py
 from typing import List
 from config import Config
-from time_data.time_utilities import TimeUtilities
+from utility.time_utilities import TimeUtilities
 
 JUDGING = Config.JUDGING
 PRACTICE = Config.PRACTICE

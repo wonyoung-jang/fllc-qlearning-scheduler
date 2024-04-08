@@ -2,12 +2,8 @@
 This module contains the TrainingWorker class, which is a QThread that handles the training process.
 
 """
-import csv
-import ast
-import pandas as pd
-from collections import defaultdict
-from PySide6.QtCore import QObject, QThread, Signal, Slot, QWaitCondition, QMutex, Qt
-from gui.signals import GUISignals
+from PySide6.QtCore import QObject, Signal, Slot, QWaitCondition, QMutex, Qt
+from gui_signals import GUISignals
 
 
 class TrainingWorker(QObject):
@@ -26,10 +22,8 @@ class TrainingWorker(QObject):
 
         self.q_learning = q_learning
         self.signals = GUISignals()
-        
         self.wait_condition = QWaitCondition()  # Add a wait condition
         self.mutex = QMutex()  # Add a mutex
-        
         self.signals.gui_updated_signal.connect(self.gui_updated, Qt.DirectConnection)
 
     @Slot()
@@ -52,7 +46,7 @@ class TrainingWorker(QObject):
         self.mutex.lock()
         self.wait_condition.wait(self.mutex)  # Wait on the condition
         self.mutex.unlock()
-                
+        
         self.finished.emit()
 
     @Slot()

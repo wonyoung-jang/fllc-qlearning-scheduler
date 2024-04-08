@@ -1,2 +1,5 @@
 {
+    "pylint.args": [
+        "@ext:ms-python.pylint"
+    ]
 }

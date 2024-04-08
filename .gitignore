@@ -1,147 +1,60 @@
-src/__pycache__/*
 *.zip
-translations/*
+*.txt
+
+~features_in_progress/*
+
+src/__pycache__/*
+
+src/exports/*
 exports/*
-features_in_progress/*
+
+src/logs/*
+logs/*
 FLLC-Q_Log.txt
+
 output.csv
 output.md
-
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-.python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-docs/conf.py
-docs/index.rst
-docs/make.bat
-docs/Makefile
-tests/test_basicpythonproject.py
-__init__.py
-__main__.py
-.coveragerc
-.gitignore
-code_of_conduct.md
-CONTRIBUTING.rst
-pyproject.toml
-setup.py
-tox.ini
+tasks.py
+build/main/Analysis-00.toc
+build/main/EXE-00.toc
+build/main/main.pkg
+build/main/PKG-00.toc
+build/main/PYZ-00.pyz
+build/main/PYZ-00.toc
+build/main/xref-main.html
+build/main/localpycs/pyimod01_archive.pyc
+build/main/localpycs/pyimod02_importers.pyc
+build/main/localpycs/pyimod03_ctypes.pyc
+build/main/localpycs/pyimod04_pywin32.pyc
+build/main/localpycs/struct.pyc
+dist/main.exe
+dist/exports/grid_optimal_schedule.xlsx
+dist/exports/optimal_schedule.csv
+dist/exports/q_table.csv
+dist/exports/training_schedules_output/schedule_episode_1.csv
+dist/exports/training_schedules_output/schedule_episode_2.csv
+dist/exports/training_schedules_output/schedule_episode_3.csv
+dist/exports/training_schedules_output/schedule_episode_4.csv
+dist/exports/training_schedules_output/schedule_episode_5.csv
+dist/exports/training_schedules_output/schedule_episode_6.csv
+dist/exports/training_schedules_output/schedule_episode_7.csv
+dist/exports/training_schedules_output/schedule_episode_8.csv
+dist/exports/training_schedules_output/schedule_episode_9.csv
+dist/exports/training_schedules_output/schedule_episode_10.csv
+dist/exports/training_schedules_output/schedule_episode_11.csv
+dist/exports/training_schedules_output/schedule_episode_12.csv
+dist/exports/training_schedules_output/schedule_episode_13.csv
+dist/exports/training_schedules_output/schedule_episode_14.csv
+dist/exports/training_schedules_output/schedule_episode_15.csv
+dist/exports/training_schedules_output/schedule_episode_16.csv
+dist/exports/training_schedules_output/schedule_episode_17.csv
+dist/exports/training_schedules_output/schedule_episode_18.csv
+dist/exports/training_schedules_output/schedule_episode_19.csv
+dist/exports/training_schedules_output/schedule_episode_20.csv
+dist/exports/training_schedules_output/schedule_episode_21.csv
+dist/exports/training_schedules_output/schedule_episode_22.csv
+dist/exports/training_schedules_output/schedule_episode_23.csv
+dist/exports/training_schedules_output/schedule_episode_24.csv
+dist/exports/training_schedules_output/schedule_episode_25.csv
+main.spec
+casing.py

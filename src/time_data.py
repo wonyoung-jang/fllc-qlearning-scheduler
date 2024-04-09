@@ -1,9 +1,6 @@
-"""
-TimeData class to store data for scheduling rounds and tables.
-
-"""
 from datetime import datetime, timedelta
 from config import KeysConfig, ValuesConfig, TimeDataDefaultConfig, FormatsConfig
+from utilities_time import *
 
 KEY     = KeysConfig()
 VALUE   = ValuesConfig()
@@ -44,7 +41,7 @@ class TimeData:
 
         self.update_time_data()
 
-    def calculate_minimum_slots_required(self, num_teams, divisor, round_type=None):
+    def calculate_minimum_slots_required(self, num_teams, divisor, round_type=None): # TODO fll
         """
         Calculate the minimum number of slots required for a given number of teams and divisor.
         
@@ -65,20 +62,8 @@ class TimeData:
             return num_teams // divisor
         else:
             return (num_teams // divisor) + 1
-
-    def time_to_minutes(self, time_str): 
-        """
-        Convert time string to minutes.
         
-        """
-        # Convert time string to datetime object
-        try:
-            time = datetime.strptime(time_str, FORMAT.TIME_FORMAT)
-            return time.hour * TIME.MINUTES_PER_HOUR + time.minute
-        except ValueError:
-            raise ValueError(f"Invalid time format: {time_str}. Expected format: HH:MM")
-        
-    def generate_start_times_for_round(self, start_time, num_slots, slot_length): 
+    def generate_start_times_for_round(self, start_time, num_slots, slot_length): # TODO fll
         """
         Generate start times for a given round type.
         
@@ -88,23 +73,11 @@ class TimeData:
 
         for _ in range(num_slots):
             start_times.append(current_time)
-            current_time = self.add_minutes_to_time(current_time, slot_length)
+            current_time = add_minutes_to_time(current_time, slot_length)
 
         return start_times
-
-    def add_minutes_to_time(self, time_str, minutes):
-        """
-        Add minutes to a time string.
         
-        """
-        try:
-            start_time = datetime.strptime(time_str, FORMAT.TIME_FORMAT)
-            end_time = start_time + timedelta(minutes=minutes)
-            return end_time.strftime(FORMAT.TIME_FORMAT)
-        except ValueError:
-            raise ValueError(f"Invalid time format: {time_str}. Expected format: HH:MM")
-        
-    def calculate_end_times(self, start_times, duration):
+    def calculate_end_times(self, start_times, duration): # TODO fll
         """
         Calculate the end times for a given list of start times and duration.
         
@@ -112,12 +85,12 @@ class TimeData:
         end_times = []
 
         for start_time in start_times:
-            end_time = self.add_minutes_to_time(start_time, duration)
+            end_time = add_minutes_to_time(start_time, duration)
             end_times.append((start_time, end_time))
 
         return end_times
 
-    def adjust_rounds_round_type_time_slots(self, round_type):
+    def adjust_rounds_round_type_time_slots(self, round_type): # TODO fll
         """
         Adjust the time slots for the given round type.
         
@@ -154,7 +127,7 @@ class TimeData:
             current_time = start_time
 
             for _ in range(self.minimum_slots_required[round_type] - 1):
-                current_time = self.add_minutes_to_time(current_time, time_length)
+                current_time = add_minutes_to_time(current_time, time_length)
                 start_times.append(current_time)
 
             # Recalculate the end times with the updated duration
@@ -162,16 +135,7 @@ class TimeData:
 
         return round_type_time_slots_round
 
-    def time_overlaps(self, slot1, slot2): 
-        """
-        Check if two time slots overlap.
-        
-        """
-        format_str = FORMAT.TIME_FORMAT  # Time format
-        start1, end1 = map(lambda x: datetime.strptime(x, format_str), slot1)
-        start2, end2 = map(lambda x: datetime.strptime(x, format_str), slot2)
-        return max(start1, start2) < min(end1, end2)
-
+    # TODO Updates
     def update_time_data(self): 
         """
         Update the time data.
@@ -206,11 +170,11 @@ class TimeData:
         Update the duration for each round type.
         
         """
-        self.available_practice_duration = self.time_to_minutes(
-            self.practice_rounds_stop_time) - self.time_to_minutes(
+        self.available_practice_duration = time_to_minutes(
+            self.practice_rounds_stop_time) - time_to_minutes(
             self.practice_rounds_start_time)
-        self.available_table_duration = self.time_to_minutes(
-            self.table_rounds_stop_time) - self.time_to_minutes(
+        self.available_table_duration = time_to_minutes(
+            self.table_rounds_stop_time) - time_to_minutes(
             self.table_rounds_start_time)
 
         self.round_type_durations = {

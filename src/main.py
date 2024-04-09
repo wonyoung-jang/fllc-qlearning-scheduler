@@ -4,11 +4,11 @@ import colorsys
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QPushButton, QSpinBox, QTimeEdit, QGroupBox, QGridLayout, QHBoxLayout, QDoubleSpinBox, QTableWidget, QTableWidgetItem, QProgressBar, QSlider, QSizePolicy, QSplitter
 from PySide6.QtCore import QTime, Qt, QThread, Slot
 from PySide6.QtGui import QKeySequence, QShortcut, QColor, QBrush
-from tournament_data import TournamentData
 from time_data import TimeData
 from q_learning import QLearning
 from training_thread import TrainingWorker
 from config import KeysConfig, FontsConfig, GUIConfig, ExportConfig, TimeDataDefaultConfig
+from tournament_data import *
 
 KEY = KeysConfig()
 FONT = FontsConfig()
@@ -34,6 +34,8 @@ class MainWindow(QWidget):
         self.gui_refresh_interval = GUI.REFRESH_INTERVAL
         
         self.tournament_data = TournamentData()
+        self.teams = init_teams()
+        
         self.time_data = TimeData(self.tournament_data)
         self.q_learning = QLearning(self.tournament_data, self.time_data)
         
@@ -133,7 +135,7 @@ class MainWindow(QWidget):
         Sets up the schedule data inputs in the GUI.
         
         """
-        # TournamentData Inputs Widgets
+        # Tournament Data Inputs Widgets
         self.schedule_data_inputs_groupbox = QGroupBox("Schedule Data Inputs")
         self.schedule_data_layout = QGridLayout(self.schedule_data_inputs_groupbox)
         self.schedule_data_layout.addWidget(QLabel("Number of Teams"), 0, 0)
@@ -441,6 +443,7 @@ class MainWindow(QWidget):
         """
         # Ensure tables are clear and set up before populating
         self.clear_and_setup_tables()
+        self.color_map = init_color_map(self.teams)
 
         # Initialize a dictionary to track the last row used for each time in each table
         last_row = {KEY.JUDGING: {}, KEY.PRACTICE: {}, KEY.TABLE: {}}
@@ -468,7 +471,7 @@ class MainWindow(QWidget):
 
             # Generate a unique color for each team if not already in the color map
             if team_id is not None:
-                color = self.tournament_data.color_map.get(team_id)
+                color = self.color_map.get(team_id)
                 item.setBackground(QBrush(color))
 
     def setup_schedule_display(self): 
@@ -723,7 +726,7 @@ class MainWindow(QWidget):
                     else:
                         # Reset the color if it does not have the same value
                         if curr_item.text() != 'None' and ':' not in curr_item.text():
-                            curr_item.setBackground(QBrush(self.tournament_data.color_map.get(int(curr_item.text()))))
+                            curr_item.setBackground(QBrush(self.color_map.get(int(curr_item.text()))))
 
     @Slot()
     def validate_practice_times(self):
@@ -829,8 +832,8 @@ class MainWindow(QWidget):
         self.current_schedule_length_label.setText(f"Required Schedule Slots: {self.q_learning.required_schedule_slots} ({self.q_learning.possible_schedule_slots} Possible)")
         self.q_table_size_label.setText(f"Q-Table Size: {len(self.q_learning.q_table)}/{self.q_learning.q_table_size_limit}")
 
-        self.q_learning.practice_teams_available = list(self.tournament_data.teams.keys()) * self.tournament_data.round_types_per_team[KEY.PRACTICE]
-        self.q_learning.table_teams_available = list(self.tournament_data.teams.keys()) * self.tournament_data.round_types_per_team[KEY.TABLE]
+        self.q_learning.practice_teams_available = list(self.teams.keys()) * self.tournament_data.round_types_per_team[KEY.PRACTICE]
+        self.q_learning.table_teams_available = list(self.teams.keys()) * self.tournament_data.round_types_per_team[KEY.TABLE]
 
         # Update TimeData with current GUI inputs
         self.practice_round_duration.setText(f'{self.time_data.round_type_durations[KEY.PRACTICE]} minutes')

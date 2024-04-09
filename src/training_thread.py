@@ -1,7 +1,3 @@
-"""
-This module contains the TrainingWorker class, which is a QThread that handles the training process.
-
-"""
 from PySide6.QtCore import QObject, Signal, Slot, QWaitCondition, QMutex, Qt
 from gui_signals import GUISignals
 

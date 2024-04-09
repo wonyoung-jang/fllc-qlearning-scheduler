@@ -1,7 +1,3 @@
-"""
-This module contains the QLearning class, which is responsible for the Q-Learning algorithm for scheduling.
-
-"""
 import os
 import random
 from typing import List, Tuple, Dict, Optional, Any

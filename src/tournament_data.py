@@ -1,7 +1,3 @@
-"""
-This module is responsible for generating the time slots for each round type based on the number of teams and rooms/tables/sides.
-
-"""
 import colorsys
 from PySide6.QtGui import QColor
 from config import KeysConfig, ValuesConfig, TournamentDataDefaultConfig

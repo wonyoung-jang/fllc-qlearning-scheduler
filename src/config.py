@@ -1,7 +1,3 @@
-"""
-This module contains the configuration settings for the Q-Learning algorithm and the GUI.
-
-"""
 from PySide6.QtGui import QFont
 
 

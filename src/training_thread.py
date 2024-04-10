@@ -5,14 +5,15 @@ from gui_signals import GUISignals
 class TrainingWorker(QObject):
     """
     Class to handle the training process as a QThread.
-    
+
     """
+
     finished = Signal()
 
-    def __init__(self, q_learning): 
+    def __init__(self, q_learning):
         """
         Initialize TrainingWorker object.
-        
+
         """
         super().__init__()
 
@@ -26,7 +27,7 @@ class TrainingWorker(QObject):
     def run(self):
         """
         Run the training process.
-        
+
         """
         # Training
         for episode in range(1, self.q_learning.training_episodes + 1):
@@ -42,14 +43,14 @@ class TrainingWorker(QObject):
         self.mutex.lock()
         self.wait_condition.wait(self.mutex)  # Wait on the condition
         self.mutex.unlock()
-        
+
         self.finished.emit()
 
     @Slot()
     def gui_updated(self):
         """
         Slot to handle the GUI updated signal.
-        
+
         """
         self.mutex.lock()
         self.wait_condition.wakeOne()  # Wake up the waiting thread

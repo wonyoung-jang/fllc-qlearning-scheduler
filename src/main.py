@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QTime, Qt, QThread, Slot
 from PySide6.QtGui import QKeySequence, QShortcut, QColor, QBrush
-from q_learning import QLEARNING, QLearning
+from q_learning import QLEARNING, QLearning, initialize_judging_rounds, initialize_schedule
 from training_thread import TrainingWorker
 from typing import Dict, List, Tuple, Any
 from config import (
@@ -33,9 +33,11 @@ from config import (
     QLearningDefaultConfig,
     SoftConstraintDefaultConfig,
 )
+from collections import defaultdict
 from tournament_data import *
 from time_data import *
 from time_data import TimeData
+from data_to_csv import QLearningExporter
 
 KEY = KeysConfig()
 FONT = FontsConfig()
@@ -66,8 +68,10 @@ class MainWindow(QWidget):
 
         self.tournament_data = TournamentData()
         self.time_data = TimeData(self.tournament_data)
+        self.q_learning = QLearning(self.tournament_data, self.time_data)
+        
         ##############################################################################################################
-        # Defaults
+        # Defaults - Tournament
         self.num_teams = TOURNAMENT.NUM_TEAMS
         self.num_rooms = TOURNAMENT.NUM_ROOMS
         self.num_tables = TOURNAMENT.NUM_TABLES
@@ -80,7 +84,7 @@ class MainWindow(QWidget):
         self.color_map = init_color_map(self.teams, self.num_teams)
 
         ##############################################################################################################
-        # Defaults
+        # Defaults - Time
         self.judging_rounds_start_time = TIME.JUDGING_ROUNDS_START_TIME
         self.practice_rounds_start_time = TIME.PRACTICE_ROUNDS_START_TIME
         self.practice_rounds_stop_time = TIME.PRACTICE_ROUNDS_STOP_TIME
@@ -138,33 +142,10 @@ class MainWindow(QWidget):
         )
 
         ##############################################################################################################
-        self.q_learning = QLearning(self.tournament_data, self.time_data)
-        # Collect list of all self.q_learning attributes affected in this class
-        # q_learning.learning_rate
-        # q_learning.discount_factor
-        # q_learning.epsilon_start
-        # q_learning.epsilon_end
-        # q_learning.epsilon_decay
-        # q_learning.epsilon
-        # q_learning.training_episodes
-
-        # q_learning.q_table
-        # q_learning.episode_rewards
-        # q_learning.num_exploration_counts
-        # q_learning.num_exploitation_counts
-        # q_learning.q_value_changes
-        # q_learning.average_rewards
-        # q_learning.average_reward_changes
-
-        # q_learning.soft_constraints_weight
-        # q_learning.required_schedule_slots
-        # q_learning.possible_schedule_slots
-
-        # q_learning.q_table_size_limit
-        # q_learning.avg_reward
-        # q_learning.schedule
-
-        # Defaults
+        # Defaults - Q Learning
+        self.completion_percentage = defaultdict(list)
+        self.scores = defaultdict(list)
+        
         self.learning_rate = QLEARNING.LEARNING_RATE
         self.discount_factor = QLEARNING.DISCOUNT_FACTOR
         self.epsilon_start = QLEARNING.EPSILON_START
@@ -174,17 +155,13 @@ class MainWindow(QWidget):
         self.training_episodes = QLEARNING.TRAINING_EPISODES
 
         self.q_table: Dict[Tuple[Tuple, Any], float] = {}
-        self.episode_rewards: List[float] = []
-        self.num_exploration_counts: List[int] = []
-        self.num_exploitation_counts: List[int] = []
-        self.q_value_changes: List[float] = []
-        self.average_rewards: List[float] = []
-        self.average_reward_changes: List[float] = []
 
         self.soft_constraints_weight = SOFT_CONSTRAINT.SOFT_CONSTRAINTS_WEIGHT
+        
         self.required_schedule_slots = self.num_teams * sum(
             self.round_types_per_team.values()
         )
+        
         self.possible_schedule_slots = self.num_rooms * self.minimum_slots_required[
             KEY.JUDGING
         ] + self.num_tables_and_sides * (
@@ -192,9 +169,16 @@ class MainWindow(QWidget):
             + self.minimum_slots_required[KEY.TABLE]
         )
 
-        self.schedule
-        self.q_table_size_limit
-        self.avg_reward
+        self.initialize_schedule_and_states()
+        
+        self.q_table_size_limit = len(self.states) * len(self.teams)
+        self.max_num_rounds_per_team = sum(
+            self.round_types_per_team.values()
+        )
+
+        self.exporter = QLearningExporter()
+        
+        ##############################################################################################################
 
         self.create_gui_components()
         self.initialize_gui_components()
@@ -205,6 +189,23 @@ class MainWindow(QWidget):
         self.train_button_shortcut = QShortcut(QKeySequence(Qt.CTRL | Qt.Key_G), self)
         self.train_button_shortcut.activated.connect(self.start_training_thread)
 
+    def initialize_schedule_and_states(self):
+        """
+        Initializes the schedule and states for the Q-learning scheduler.
+        
+        """
+        init_schedule = initialize_schedule(self.num_rooms, self.tables, self.round_type_time_slots)
+        self.staticStates = [tuple(i) for i in init_schedule]
+        self.schedule = initialize_judging_rounds(init_schedule, self.teams, self.rooms)
+        self.states = [tuple(i) for i in self.schedule if i[5] is None]
+        self.practice_teams_available = (
+            list(self.teams.keys()) * self.round_types_per_team[KEY.PRACTICE]
+        )
+        self.table_teams_available = (
+            list(self.teams.keys()) * self.round_types_per_team[KEY.TABLE]
+        )
+        self.current_schedule_length = 0
+    
     def create_exports_directory(self):
         """
         Creates the exports directory if it does not exist.
@@ -216,6 +217,7 @@ class MainWindow(QWidget):
                 f"{EXPORT.EXPORTS_DIRECTORY}{EXPORT.TRAINING_SCHEDULES_DIRECTORY}"
             )
 
+    ### GUI ############################################################################################################
     def create_gui_components(self):
         """
         Creates the GUI components for the scheduler application.
@@ -526,7 +528,6 @@ class MainWindow(QWidget):
 
         """
         self.progress_bar = QProgressBar(self)
-        self.avg_reward_label = QLabel("Average Reward: ")
         self.current_schedule_length_label = QLabel(
             f"Required Schedule Slots: {self.q_learning.required_schedule_slots} ({self.q_learning.possible_schedule_slots} Possible)"
         )
@@ -567,7 +568,6 @@ class MainWindow(QWidget):
         self.statistics_groupbox = QGroupBox("Training Statistics")
         self.statistics_layout = QVBoxLayout(self.statistics_groupbox)
         self.statistics_layout.addWidget(self.status_label)
-        self.statistics_layout.addWidget(self.avg_reward_label)
         self.statistics_layout.addWidget(self.current_schedule_length_label)
         self.statistics_layout.addWidget(self.q_table_size_label)
         self.statistics_layout.addWidget(self.q_learning_label)
@@ -1199,7 +1199,7 @@ class MainWindow(QWidget):
         self.q_learning.epsilon_end = self.epsilon_end_input.value()
         self.q_learning.epsilon_decay = self.epsilon_decay_input.value()
         self.q_learning.training_episodes = self.training_episodes_input.value()
-        self.q_learning.initialize_schedule_and_states()
+        self.initialize_schedule_and_states()
 
         halfway_decay, total_decay, self.decays = (
             self.calculate_epsilon_decay_episodes()
@@ -1266,7 +1266,6 @@ class MainWindow(QWidget):
 
         """
         if episode == -2:  # Optimal
-            self.avg_reward_label.setText(f"Average Reward: Optimized")
             self.status_label.setText(
                 f"Optimal Scheduling: Scheduling complete!\nOptimal Schedule Generated at exports/grid_optimal_schedule.xlsx"
             )
@@ -1286,9 +1285,6 @@ class MainWindow(QWidget):
 
         elif episode > 0 and episode % self.gui_refresh_rate.value() == 0:
             # Basic Stats
-            self.avg_reward_label.setText(
-                f"Average Reward: {self.q_learning.average_rewards[-1]:.2f}"
-            )
             self.status_label.setText(f"Episode {episode} : Scheduling in progress...")
 
             self.q_learning_label.setText(

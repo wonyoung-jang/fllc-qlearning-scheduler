@@ -49,6 +49,9 @@ QLEARNING = QLearningDefaultConfig()
 SOFT_CONSTRAINT = SoftConstraintDefaultConfig()
 
 
+
+
+# OBJECT
 class MainWindow(QWidget):
     """
     The main window class for the scheduler application.

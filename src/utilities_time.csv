@@ -1,0 +1,8 @@
+function name,number of parameters,number of returns
+time_to_minutes,1,1
+add_minutes_to_time,2,1
+is_time_overlaps,2,4
+generate_start_times_for_round,3,4
+generate_end_times_for_round,2,3
+calculate_minimum_slots_required,4,4
+adjust_rounds_round_type_time_slots,11,6

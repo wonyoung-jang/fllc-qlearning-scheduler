@@ -2,9 +2,6 @@ from PySide6.QtCore import QObject, Signal, Slot, QWaitCondition, QMutex, Qt
 from gui_signals import GUISignals
 
 
-
-
-# OBJECT
 class TrainingWorker(QObject):
     """
     Class to handle the training process as a QThread.

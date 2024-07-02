@@ -1,5 +1,3 @@
-
-
 *.zip
 *.txt
 
@@ -59,31 +57,3 @@ dist/exports/training_schedules_output/schedule_episode_23.csv
 dist/exports/training_schedules_output/schedule_episode_24.csv
 dist/exports/training_schedules_output/schedule_episode_25.csv
 main.spec
-src/q_learning_temp_refactor.py
-src/q_learning_temp_refactor copy.py
-src_two/main.py
-src copy/config.py
-src copy/data_to_csv.py
-src copy/gui_signals.py
-src copy/main.py
-src copy/q_learning_temp_refactor.py
-src copy/q_learning.py
-src copy/time_data.py
-src copy/tournament_data.py
-src copy/training_thread.py
-src copy/utilities_qlearning.py
-src copy/utilities_time.py
-src copy/__pycache__/config.cpython-312.pyc
-src copy/__pycache__/data_to_csv.cpython-312.pyc
-src copy/__pycache__/descriptive_stats.cpython-312.pyc
-src copy/__pycache__/gui_signals.cpython-312.pyc
-src copy/__pycache__/q_learning.cpython-312.pyc
-src copy/__pycache__/schedule_data.cpython-312.pyc
-src copy/__pycache__/schedule_evaluator.cpython-312.pyc
-src copy/__pycache__/time_data.cpython-312.pyc
-src copy/__pycache__/tournament_data.cpython-312.pyc
-src copy/__pycache__/training_thread.cpython-312.pyc
-src copy/__pycache__/utilities_qlearning.cpython-312.pyc
-src copy/__pycache__/utilities_time.cpython-312.pyc
-src_two/*
-src_two/main_window.py

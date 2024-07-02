@@ -5,34 +5,53 @@ from config import ExportConfig
 
 EXPORT = ExportConfig()
 
-# PURE FUNCTIONS
-def clear_exports_directory():
+
+class QLearningExporter:
     """
-    Clear the exports directory.
+    Class to export Q-Learning data to CSV and Excel files.
 
     """
-    for root, _, files in os.walk(EXPORT.EXPORTS_DIRECTORY):
-        for filename in files:
-            file_path = os.path.join(root, filename)
-            try:
-                if os.path.isfile(file_path):
-                    os.unlink(file_path)
-            except OSError as e:
-                print(f"Failed to delete {file_path}. Reason: {e}")
 
-def transform_dataframe_to_grid(dataframe, sheet_name, writer):
-    """
-    Transform the DataFrame into grid format and write to Excel.
+    def __init__(self):
+        """
+        Initialize QLearningExporter object.
 
-    """
-    pivot_dataframe = dataframe.pivot_table(
-        index=EXPORT.COL_TIME, columns=[EXPORT.COL_LOCATION], values=EXPORT.COL_TEAM
-    ).reset_index()
-    pivot_dataframe.columns = [i for i in pivot_dataframe.columns]
-    pivot_dataframe.sort_index(axis=1, inplace=True)
-    pivot_dataframe.to_excel(writer, sheet_name=sheet_name, index=False)
+        """
+        self.clear_exports_directory()
+        self.dataframe = None
+        self.excel_file_path = (
+            EXPORT.EXPORTS_DIRECTORY
+            + EXPORT.OPTIMAL_SCHEDULE_EXCEL_FILENAME
+            + EXPORT.XLSX_EXT
+        )
 
-def convert_q_table_to_rows(q_table):
+    def clear_exports_directory(self):
+        """
+        Clear the exports directory.
+
+        """
+        for root, _, files in os.walk(EXPORT.EXPORTS_DIRECTORY):
+            for filename in files:
+                file_path = os.path.join(root, filename)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except OSError as e:
+                    print(f"Failed to delete {file_path}. Reason: {e}")
+
+    def transform_dataframe_to_grid(self, dataframe, sheet_name, writer):
+        """
+        Transform the DataFrame into grid format and write to Excel.
+
+        """
+        pivot_dataframe = dataframe.pivot_table(
+            index=EXPORT.COL_TIME, columns=[EXPORT.COL_LOCATION], values=EXPORT.COL_TEAM
+        ).reset_index()
+        pivot_dataframe.columns = [i for i in pivot_dataframe.columns]
+        pivot_dataframe.sort_index(axis=1, inplace=True)
+        pivot_dataframe.to_excel(writer, sheet_name=sheet_name, index=False)
+
+    def convert_q_table_to_rows(self, q_table):
         """
         Convert the Q-Table to a list of rows for CSV export.
 
@@ -52,51 +71,13 @@ def convert_q_table_to_rows(q_table):
                 ]
             )
         return q_table_rows
-    
-def convert_schedule_to_rows(schedule):
-    """
-    Convert the schedule to a list of rows for CSV export.
-
-    """
-    schedule_rows = []
-    for time_start, _, round_type, location_type, location_id, team_id in schedule:
-        schedule_rows.append(
-            [
-                time_start,
-                f"{round_type.capitalize()} Round",
-                f"{location_type.capitalize()} {location_id}",
-                team_id,
-            ]
-        )
-    return schedule_rows
-
-# EXPORTER OBJECT
-class QLearningExporter:
-    """
-    Class to export Q-Learning data to CSV and Excel files.
-
-    """
-
-    def __init__(self):
-        """
-        Initialize QLearningExporter object.
-
-        """
-        clear_exports_directory()
-        self.dataframe = None
-        self.excel_file_path = (
-            EXPORT.EXPORTS_DIRECTORY
-            + EXPORT.OPTIMAL_SCHEDULE_EXCEL_FILENAME
-            + EXPORT.XLSX_EXT
-        )
-    
 
     def export_q_table_to_csv(self, file_path, q_table):
         """
         Export the Q-Table to a CSV file.
 
         """
-        q_table_rows = convert_q_table_to_rows(q_table)
+        q_table_rows = self.convert_q_table_to_rows(q_table)
         with open(file_path, "w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
             writer.writerow(
@@ -111,12 +92,29 @@ class QLearningExporter:
             writer.writerows(q_table_rows)
         return file_path
 
+    def convert_schedule_to_rows(self, schedule):
+        """
+        Convert the schedule to a list of rows for CSV export.
+
+        """
+        schedule_rows = []
+        for time_start, _, round_type, location_type, location_id, team_id in schedule:
+            schedule_rows.append(
+                [
+                    time_start,
+                    f"{round_type.capitalize()} Round",
+                    f"{location_type.capitalize()} {location_id}",
+                    team_id,
+                ]
+            )
+        return schedule_rows
+
     def export_schedule_to_csv(self, file_path, schedule):
         """
         Export the schedule to a CSV file.
 
         """
-        schedule_rows = convert_schedule_to_rows(schedule)
+        schedule_rows = self.convert_schedule_to_rows(schedule)
         with open(file_path, "w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
             writer.writerow(
@@ -135,7 +133,7 @@ class QLearningExporter:
         Export the optimal schedule to an Excel file.
 
         """
-        optimal_schedule_rows = convert_schedule_to_rows(schedule)
+        optimal_schedule_rows = self.convert_schedule_to_rows(schedule)
         with open(file_path, "w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
             writer.writerow(
@@ -153,7 +151,7 @@ class QLearningExporter:
                 filtered_dataframe = self.dataframe[
                     self.dataframe[EXPORT.COL_ROUND] == round_type
                 ]
-                transform_dataframe_to_grid(filtered_dataframe, round_type, writer)
+                self.transform_dataframe_to_grid(filtered_dataframe, round_type, writer)
                 workbook = writer.book
                 worksheet = writer.sheets[round_type]
                 dataframe_for_sheet = self.dataframe[

@@ -1,3 +1,10 @@
+.pylintrc
+__pycache__
+app.py
+scratch
+exports
+dist
+build
 .*
 __pycache__
 app.py

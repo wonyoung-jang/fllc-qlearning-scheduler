@@ -6,8 +6,8 @@ from PySide6.QtCore import QTime
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QFormLayout, QGroupBox, QLabel, QTimeEdit
 
-from ..utils.config import RoundType
 from ..data_model.time_data import TimeData
+from ..utils.config import RoundType
 
 
 @dataclass(slots=True)
@@ -64,7 +64,7 @@ class TimeDataInputs(QGroupBox):
     def update_labels(self, time_data: TimeData) -> None:
         """Update the labels for the time data inputs."""
         duration = time_data.round_durations
-        min_slots = time_data.min_slots_required
+        min_slots = time_data.min_slots
         judging_stop_time = self.timeedit.judging_start.time().addSecs(
             duration[RoundType.JUDGING] * 60 * min_slots[RoundType.JUDGING]
         )

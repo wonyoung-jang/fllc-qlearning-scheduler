@@ -3,9 +3,9 @@
 from dataclasses import dataclass
 from typing import Any, Generator
 
-from ..utils.config import LocationType, RoundType
 from ..data_model.schedule_data import Location, ScheduleConfig, ScheduleData
 from ..data_model.time_data import TimeData
+from ..utils.config import LocationType, RoundType
 from .q_state import ScheduleState
 
 
@@ -63,7 +63,7 @@ class QLearningSchedulerData:
             int: The number of possible schedule slots.
         """
         sched_config = self.config
-        timeslots = self.time.min_slots_required
+        timeslots = self.time.min_slots
         possible_judging = sched_config.num_rooms * timeslots[RoundType.JUDGING]
         timeslots_practice_and_table = timeslots[RoundType.PRACTICE] + timeslots[RoundType.TABLE]
         possible_practice_and_table = (sched_config.num_tables * 2) * timeslots_practice_and_table

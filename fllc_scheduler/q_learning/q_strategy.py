@@ -10,8 +10,8 @@ from ..utils.config import QParam
 class QLearningParameters:
     """Dataclass for Q-Learning parameters."""
 
-    alpha: float = 0.20  # Learning rate
-    gamma: float = 0.80  # Discount factor
+    alpha: float = 0.20
+    gamma: float = 0.80
     epsilon_start: float = 1.00
     epsilon_end: float = 0.01
     epsilon_decay: float = 0.995

@@ -6,8 +6,8 @@ from PySide6.QtCore import QTime
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QFormLayout, QGroupBox, QLabel, QTimeEdit
 
-from ..config import RoundType
-from ..time_data import TimeData
+from ..utils.config import RoundType
+from ..data_model.time_data import TimeData
 
 
 @dataclass(slots=True)

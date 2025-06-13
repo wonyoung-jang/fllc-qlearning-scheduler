@@ -3,9 +3,9 @@
 from dataclasses import dataclass
 from typing import Any, Generator
 
-from ..config import LocationType, RoundType
-from ..schedule_data import Location, ScheduleConfig, ScheduleData
-from ..time_data import TimeData
+from ..utils.config import LocationType, RoundType
+from ..data_model.schedule_data import Location, ScheduleConfig, ScheduleData
+from ..data_model.time_data import TimeData
 from .q_state import ScheduleState
 
 

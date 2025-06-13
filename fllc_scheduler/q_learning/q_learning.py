@@ -4,15 +4,15 @@ import random
 from dataclasses import InitVar, dataclass, field
 from typing import Any
 
-from ..config import (
+from ..utils.config import (
     EXPORT_OPTIMAL,
     EXPORT_OPTIMAL_GRID,
     EXPORT_Q_TABLE,
     EXPORT_SCHED_BENCHMARK,
     EXPORT_SCHED_DIR,
 )
-from ..schedule_data import ScheduleConfig, ScheduleData
-from ..time_data import TimeData
+from ..data_model.schedule_data import ScheduleConfig, ScheduleData
+from ..data_model.time_data import TimeData
 from ..utils.export_utils import (
     save_optimal_schedule_to_excel,
     save_qtable_to_csv,
@@ -39,6 +39,7 @@ class QLearning:
     param: QLearningParameters = field(default_factory=QLearningParameters)
     state: QLearningStates = field(default_factory=QLearningStates)
     strategy: QLearningStrategy = field(default_factory=QLearningStrategy)
+    q_table_size_limit: int = None
 
     def __post_init__(self, sched_config: ScheduleConfig, schedule_data: ScheduleData, time_data: TimeData) -> None:
         """
@@ -51,24 +52,20 @@ class QLearning:
         )
         self._reset()
 
-    def get_q_table_size_limit(self) -> int:
-        """
-        Get the size limit of the Q-table.
-
-        Returns:
-            int: The size limit of the Q-table.
-        """
-        return len(self.state.states) * len(self.data.schedule.teams)
-
     def _reset(self) -> None:
         """Initialize the schedule and states for the Q-learning model."""
         self.state.initialize_schedule_and_states(self.data)
         self.strategy.reset()
+        self.q_table_size_limit = len(self.state.states) * len(self.data.schedule.teams)
+
+    def _get_completed_percentage(self) -> float:
+        """Calculate the percentage of the schedule that has been completed."""
+        return self.state.current_schedule_length / self.data.config.get_required_schedule_slots()
 
     def _post_benchmark_training(self) -> None:
         """Post-training updates after completing benchmark episodes."""
         save_schedule_to_csv(EXPORT_SCHED_BENCHMARK, self.state.schedule)
-        completed_percentage = self.state.current_schedule_length / self.data.config.get_required_schedule_slots()
+        completed_percentage = self._get_completed_percentage()
         self.metrics.evaluate_schedule(self.state.schedule, completed_percentage, "Benchmark")
 
     def _post_training_episode(self, episode: int, reward: float) -> None:
@@ -85,7 +82,7 @@ class QLearning:
 
         export_file = EXPORT_SCHED_DIR / f"schedule_episode_{episode}.csv"
         save_schedule_to_csv(export_file, self.state.schedule)
-        completed_percentage = self.state.current_schedule_length / self.data.config.get_required_schedule_slots()
+        completed_percentage = self._get_completed_percentage()
         self.metrics.evaluate_schedule(self.state.schedule, completed_percentage, "Training")
 
     def _post_optimal_schedule(self) -> None:
@@ -93,7 +90,7 @@ class QLearning:
         save_qtable_to_csv(EXPORT_Q_TABLE, self.state.q_table)
         save_schedule_to_csv(EXPORT_OPTIMAL, self.state.schedule)
         save_optimal_schedule_to_excel(EXPORT_OPTIMAL, EXPORT_OPTIMAL_GRID)
-        completed_percentage = self.state.current_schedule_length / self.data.config.get_required_schedule_slots()
+        completed_percentage = self._get_completed_percentage()
         self.metrics.evaluate_schedule(self.state.schedule, completed_percentage, "Optimal")
 
     def train_benchmark_episodes(self) -> None:
@@ -147,11 +144,11 @@ class QLearning:
         self.state.current_schedule_length = 0
         data = self.data
         book = data.schedule.book_team_for_slot
-        while self.state.states and not self.state.is_terminal():
+        while self.state.states:
             s = self.state.states.pop(0)
             if not (actions := self.state.update_available_actions(s, data)):
                 continue
-            curr_action = max(actions, key=lambda a: self.state.q_table.get((s, a), float("-inf")))
+            curr_action = self.state.get_best_action(actions, s)
             book(curr_action, s.round_type, s.time_slot, s.location)
             self.state.update_schedule(s, curr_action)
         self._post_optimal_schedule()

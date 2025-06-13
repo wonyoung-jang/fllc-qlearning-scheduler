@@ -59,9 +59,7 @@ class GuiRefreshInputs(QGroupBox):
             f"Required Schedule Slots: {q_learning.data.config.get_required_schedule_slots()} "
             f"({q_learning.data.get_possible_schedule_slots()} Possible)"
         )
-        self.label.qtable_size.setText(
-            f"Q-Table Size: {len(q_learning.state.q_table)}/{q_learning.get_q_table_size_limit()}"
-        )
+        self.label.qtable_size.setText(f"Q-Table Size: {len(q_learning.state.q_table)}/{q_learning.q_table_size_limit}")
         self.label.status.setText("Waiting for User to Complete Initialization")
 
     def set_layout(self) -> None:

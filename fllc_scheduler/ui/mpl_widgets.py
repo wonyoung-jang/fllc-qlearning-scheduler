@@ -10,9 +10,9 @@ from matplotlib.figure import Figure
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QGroupBox, QSplitter, QVBoxLayout, QWidget
 
-from ..config import Training
+from ..utils.config import Training
 from ..q_learning.q_learning import QLearning, QLearningMetrics
-from ..utils.stat_utils import aggregated_data_to_2d_array, average
+from ..utils.stat_utils import average
 
 
 @dataclass
@@ -134,8 +134,7 @@ class HeatmapPlotWidget(BasePlotWidget):
 
     def plot(self) -> None:
         """Plot a heatmap of the Q-table data."""
-        aggregate_data = self.q_learning.state.transform_for_heatmap()
-        data, xticklabels, yticklabels = aggregated_data_to_2d_array(aggregate_data)
+        data, xticklabels, yticklabels = self.q_learning.state.to_heatmap()
 
         ax = self._prepare_ax()
         ax.set(

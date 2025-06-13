@@ -2,33 +2,6 @@
 
 from typing import Any
 
-import numpy as np
-
-
-def aggregated_data_to_2d_array(aggregated_data: dict) -> tuple[np.ndarray, list[str], list[str]]:
-    """
-    Convert aggregated data into a 2D array suitable for heatmap visualization.
-
-    Args:
-        aggregated_data (dict): A dictionary where keys are tuples of (detailed_state, action)
-                                and values are the aggregated data (e.g., Q-values).
-    Returns:
-        tuple: A tuple containing:
-            - A 2D numpy array representing the heatmap data.
-            - A list of detailed state labels for the rows.
-            - A list of action labels for the columns.
-    """
-    detailed_states = sorted(set(k[0] for k in aggregated_data.keys()), key=lambda x: (x[1], x[0]))
-    actions = sorted(set(k[1] for k in aggregated_data.keys()))
-    heatmap_data = np.zeros((len(detailed_states), len(actions)))
-    for (detailed_state, action), value in aggregated_data.items():
-        row = detailed_states.index(detailed_state)
-        col = actions.index(action)
-        heatmap_data[row, col] = value
-    state_labels = [f"{state[0]}-{state[1]}" for state in detailed_states]
-    action_labels = [str(action) for action in actions]
-    return heatmap_data, action_labels, state_labels
-
 
 def average(seq: Any) -> float:
     """Calculate the average of a sequence of numbers."""

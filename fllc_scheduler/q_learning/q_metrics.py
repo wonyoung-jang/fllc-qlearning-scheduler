@@ -3,7 +3,7 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
 
-from ..schedule_evaluator import ScheduleEvaluator
+from ..data_model.schedule_evaluator import ScheduleEvaluator
 from ..utils.stat_utils import average
 from .q_state import ScheduleState
 

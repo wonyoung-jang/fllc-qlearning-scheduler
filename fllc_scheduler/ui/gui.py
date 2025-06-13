@@ -5,9 +5,9 @@ from dataclasses import dataclass, field
 from PySide6.QtCore import Qt, QThread, QTime, Slot
 from PySide6.QtWidgets import QHBoxLayout, QSplitter, QWidget
 
-from ..config import EXPORT_OPTIMAL_GRID, RoundType, Training
-from ..data import FLLCSchedulerData
-from ..utils.export_utils import clear_exports_folder
+from ..utils.config import EXPORT_DIR, EXPORT_OPTIMAL_GRID, RoundType, Training
+from ..data_model.data import FLLCSchedulerData
+from ..utils.export_utils import clear_exports_dir
 from .input_panel import FLLCSchedulerInputPanel
 from .mpl_widgets import MplWidgets
 from .schedule_display import ScheduleDisplay
@@ -20,6 +20,10 @@ class FLLCSchedulerProcessor:
 
     thread: QThread
     worker: TrainingWorker
+
+    def emit(self) -> None:
+        """Emit the GUI updated signal from the worker."""
+        self.worker.signals.gui_updated_signal.emit()
 
 
 @dataclass(slots=True)
@@ -64,114 +68,122 @@ class FLLCSchedulerGUI(QWidget):
 
     def connect_time_inputs_signals(self) -> None:
         """Connect signals for time input changes."""
-        timeedit = self.inputs.comp.time_inputs.timeedit
-        timeedit.judging_start.timeChanged.connect(self.on_update)
-        timeedit.practice_start.timeChanged.connect(self.on_update)
-        timeedit.practice_stop.timeChanged.connect(self.on_update)
-        timeedit.practice_minimum.timeChanged.connect(self.on_update)
-        timeedit.table_minimum.timeChanged.connect(self.on_update)
-        timeedit.table_start.timeChanged.connect(self.on_update)
-        timeedit.table_stop.timeChanged.connect(self.on_update)
-        timeedit.practice_start.timeChanged.connect(self.validate_practice_times)
-        timeedit.practice_stop.timeChanged.connect(self.validate_practice_times)
-        timeedit.practice_minimum.timeChanged.connect(self.validate_practice_times)
-        timeedit.table_start.timeChanged.connect(self.validate_table_times)
-        timeedit.table_stop.timeChanged.connect(self.validate_table_times)
-        timeedit.table_minimum.timeChanged.connect(self.validate_table_times)
+        t = self.inputs.comp.time_inputs.timeedit
+        t.judging_start.timeChanged.connect(self.on_update)
+
+        t.practice_start.timeChanged.connect(self.on_update)
+        t.practice_start.timeChanged.connect(self.validate_practice_times)
+        t.practice_stop.timeChanged.connect(self.on_update)
+        t.practice_stop.timeChanged.connect(self.validate_practice_times)
+        t.practice_minimum.timeChanged.connect(self.on_update)
+        t.practice_minimum.timeChanged.connect(self.validate_practice_times)
+
+        t.table_minimum.timeChanged.connect(self.on_update)
+        t.table_minimum.timeChanged.connect(self.validate_table_times)
+        t.table_start.timeChanged.connect(self.on_update)
+        t.table_start.timeChanged.connect(self.validate_table_times)
+        t.table_stop.timeChanged.connect(self.on_update)
+        t.table_stop.timeChanged.connect(self.validate_table_times)
 
     def connect_schedule_inputs_signals(self) -> None:
         """Connect signals for schedule input changes."""
-        sched_inputs = self.inputs.comp.sched_inputs
-        sched_inputs.spinbox_num_teams.valueChanged.connect(self.on_update)
-        sched_inputs.spinbox_num_rooms.valueChanged.connect(self.on_update)
-        sched_inputs.spinbox_num_tables.valueChanged.connect(self.on_update)
-        round_spinboxes = self.inputs.comp.round_inputs.spinboxes
-        round_spinboxes[RoundType.PRACTICE].valueChanged.connect(self.on_update)
-        round_spinboxes[RoundType.TABLE].valueChanged.connect(self.on_update)
+        s = self.inputs.comp.sched_inputs
+        s.spinbox_num_teams.valueChanged.connect(self.on_update)
+        s.spinbox_num_rooms.valueChanged.connect(self.on_update)
+        s.spinbox_num_tables.valueChanged.connect(self.on_update)
+        r = self.inputs.comp.round_inputs.spinboxes
+        r[RoundType.PRACTICE].valueChanged.connect(self.on_update)
+        r[RoundType.TABLE].valueChanged.connect(self.on_update)
 
     def connect_q_inputs_signals(self) -> None:
         """Connect signals for Q-Learning input changes."""
-        q_inputs = self.inputs.comp.q_inputs
-        q_inputs.dblspin.alpha.valueChanged.connect(self.on_update)
-        q_inputs.dblspin.gamma.valueChanged.connect(self.on_update)
-        q_inputs.dblspin.epsilon_start.valueChanged.connect(self.on_update)
-        q_inputs.dblspin.epsilon_end.valueChanged.connect(self.on_update)
-        q_inputs.dblspin.epsilon_decay.valueChanged.connect(self.on_update)
-        q_inputs.spinbox_episodes.valueChanged.connect(self.on_update)
+        q = self.inputs.comp.q_inputs
+        q.dblspin.alpha.valueChanged.connect(self.on_update)
+        q.dblspin.gamma.valueChanged.connect(self.on_update)
+        q.dblspin.epsilon_start.valueChanged.connect(self.on_update)
+        q.dblspin.epsilon_end.valueChanged.connect(self.on_update)
+        q.dblspin.epsilon_decay.valueChanged.connect(self.on_update)
+        q.spinbox_episodes.valueChanged.connect(self.on_update_constraints)
 
     def connect_soft_constraint_signals(self) -> None:
         """Connect signals for soft constraint input changes."""
-        slider = self.inputs.comp.soft_constraint.slider
-        slider.table_consistency.valueChanged.connect(self.on_update)
-        slider.opponent_variety.valueChanged.connect(self.on_update)
-        slider.back_to_back_penalty.valueChanged.connect(self.on_update)
-        slider.break_time.valueChanged.connect(self.on_update)
+        s = self.inputs.comp.soft_constraint.slider
+        s.table_consistency.valueChanged.connect(self.on_update_constraints)
+        s.opponent_variety.valueChanged.connect(self.on_update_constraints)
+        s.back_to_back_penalty.valueChanged.connect(self.on_update_constraints)
+        s.break_time.valueChanged.connect(self.on_update_constraints)
 
     def connect_gui_inputs_signals(self) -> None:
         """Connect signals for GUI input changes."""
-        gui_inputs = self.inputs.comp.gui_inputs
-        gui_inputs.spinbox_gui_refresh_rate.valueChanged.connect(self.on_update)
-        gui_inputs.run.clicked.connect(self.start_training_thread)
-        gui_inputs.exit.clicked.connect(self.close)
+        g = self.inputs.comp.gui_inputs
+        g.spinbox_gui_refresh_rate.valueChanged.connect(self.on_update)
+        g.run.clicked.connect(self.start_training_thread)
+        g.exit.clicked.connect(self.close)
 
     def _training_benchmark(self) -> None:
         """Run the benchmark training process."""
-        self.sched_display.init_schedule_display()
-        self.mpl.schedule_scores.plot(Training.BENCHMARK)
-        self.inputs.comp.gui_inputs.progressbar.setValue(0)
-        self.inputs.comp.gui_inputs.label.status.setText("Generating Benchmarks...")
-        self.process.worker.signals.gui_updated_signal.emit()
+        _mpl = self.mpl
+        _inputs = self.inputs.comp
+        _gui_inputs = _inputs.gui_inputs
+        _gui_labels = _gui_inputs.label
+        _mpl.schedule_scores.plot(Training.BENCHMARK)
+        _gui_inputs.progressbar.setValue(0)
+        _gui_labels.status.setText("Generating Benchmarks...")
+        self.process.emit()
 
     def _training_training(self, episode: int) -> None:
         """Run the training process."""
-        self.sched_display.init_schedule_display()
-        self.mpl.heatmap.plot()
-        self.mpl.schedule_scores.plot(Training.TRAINING)
-        self.mpl.convergence.plot(list(range(1, episode + 1)))
-        self.mpl.explore_exploit.plot(self.inputs.comp.q_inputs.decays)
-        self.inputs.comp.gui_inputs.label.avg_reward.setText(
-            f"Average Reward: {self.data.q_learning.metrics.avg_rewards[-1]:.2f}"
-        )
-        self.inputs.comp.gui_inputs.label.qlearning.setText(
+        _mpl = self.mpl
+        _inputs = self.inputs.comp
+        _gui_inputs = _inputs.gui_inputs
+        _gui_labels = _gui_inputs.label
+        _mpl.heatmap.plot()
+        _mpl.schedule_scores.plot(Training.TRAINING)
+        _mpl.convergence.plot(list(range(1, episode + 1)))
+        _mpl.explore_exploit.plot(_inputs.q_inputs.decays)
+        _gui_labels.avg_reward.setText(f"Average Reward: {self.data.q_learning.metrics.avg_rewards[-1]:.2f}")
+        _gui_labels.qlearning.setText(
             f"Epsilon: {self.data.q_learning.param.epsilon:.2f}\n"
             f"Alpha: {self.data.q_learning.param.alpha:.2f}\n"
             f"Gamma: {self.data.q_learning.param.gamma:.2f}\n"
             f"Episodes: {self.data.q_learning.config.episodes}"
         )
-        self.inputs.comp.gui_inputs.label.qtable_size.setText(
-            f"Q-Table Size: {len(self.data.q_learning.state.q_table)}/{self.data.q_learning.get_q_table_size_limit()}"
+        _gui_labels.qtable_size.setText(
+            f"Q-Table Size: {len(self.data.q_learning.state.q_table)}/{self.data.q_learning.q_table_size_limit}"
         )
         prog_fraction = f"{episode}/{self.data.q_learning.config.episodes}"
-        self.inputs.comp.gui_inputs.progressbar.setValue(episode)
-        self.inputs.comp.gui_inputs.label.status.setText(f"Episode {prog_fraction}: Scheduling in progress...")
-        self.process.worker.signals.gui_updated_signal.emit()
+        _gui_inputs.progressbar.setValue(episode)
+        _gui_labels.status.setText(f"Episode {prog_fraction}: Scheduling in progress...")
+        self.process.emit()
 
     def _training_optimal(self) -> None:
         """Run the optimal training process."""
-        self.sched_display.init_schedule_display()
-        self.mpl.schedule_scores.plot(Training.OPTIMAL)
-        self.inputs.comp.gui_inputs.label.avg_reward.setText("Average Reward: Optimized")
-        self.inputs.comp.gui_inputs.label.qlearning.setText(
+        _mpl = self.mpl
+        _inputs = self.inputs.comp
+        _gui_inputs = _inputs.gui_inputs
+        _gui_labels = _gui_inputs.label
+        _mpl.schedule_scores.plot(Training.OPTIMAL)
+        _gui_labels.avg_reward.setText("Average Reward: Optimized")
+        _gui_labels.qlearning.setText(
             f"Epsilon: {self.data.q_learning.param.epsilon:.2f} (Final)\n"
             f"Alpha: {self.data.q_learning.param.alpha:.2f}\n"
             f"Gamma: {self.data.q_learning.param.gamma:.2f}\n"
             f"Episodes: {self.data.q_learning.config.episodes}"
         )
-        self.inputs.comp.gui_inputs.label.qtable_size.setText(
-            f"Q-Table Size: {len(self.data.q_learning.state.q_table)}/"
-            f"{self.data.q_learning.get_q_table_size_limit()} (Final)"
+        _gui_labels.qtable_size.setText(
+            f"Q-Table Size: {len(self.data.q_learning.state.q_table)}/{self.data.q_learning.q_table_size_limit} (Final)"
         )
-        self.inputs.comp.gui_inputs.progressbar.setValue(self.data.q_learning.config.episodes)
-        self.inputs.comp.gui_inputs.label.status.setText(
+        _gui_labels.status.setText(
             f"Optimal Scheduling: Scheduling complete!\nOptimal Schedule Generated at {str(EXPORT_OPTIMAL_GRID)}"
         )
-        self.inputs.comp.gui_inputs.run.setEnabled(True)
-        self.process.worker.signals.gui_updated_signal.emit()
+        _gui_inputs.progressbar.setValue(self.data.q_learning.config.episodes)
+        _gui_inputs.run.setEnabled(True)
+        self.process.emit()
 
     @Slot()
     def start_training_thread(self) -> None:
         """Start the training thread for Q-Learning."""
-        clear_exports_folder()
+        clear_exports_dir(EXPORT_DIR)
         self.on_update()
         self.process = FLLCSchedulerProcessor(
             thread=QThread(),
@@ -215,12 +227,19 @@ class FLLCSchedulerGUI(QWidget):
         settings_from_ui = self.inputs.comp.collect_settings_from_ui()
         self.data.config.update_from_settings(settings_from_ui)
         self.data.time.update_from_settings(settings_from_ui)
-        self.data.q_learning.update_from_settings(settings_from_ui)
-        self.inputs.comp.gui_inputs.progressbar.setMaximum(self.data.q_learning.config.episodes)
+        self.data.q_learning.param.update_from_settings(settings_from_ui)
         self.sched_display.init_schedule_display()
         self.inputs.comp.update_dependent_displays()
         self.validate_practice_times()
         self.validate_table_times()
+
+    @Slot()
+    def on_update_constraints(self) -> None:
+        """Update the soft constraints based on user inputs."""
+        settings_from_ui = self.inputs.comp.collect_settings_from_ui()
+        self.data.q_learning.config.update_from_settings(settings_from_ui)
+        self.inputs.comp.soft_constraint.label.update_labels(self.data.q_learning)
+        self.inputs.comp.gui_inputs.progressbar.setMaximum(self.data.q_learning.config.episodes)
 
     @Slot(str, int)
     def update_gui_total(self, training_type: Training, episode: int) -> None:
@@ -233,8 +252,10 @@ class FLLCSchedulerGUI(QWidget):
         """
         to_refresh = episode % self.inputs.comp.gui_inputs.spinbox_gui_refresh_rate.value() == 0
         if training_type == Training.BENCHMARK:
+            self.sched_display.init_schedule_display()
             self._training_benchmark()
         elif training_type == Training.TRAINING and to_refresh:
+            self.sched_display.init_schedule_display()
             self._training_training(episode)
         elif training_type == Training.OPTIMAL:
             self._training_optimal()

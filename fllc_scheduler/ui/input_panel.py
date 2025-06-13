@@ -15,8 +15,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..config import Configuration, Constraint, QParam, RoundType, Time
-from ..data import FLLCSchedulerData
+from ..utils.config import Configuration, Constraint, QParam, RoundType, Time
+from ..data_model.data import FLLCSchedulerData
 from .gui_refresh_inputs import GuiRefreshInputLabels, GuiRefreshInputs
 from .helpers import WidgetHelper
 from .q_learning_inputs import QLearningInputDoubleSpinBoxes, QLearningInputs
@@ -153,7 +153,6 @@ class FLLCSchedulerInputPanelComponents(QWidget):
         Update dependent displays based on the current state of the Q-Learning instance.
         This method is called to refresh the GUI elements that depend on the Q-Learning state.
         """
-        self.soft_constraint.label.update_labels(self.data.q_learning)
         self.sched_inputs.update_labels(self.data.schedule)
         self.round_inputs.update_labels(self.data.schedule)
         self.time_inputs.update_labels(self.data.time)

@@ -3,9 +3,9 @@
 from dataclasses import dataclass, field
 from typing import Any
 
-from .config import RoundType, Time
+from ..utils.config import RoundType, Time
 from .schedule_data import ScheduleConfig
-from .utils.time_utils import (
+from ..utils.time_utils import (
     add_minutes_to_time,
     calculate_end_times,
     generate_start_times,

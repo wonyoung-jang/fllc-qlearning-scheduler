@@ -6,8 +6,8 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QFormLayout, QGridLayout, QGroupBox, QLabel, QSpinBox
 
-from ..config import RoundType
-from ..schedule_data import ScheduleData
+from ..utils.config import RoundType
+from ..data_model.schedule_data import ScheduleData
 
 
 @dataclass(slots=True)

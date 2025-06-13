@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFormLayout, QGroupBox, QLabel, QSlider
 
-from ..config import Constraint
+from ..utils.config import Constraint
 from ..q_learning.q_learning import QLearning
 
 

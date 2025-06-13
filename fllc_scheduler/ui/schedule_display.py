@@ -6,9 +6,9 @@ from typing import ClassVar
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QGroupBox, QSplitter, QTableWidget, QTableWidgetItem, QVBoxLayout
 
-from ..config import LocationType, RoundType
-from ..data import FLLCSchedulerData
-from ..schedule_data import Location
+from ..utils.config import LocationType, RoundType
+from ..data_model.data import FLLCSchedulerData
+from ..data_model.schedule_data import Location
 from .helpers import WidgetHelper
 
 

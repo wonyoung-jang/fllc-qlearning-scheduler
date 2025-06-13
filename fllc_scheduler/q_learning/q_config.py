@@ -3,8 +3,8 @@
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-from ..config import Constraint, QParam
-from ..schedule_data import Location, Team
+from ..utils.config import Constraint, QParam
+from ..data_model.schedule_data import Location, Team
 from ..utils.stat_utils import normalize
 from ..utils.time_utils import time_to_minutes
 

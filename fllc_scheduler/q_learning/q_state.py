@@ -2,10 +2,13 @@
 
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
-from ..config import RoundType
-from ..schedule_data import Location, ScheduleData
+import numpy as np
+
+from ..utils.config import RoundType
+from ..data_model.schedule_data import Location, ScheduleData
+from ..utils.stat_utils import average
 
 if TYPE_CHECKING:
     from .q_data import QLearningSchedulerData
@@ -91,18 +94,31 @@ class QLearningStates:
         self.static[curr_index].team_id = team_id
         self.current_schedule_length += 1
 
-    def transform_for_heatmap(self) -> dict[Any, float]:
+    def to_heatmap(self) -> tuple[np.ndarray, list[str], list[str]]:
         """
         Transform the Q-table for heatmap display.
 
         Returns:
-            dict[Any, float]: A dictionary with keys as tuples of (state, action) and values as Q-values.
+            tuple: A tuple containing:
+                - A 2D numpy array representing the heatmap data.
+                - A list of action labels for the columns.
+                - A list of detailed state labels for the rows.
         """
         data = defaultdict(list)
         for (state, action), value in self.q_table.items():
             detailed_state = (state.time_slot[0][:5], state.round_type)
             data[(detailed_state, action)].append(value)
-        return {k: sum(values) / len(values) for k, values in data.items()}
+        aggregated_data = {k: average(values) for k, values in data.items()}
+        detailed_states = sorted(set(k[0] for k in aggregated_data.keys()), key=lambda x: (x[1], x[0]))
+        actions = sorted(set(k[1] for k in aggregated_data.keys()))
+        heatmap_data = np.zeros((len(detailed_states), len(actions)))
+        for (detailed_state, action), value in aggregated_data.items():
+            row = detailed_states.index(detailed_state)
+            col = actions.index(action)
+            heatmap_data[row, col] = value
+        state_labels = [f"{state[0]}-{state[1]}" for state in detailed_states]
+        action_labels = [str(action) for action in actions]
+        return heatmap_data, action_labels, state_labels
 
     def add_availability(self, round_type: RoundType, team_id: int) -> None:
         """
@@ -201,3 +217,21 @@ class QLearningStates:
                 return available_actions
             return []
         return available_actions
+
+    def get_best_action(self, actions: list[int], s: ScheduleState) -> int | None:
+        """
+        Get a possible action from the list of actions based on the current state.
+
+        Args:
+            actions (list[int]): The list of available actions (team IDs).
+            s (ScheduleState): The current state of the scheduling process.
+        Returns:
+            int | None: A possible action (team ID) or None if no action is available.
+        """
+        best_actions = {}
+        for a in actions:
+            state_action = (s, a)
+            value = self.q_table.get(state_action, float("-inf"))
+            best_actions[a] = value
+        best_action = max(best_actions, key=best_actions.get, default=None)
+        return best_action

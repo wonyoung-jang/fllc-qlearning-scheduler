@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import Any
 
-from .config import Configuration, RoundType
+from ..utils.config import Configuration, RoundType
 
 
 @dataclass(slots=True)

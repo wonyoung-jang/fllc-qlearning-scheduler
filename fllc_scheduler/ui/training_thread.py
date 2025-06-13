@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 from PySide6.QtCore import QMutex, QObject, Qt, QThread, QWaitCondition, Signal, Slot
 
-from ..config import EXPORT_RESULTS, Training
+from ..utils.config import EXPORT_RESULTS, Training
 from ..q_learning.q_learning import QLearning
 from ..utils.stat_utils import average
 
@@ -86,6 +86,7 @@ class TrainingWorker(QThread):
                 return
 
             self._export_results()
+
         except Exception as e:
             print(f"Training error: {e}")
             raise e
@@ -111,23 +112,22 @@ class TrainingWorker(QThread):
                 d["Average Score"].append(average_scores[eval_type])
                 d["Average Completion Percentage"].append(average_completions[eval_type])
 
-            max_length = max(len(x) for x in d.values() if isinstance(x, list))
-
+            max_len = max(len(x) for x in d.values() if isinstance(x, list))
             with EXPORT_RESULTS.open("w", newline="", encoding="utf-8") as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=d.keys())
-                writer.writeheader()
-                for i in range(max_length):
-                    row = {}
-                    row["Eval Type"] = d["Eval Type"][i] if i < len(d["Eval Type"]) else ""
-                    row["Scores"] = d["Scores"][i] if i < len(d["Scores"]) else ""
-                    row["Completion Percentages"] = (
+                w = csv.DictWriter(csvfile, fieldnames=d.keys())
+                w.writeheader()
+                for i in range(max_len):
+                    r = {}
+                    r["Eval Type"] = d["Eval Type"][i] if i < len(d["Eval Type"]) else ""
+                    r["Scores"] = d["Scores"][i] if i < len(d["Scores"]) else ""
+                    r["Completion Percentages"] = (
                         d["Completion Percentages"][i] if i < len(d["Completion Percentages"]) else ""
                     )
-                    row["Average Score"] = d["Average Score"][i] if i < len(d["Average Score"]) else ""
-                    row["Average Completion Percentage"] = (
+                    r["Average Score"] = d["Average Score"][i] if i < len(d["Average Score"]) else ""
+                    r["Average Completion Percentage"] = (
                         d["Average Completion Percentage"][i] if i < len(d["Average Completion Percentage"]) else ""
                     )
-                    writer.writerow(row)
+                    w.writerow(r)
         except Exception as e:
             print(f"Error exporting results: {e}")
             raise e

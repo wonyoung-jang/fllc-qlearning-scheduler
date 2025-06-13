@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import Any
 
-from ..config import QParam
+from ..utils.config import QParam
 
 
 @dataclass(slots=True)

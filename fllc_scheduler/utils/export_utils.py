@@ -6,27 +6,12 @@ from pathlib import Path
 import pandas as pd
 
 from ..q_learning.q_state import ScheduleState
-from ..schedule_data import Location
+from ..data_model.schedule_data import Location
 
 
-def _transform_and_write(df: pd.DataFrame, sheet_name: str, writer: pd.ExcelWriter) -> None:
-    """
-    Transform the DataFrame to a pivot table format and write it to an Excel sheet.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to transform.
-        sheet_name (str): The name of the sheet to write to.
-        writer (pd.ExcelWriter): The Excel writer object.
-    """
-    pivot = df.pivot_table(index="Time", columns=["Location"], values="Team").reset_index()
-    pivot.sort_index(axis=1, inplace=True)
-    pivot.to_excel(writer, sheet_name=sheet_name, index=False)
-
-
-def clear_exports_folder() -> None:
+def clear_exports_dir(export_dir: Path) -> None:
     """Clear the exports folder by deleting all files."""
-    folder = Path("./exports")
-    for root, _, files in Path.walk(folder):
+    for root, _, files in Path.walk(export_dir):
         for file in files:
             path = root / file
             try:
@@ -96,5 +81,9 @@ def save_optimal_schedule_to_excel(file: Path, excel_file: Path) -> None:
     with pd.ExcelWriter(excel_file, engine="xlsxwriter") as w:
         for round_type in df["Round"].unique():
             filtered_df = df[df["Round"] == round_type]
-            _transform_and_write(filtered_df, round_type, w)
+            pivot = filtered_df.pivot_table(
+                index="Time", columns=["Location"], values="Team", aggfunc="first"
+            ).reset_index()
+            pivot.sort_index(axis=1, inplace=True)
+            pivot.to_excel(w, sheet_name=round_type, index=False)
             df[df["Round"] == round_type].dropna()

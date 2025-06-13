@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import Any, Generator
 
-from .config import LocationType, RoundType
+from ..utils.config import LocationType, RoundType
 from .schedule_config import ScheduleConfig
 
 

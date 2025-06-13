@@ -116,6 +116,7 @@ class FLLCSchedulerGUI(QWidget):
 
     def _training_benchmark(self) -> None:
         """Run the benchmark training process."""
+        self.sched_display.init_schedule_display()
         self.mpl.schedule_scores.plot(Training.BENCHMARK)
         self.inputs.comp.gui_inputs.progressbar.setValue(0)
         self.inputs.comp.gui_inputs.label.status.setText("Generating Benchmarks...")
@@ -123,6 +124,7 @@ class FLLCSchedulerGUI(QWidget):
 
     def _training_training(self, episode: int) -> None:
         """Run the training process."""
+        self.sched_display.init_schedule_display()
         self.mpl.heatmap.plot()
         self.mpl.schedule_scores.plot(Training.TRAINING)
         self.mpl.convergence.plot(list(range(1, episode + 1)))
@@ -139,7 +141,6 @@ class FLLCSchedulerGUI(QWidget):
         self.inputs.comp.gui_inputs.label.qtable_size.setText(
             f"Q-Table Size: {len(self.data.q_learning.state.q_table)}/{self.data.q_learning.get_q_table_size_limit()}"
         )
-        self.sched_display.init_schedule_display()
         prog_fraction = f"{episode}/{self.data.q_learning.config.episodes}"
         self.inputs.comp.gui_inputs.progressbar.setValue(episode)
         self.inputs.comp.gui_inputs.label.status.setText(f"Episode {prog_fraction}: Scheduling in progress...")
@@ -147,6 +148,7 @@ class FLLCSchedulerGUI(QWidget):
 
     def _training_optimal(self) -> None:
         """Run the optimal training process."""
+        self.sched_display.init_schedule_display()
         self.mpl.schedule_scores.plot(Training.OPTIMAL)
         self.inputs.comp.gui_inputs.label.avg_reward.setText("Average Reward: Optimized")
         self.inputs.comp.gui_inputs.label.qlearning.setText(

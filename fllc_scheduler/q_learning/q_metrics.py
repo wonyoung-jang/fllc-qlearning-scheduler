@@ -31,7 +31,7 @@ class QLearningMetrics:
         avg_change = average(self.q_value_changes) if len(self.q_value_changes) > 1 else 0
         self.avg_reward_changes.append(avg_change)
 
-    def evaluate_schedule(self, schedule: list[ScheduleState], completed_percentage: float, roundtype: str) -> None:
+    def evaluate_schedule(self, schedule: list[ScheduleState], completed_percentage: float, round_type: str) -> None:
         """
         Update the metrics with the completion percentage and score for the training episode.
 
@@ -42,7 +42,7 @@ class QLearningMetrics:
         """
         se = ScheduleEvaluator(schedule)
         schedule_score = se.calculate_schedule_score(completed_percentage)
-        se.generate_aggregate_statistics(roundtype)
+        se.generate_aggregate_statistics(round_type)
 
-        self.completion_percentage[roundtype].append(completed_percentage)
-        self.scores[roundtype].append(schedule_score)
+        self.completion_percentage[round_type].append(completed_percentage)
+        self.scores[round_type].append(schedule_score)

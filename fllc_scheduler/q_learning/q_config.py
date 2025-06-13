@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any, Literal
 
 from ..config import Constraint, QParam
-from ..schedule_data import Team
+from ..schedule_data import Location, Team
 from ..utils.stat_utils import normalize
 from ..utils.time_utils import time_to_minutes
 
@@ -44,7 +44,7 @@ class TrainingConfig:
         reward += self.calc_break_time(scheduled_times, time_slot)
         return reward
 
-    def calc_table_consistency(self, scheduled_tables: list) -> float | Literal[0]:
+    def calc_table_consistency(self, scheduled_tables: list[Location]) -> float | Literal[0]:
         """
         Calculate the table consistency reward based on the scheduled tables.
 

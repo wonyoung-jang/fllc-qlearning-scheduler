@@ -66,7 +66,7 @@ class GuiRefreshInputs(QGroupBox):
 
     def set_layout(self) -> None:
         """Set the layout for the GUI refresh inputs."""
-        layout = QVBoxLayout(self)
+        layout = QVBoxLayout()
         layout.addWidget(self.label.status)
         layout.addWidget(self.label.avg_reward)
         layout.addWidget(self.label.curr_sched_len)
@@ -76,3 +76,4 @@ class GuiRefreshInputs(QGroupBox):
         layout.addLayout(self.gui_refresh_layout)
         layout.addWidget(self.run)
         layout.addWidget(self.exit)
+        self.setLayout(layout)

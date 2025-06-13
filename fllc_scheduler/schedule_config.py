@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import Any
 
-from .config import RoundType, Configuration
+from .config import Configuration, RoundType
 
 
 @dataclass(slots=True)
@@ -43,3 +43,11 @@ class ScheduleConfig:
         self.num_rooms = settings.get(Configuration.NUM_ROUNDS)
         self.num_tables = settings.get(Configuration.NUM_TABLES)
         self.round_types_per_team.update(settings.get(Configuration.ROUND_TYPES))
+
+    def get_judging_headers(self) -> list[str]:
+        """Get the headers for the judging schedule table."""
+        return ["Time"] + [f"Room {i + 1}" for i in range(self.num_rooms)]
+
+    def get_table_headers(self) -> list[str]:
+        """Get the headers for the table schedule table."""
+        return ["Time"] + [f"Table {chr(65 + i // 2)}{i % 2 + 1}" for i in range(self.num_tables * 2)]

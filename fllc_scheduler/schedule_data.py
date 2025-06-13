@@ -67,7 +67,7 @@ class Team:
                 return True
         return False
 
-    def yield_tables(self) -> Generator[str, None, None]:
+    def yield_tables(self) -> Generator[Location, None, None]:
         """Yield all tables that this team is scheduled for."""
         for booking in self.bookings:
             yield booking.location

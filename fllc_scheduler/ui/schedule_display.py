@@ -23,17 +23,15 @@ class ScheduleDisplay(QGroupBox):
     judging_headers: list[str] = None
     table_headers: list[str] = None
 
-    tables: ClassVar[dict[RoundType, QTableWidget]] = None
-    col_index: ClassVar[dict[LocationType, int]] = None
+    tables: ClassVar[dict[RoundType, QTableWidget]] = {}
+    col_index: ClassVar[dict[LocationType, int]] = {}
 
     def __post_init__(self) -> None:
         """Initialize the schedule display with default values."""
         super(ScheduleDisplay, self).__init__()
         self.setTitle("Schedule Display")
-        self.judging_headers = ["Time"] + [f"Room {i + 1}" for i in range(self.data.config.num_rooms)]
-        self.table_headers = ["Time"] + [
-            f"Table {chr(65 + i // 2)}{i % 2 + 1}" for i in range(self.data.config.num_tables * 2)
-        ]
+        self.judging_headers = self.data.config.get_judging_headers()
+        self.table_headers = self.data.config.get_table_headers()
         self.create_schedule_display()
         self.init_schedule_display()
 

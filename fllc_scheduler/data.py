@@ -3,8 +3,8 @@
 from dataclasses import dataclass, field
 
 from .q_learning.q_learning import QLearning
-from .schedule_data import ScheduleData
 from .schedule_config import ScheduleConfig
+from .schedule_data import ScheduleData
 from .time_data import TimeData
 
 

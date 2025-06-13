@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import Any
 
-from .config import RoundType
+from .config import RoundType, Time
 from .schedule_data import ScheduleConfig
 from .utils.time_utils import (
     add_minutes_to_time,
@@ -219,9 +219,9 @@ class TimeData:
         Args:
             settings (dict[str, Any]): The settings to update the time data.
         """
-        self.setting.start_time_judging_rounds = settings.get("start_time_judging_rounds")
-        self.setting.start_time_practice_rounds = settings.get("start_time_practice_rounds")
-        self.setting.start_time_break = settings.get("start_time_break")
-        self.setting.start_time_table_rounds = settings.get("start_time_table_rounds")
-        self.setting.stop_time_table_rounds = settings.get("stop_time_table_rounds")
+        self.setting.start_time_judging_rounds = settings.get(Time.JUDGING_START)
+        self.setting.start_time_practice_rounds = settings.get(Time.PRACTICE_START)
+        self.setting.start_time_break = settings.get(Time.PRACTICE_STOP)
+        self.setting.start_time_table_rounds = settings.get(Time.TABLE_START)
+        self.setting.stop_time_table_rounds = settings.get(Time.TABLE_STOP)
         self.update_time_data()

@@ -15,6 +15,25 @@ WEIGHTED = 0.25
 BASE_ADJUST = 0.5
 
 
+class Time(StrEnum):
+    """Enumeration for time-related settings in the FLLC Scheduler."""
+
+    JUDGING_START = "start_time_judging_rounds"
+    PRACTICE_START = "start_time_practice_rounds"
+    PRACTICE_STOP = "stop_time_practice_rounds"
+    TABLE_START = "start_time_table_rounds"
+    TABLE_STOP = "stop_time_table_rounds"
+
+
+class Configuration(StrEnum):
+    """Enumeration for configuration options in the FLLC Scheduler."""
+
+    NUM_TEAMS = "num_teams"
+    NUM_ROUNDS = "num_rounds"
+    NUM_TABLES = "num_tables"
+    ROUND_TYPES = "round_types_per_team"
+
+
 class QParam(StrEnum):
     """Enumeration for Q-learning parameters in the FLLC Scheduler."""
 

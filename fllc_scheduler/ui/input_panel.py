@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..config import Constraint, QParam, RoundType
+from ..config import Configuration, Constraint, QParam, RoundType, Time
 from ..data import FLLCSchedulerData
 from .gui_refresh_inputs import GuiRefreshInputLabels, GuiRefreshInputs
 from .helpers import WidgetHelper
@@ -168,18 +168,18 @@ class FLLCSchedulerInputPanelComponents(QWidget):
             dict: A dictionary containing the current settings from the GUI.
         """
         settings = {
-            "num_teams": self.sched_inputs.spinbox_num_teams.value(),
-            "num_rooms": self.sched_inputs.spinbox_num_rooms.value(),
-            "num_tables": self.sched_inputs.spinbox_num_tables.value(),
-            "round_types_per_team": {
+            Configuration.NUM_TEAMS: self.sched_inputs.spinbox_num_teams.value(),
+            Configuration.NUM_ROUNDS: self.sched_inputs.spinbox_num_rooms.value(),
+            Configuration.NUM_TABLES: self.sched_inputs.spinbox_num_tables.value(),
+            Configuration.ROUND_TYPES: {
                 RoundType.PRACTICE: self.round_inputs.spinboxes[RoundType.PRACTICE].value(),
                 RoundType.TABLE: self.round_inputs.spinboxes[RoundType.TABLE].value(),
             },
-            "start_time_judging_rounds": self.time_inputs.timeedit.judging_start.time().toString("hh:mm"),
-            "start_time_practice_rounds": self.time_inputs.timeedit.practice_start.time().toString("hh:mm"),
-            "start_time_break": self.time_inputs.timeedit.practice_stop.time().toString("hh:mm"),
-            "start_time_table_rounds": self.time_inputs.timeedit.table_start.time().toString("hh:mm"),
-            "stop_time_table_rounds": self.time_inputs.timeedit.table_stop.time().toString("hh:mm"),
+            Time.JUDGING_START: self.time_inputs.timeedit.judging_start.time().toString("hh:mm"),
+            Time.PRACTICE_START: self.time_inputs.timeedit.practice_start.time().toString("hh:mm"),
+            Time.PRACTICE_STOP: self.time_inputs.timeedit.practice_stop.time().toString("hh:mm"),
+            Time.TABLE_START: self.time_inputs.timeedit.table_start.time().toString("hh:mm"),
+            Time.TABLE_STOP: self.time_inputs.timeedit.table_stop.time().toString("hh:mm"),
             QParam.ALPHA: self.q_inputs.dblspin.alpha.value(),
             QParam.GAMMA: self.q_inputs.dblspin.gamma.value(),
             QParam.EPSILON_START: self.q_inputs.dblspin.epsilon_start.value(),

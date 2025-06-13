@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import Any
 
-from .config import RoundType
+from .config import RoundType, Configuration
 
 
 @dataclass(slots=True)
@@ -39,7 +39,7 @@ class ScheduleConfig:
         Args:
             settings (dict[str, Any]): The settings to update the scheduling data.
         """
-        self.num_teams = settings.get("num_teams")
-        self.num_rooms = settings.get("num_rooms")
-        self.num_tables = settings.get("num_tables")
-        self.round_types_per_team.update(settings.get("round_types_per_team"))
+        self.num_teams = settings.get(Configuration.NUM_TEAMS)
+        self.num_rooms = settings.get(Configuration.NUM_ROUNDS)
+        self.num_tables = settings.get(Configuration.NUM_TABLES)
+        self.round_types_per_team.update(settings.get(Configuration.ROUND_TYPES))

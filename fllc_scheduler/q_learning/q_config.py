@@ -166,9 +166,8 @@ class TrainingConfig:
         Args:
             settings (dict[str, Any]): A dictionary containing the training configuration settings.
         """
-        _C = Constraint
-        self.constraint_weights[_C.TABLE_CONSISTENCY] = settings.get(_C.TABLE_CONSISTENCY)
-        self.constraint_weights[_C.OPP_VARIETY] = settings.get(_C.OPP_VARIETY)
-        self.constraint_weights[_C.BTB_PENALTY] = settings.get(_C.BTB_PENALTY)
-        self.constraint_weights[_C.BREAK_TIME] = settings.get(_C.BREAK_TIME)
+        self.constraint_weights[Constraint.TABLE_CONSISTENCY] = settings.get(Constraint.TABLE_CONSISTENCY)
+        self.constraint_weights[Constraint.OPP_VARIETY] = settings.get(Constraint.OPP_VARIETY)
+        self.constraint_weights[Constraint.BTB_PENALTY] = settings.get(Constraint.BTB_PENALTY)
+        self.constraint_weights[Constraint.BREAK_TIME] = settings.get(Constraint.BREAK_TIME)
         self.episodes = settings.get(QParam.EPISODES)

@@ -6,9 +6,9 @@ from typing import ClassVar
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QGroupBox, QSplitter, QTableWidget, QTableWidgetItem, QVBoxLayout
 
-from ..utils.config import LocationType, RoundType
-from ..data_model.data import FLLCSchedulerData
 from ..data_model.schedule_data import Location
+from ..q_learning.q_state import ScheduleState
+from ..utils.config import LocationType, RoundType
 from .helpers import WidgetHelper
 
 
@@ -16,12 +16,11 @@ from .helpers import WidgetHelper
 class ScheduleDisplay(QGroupBox):
     """Data class to hold the schedule display for the FLLC Q-Learning Tournament Scheduler."""
 
-    data: FLLCSchedulerData
+    judging_headers: list[str]
+    table_headers: list[str]
     table_judging: QTableWidget = None
     table_practice: QTableWidget = None
     table_round: QTableWidget = None
-    judging_headers: list[str] = None
-    table_headers: list[str] = None
 
     tables: ClassVar[dict[RoundType, QTableWidget]] = {}
     col_index: ClassVar[dict[LocationType, int]] = {}
@@ -30,21 +29,17 @@ class ScheduleDisplay(QGroupBox):
         """Initialize the schedule display with default values."""
         super(ScheduleDisplay, self).__init__()
         self.setTitle("Schedule Display")
-        self.judging_headers = self.data.config.get_judging_headers()
-        self.table_headers = self.data.config.get_table_headers()
-        self.create_schedule_display()
-        self.init_schedule_display()
 
-    def create_schedule_display(self) -> None:
+    def create_schedule_display(self, num_rooms: int, num_tables: int) -> None:
         """Create the widgets for displaying the schedule."""
         ScheduleDisplay.col_index = {}
-        for i in range(1, self.data.config.num_rooms + 1):
+        for i in range(1, num_rooms + 1):
             loc = Location(
                 location_type=LocationType.ROOM,
                 location_id=str(i),
             )
             ScheduleDisplay.col_index[loc] = i
-        for c in range(self.data.config.num_tables):
+        for c in range(num_tables):
             for side in (1, 2):
                 char = chr(65 + c)
                 loc = Location(
@@ -72,11 +67,10 @@ class ScheduleDisplay(QGroupBox):
         layout = QVBoxLayout(self)
         layout.addWidget(splitter)
 
-    def init_schedule_display(self) -> None:
+    def init_schedule_display(self, schedule: list[ScheduleState]) -> None:
         """Initialize the schedule display tables with default values."""
         self._clear_and_setup_tables()
         last_row = {RoundType.JUDGING: {}, RoundType.PRACTICE: {}, RoundType.TABLE: {}}
-        schedule = self.data.q_learning.state.schedule
         col_index = ScheduleDisplay.col_index
         for entry in sorted(schedule, key=lambda x: (x.time_slot, x.round_type, x.location.location_id)):
             time_start = entry.time_slot[0]

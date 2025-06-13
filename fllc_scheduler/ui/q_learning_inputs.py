@@ -78,7 +78,7 @@ class QLearningInputs(QGroupBox):
     def set_layout(self) -> None:
         """Set the layout for the Q-Learning inputs."""
 
-        layout = QFormLayout(self)
+        layout = QFormLayout()
         layout.addRow(QLabel("Learning Rate (α): "), self.dblspin.alpha)
         layout.addRow(QLabel("Discount Factor (γ): "), self.dblspin.gamma)
         layout.addRow(QLabel("Epsilon Start (Ɛ): "), self.dblspin.epsilon_start)
@@ -87,3 +87,4 @@ class QLearningInputs(QGroupBox):
         layout.addRow(QLabel("Max Training Episodes: "), self.spinbox_episodes)
         layout.addRow(QLabel("Epsilon 50% at: "), self.label_epsilon_halfway)
         layout.addRow(QLabel("Epsilon End at:"), self.label_epsilon_total)
+        self.setLayout(layout)

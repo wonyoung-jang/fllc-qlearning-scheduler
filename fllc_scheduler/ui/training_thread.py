@@ -14,7 +14,7 @@ from ..utils.stat_utils import average
 class GUISignals(QObject):
     """Signals for GUI updates during training."""
 
-    update_gui_signal = Signal(str, int)
+    update_gui_signal = Signal(Training, int)
     gui_updated_signal = Signal()
     finished = Signal()
 
@@ -56,11 +56,11 @@ class TrainingWorker(QThread):
     def run(self) -> None:
         """Run the training process for the Q-Learning model."""
         try:
-            for _ in range(10):
+            for _ in range(5):
                 if not self._should_continue():
                     return
 
-                self.q_learning.train_benchmark_episodes()
+                self.q_learning.benchmark()
                 self.signals.update_gui_signal.emit(Training.BENCHMARK, -1)
 
                 if not self._wait_for_gui_update() and not self._should_continue():
@@ -70,7 +70,7 @@ class TrainingWorker(QThread):
                 if not self._should_continue():
                     return
 
-                self.q_learning.train_one_episode(episode)
+                self.q_learning.train(episode)
                 self.signals.update_gui_signal.emit(Training.TRAINING, episode)
 
                 if not self._wait_for_gui_update() and not self._should_continue():
@@ -79,7 +79,7 @@ class TrainingWorker(QThread):
             if not self._should_continue():
                 return
 
-            self.q_learning.generate_optimal_schedule()
+            self.q_learning.optimize()
             self.signals.update_gui_signal.emit(Training.OPTIMAL, -1)
 
             if not self._wait_for_gui_update() and not self._should_continue():

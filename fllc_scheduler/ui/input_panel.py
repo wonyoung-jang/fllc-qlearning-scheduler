@@ -1,5 +1,6 @@
 """FLLC Scheduler Input Panel UI Module."""
 
+import logging
 from dataclasses import dataclass
 
 from PySide6.QtCore import Qt
@@ -15,14 +16,16 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..utils.config import Configuration, Constraint, QParam, RoundType, Time
 from ..data_model.data import FLLCSchedulerData
+from ..utils.config import Configuration, Constraint, QParam, RoundType, Time
 from .gui_refresh_inputs import GuiRefreshInputLabels, GuiRefreshInputs
 from .helpers import WidgetHelper
 from .q_learning_inputs import QLearningInputDoubleSpinBoxes, QLearningInputs
 from .schedule_data_inputs import RoundTypeInputs, ScheduleDataInputs
 from .soft_constraint_inputs import SoftConstraintInputLabels, SoftConstraintInputs
 from .time_data_inputs import TimeDataInputLabels, TimeDataInputs, TimeDataInputTimeEdits
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(slots=True)
@@ -156,7 +159,6 @@ class FLLCSchedulerInputPanelComponents(QWidget):
         self.sched_inputs.update_labels(self.data.schedule)
         self.round_inputs.update_labels(self.data.schedule)
         self.time_inputs.update_labels(self.data.time)
-        self.q_inputs.update_labels()
         self.gui_inputs.update_labels(self.data.q_learning)
 
     def collect_settings_from_ui(self) -> dict:

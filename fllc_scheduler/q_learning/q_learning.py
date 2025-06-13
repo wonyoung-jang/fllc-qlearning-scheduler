@@ -93,7 +93,7 @@ class QLearning:
         completed_percentage = self._get_completed_percentage()
         self.metrics.evaluate_schedule(self.state.schedule, completed_percentage, "Optimal")
 
-    def train_benchmark_episodes(self) -> None:
+    def benchmark(self) -> None:
         """Train benchmark episodes to establish a baseline schedule."""
         self._reset()
         self.state.current_schedule_length = 0
@@ -109,7 +109,7 @@ class QLearning:
             self.state.update_schedule(s, curr_action)
         self._post_benchmark_training()
 
-    def train_one_episode(self, episode: int) -> None:
+    def train(self, episode: int) -> None:
         """
         Train the Q-learning model for one episode.
 
@@ -139,7 +139,7 @@ class QLearning:
                 self.add_q_value((s, curr_action), state_reward)
         self._post_training_episode(episode, episode_reward)
 
-    def generate_optimal_schedule(self) -> None:
+    def optimize(self) -> None:
         """Generate the optimal schedule using the trained Q-table."""
         self._reset()
         self.state.current_schedule_length = 0

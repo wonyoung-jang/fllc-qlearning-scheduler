@@ -192,9 +192,9 @@ class FLLCSchedulerGUI(QWidget):
         min_duration = self.inputs.comp.time_inputs.timeedit.practice_minimum.time()
         duration = QTime(0, self.data.time.round_durations[RoundType.PRACTICE], 0)
 
-        end_practice = timeedit_practice_stop.time()
+        practice_stop = timeedit_practice_stop.time()
         if duration < min_duration:
-            end_practice = end_practice.addSecs((min_duration.minute() - duration.minute()) * 60)
+            end_practice = practice_stop.addSecs((min_duration.minute() - duration.minute()) * 60)
             timeedit_practice_stop.setTime(end_practice)
 
     @Slot()
@@ -204,9 +204,9 @@ class FLLCSchedulerGUI(QWidget):
         min_duration = self.inputs.comp.time_inputs.timeedit.table_minimum.time()
         duration = QTime(0, self.data.time.round_durations[RoundType.TABLE], 0)
 
-        end_table = timeedit_table_stop.time()
+        table_stop = timeedit_table_stop.time()
         if duration < min_duration:
-            end_table = end_table.addSecs((min_duration.minute() - duration.minute()) * 60)
+            end_table = table_stop.addSecs((min_duration.minute() - duration.minute()) * 60)
             timeedit_table_stop.setTime(end_table)
 
     @Slot()

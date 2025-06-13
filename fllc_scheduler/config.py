@@ -15,6 +15,17 @@ WEIGHTED = 0.25
 BASE_ADJUST = 0.5
 
 
+class QParam(StrEnum):
+    """Enumeration for Q-learning parameters in the FLLC Scheduler."""
+
+    ALPHA = "alpha"
+    GAMMA = "gamma"
+    EPSILON_START = "epsilon_start"
+    EPSILON_END = "epsilon_end"
+    EPSILON_DECAY = "epsilon_decay"
+    EPISODES = "episodes"
+
+
 class LocationType(StrEnum):
     """Enumeration for different types of locations in the FLLC tournament."""
 

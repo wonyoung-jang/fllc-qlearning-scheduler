@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..config import Constraint, RoundType
+from ..config import Constraint, QParam, RoundType
 from ..data import FLLCSchedulerData
 from .gui_refresh_inputs import GuiRefreshInputLabels, GuiRefreshInputs
 from .helpers import WidgetHelper
@@ -180,12 +180,12 @@ class FLLCSchedulerInputPanelComponents(QWidget):
             "start_time_break": self.time_inputs.timeedit.practice_stop.time().toString("hh:mm"),
             "start_time_table_rounds": self.time_inputs.timeedit.table_start.time().toString("hh:mm"),
             "stop_time_table_rounds": self.time_inputs.timeedit.table_stop.time().toString("hh:mm"),
-            "alpha": self.q_inputs.dblspin.alpha.value(),
-            "gamma": self.q_inputs.dblspin.gamma.value(),
-            "epsilon_start": self.q_inputs.dblspin.epsilon_start.value(),
-            "epsilon_end": self.q_inputs.dblspin.epsilon_end.value(),
-            "epsilon_decay": self.q_inputs.dblspin.epsilon_decay.value(),
-            "episodes": self.q_inputs.spinbox_episodes.value(),
+            QParam.ALPHA: self.q_inputs.dblspin.alpha.value(),
+            QParam.GAMMA: self.q_inputs.dblspin.gamma.value(),
+            QParam.EPSILON_START: self.q_inputs.dblspin.epsilon_start.value(),
+            QParam.EPSILON_END: self.q_inputs.dblspin.epsilon_end.value(),
+            QParam.EPSILON_DECAY: self.q_inputs.dblspin.epsilon_decay.value(),
+            QParam.EPISODES: self.q_inputs.spinbox_episodes.value(),
             Constraint.TABLE_CONSISTENCY: self.soft_constraint.slider.table_consistency.value() / 100.0,
             Constraint.OPP_VARIETY: self.soft_constraint.slider.opponent_variety.value() / 100.0,
             Constraint.BTB_PENALTY: self.soft_constraint.slider.back_to_back_penalty.value() / 100.0,

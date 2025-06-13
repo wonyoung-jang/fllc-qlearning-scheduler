@@ -116,4 +116,3 @@ class QLearningSchedulerData:
                 continue
             if team.has_time_conflict(time_slot):
                 yield team_id
-                break

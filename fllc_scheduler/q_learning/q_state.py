@@ -189,6 +189,7 @@ class QLearningStates:
             RoundType.PRACTICE: self.practice_teams_available,
             RoundType.TABLE: self.table_teams_available,
         }.get(state.round_type, [])
+
         potential_actions = [team for team in data.schedule.teams if team in available_potentials]
         remove_actions = list(data.check_is_team_scheduled(potential_actions, state.round_type))
         remove_actions.extend(data.check_is_time_slot_overlapping(potential_actions, state.time_slot))

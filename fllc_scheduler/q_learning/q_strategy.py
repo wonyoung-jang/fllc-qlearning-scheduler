@@ -3,6 +3,8 @@
 from dataclasses import dataclass, field
 from typing import Any
 
+from ..config import QParam
+
 
 @dataclass(slots=True)
 class QLearningParameters:
@@ -36,11 +38,11 @@ class QLearningParameters:
 
     def update_from_settings(self, settings: dict[str, Any]) -> None:
         """Update the Q-Learning parameters from a settings dictionary."""
-        self.alpha = settings.get("alpha")
-        self.gamma = settings.get("gamma")
-        self.epsilon_start = settings.get("epsilon_start")
-        self.epsilon_end = settings.get("epsilon_end")
-        self.epsilon_decay = settings.get("epsilon_decay")
+        self.alpha = settings.get(QParam.ALPHA)
+        self.gamma = settings.get(QParam.GAMMA)
+        self.epsilon_start = settings.get(QParam.EPSILON_START)
+        self.epsilon_end = settings.get(QParam.EPSILON_END)
+        self.epsilon_decay = settings.get(QParam.EPSILON_DECAY)
 
 
 @dataclass(slots=True)

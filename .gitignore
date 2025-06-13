@@ -5,3 +5,5 @@ scratch
 exports
 dist
 build
+*.dat
+*.prof

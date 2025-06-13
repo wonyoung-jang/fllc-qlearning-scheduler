@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-from ..config import Constraint
+from ..config import Constraint, QParam
 from ..schedule_data import Team
 from ..utils.stat_utils import normalize
 from ..utils.time_utils import time_to_minutes
@@ -171,4 +171,4 @@ class TrainingConfig:
         self.constraint_weights[_C.OPP_VARIETY] = settings.get(_C.OPP_VARIETY)
         self.constraint_weights[_C.BTB_PENALTY] = settings.get(_C.BTB_PENALTY)
         self.constraint_weights[_C.BREAK_TIME] = settings.get(_C.BREAK_TIME)
-        self.episodes = settings.get("episodes")
+        self.episodes = settings.get(QParam.EPISODES)

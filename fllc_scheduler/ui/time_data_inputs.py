@@ -77,11 +77,11 @@ class TimeDataInputs(QGroupBox):
     def set_layout(self) -> None:
         """Set the layout for the time data inputs."""
 
-        layout = QFormLayout(self)
         label_judging_duration_constant = QLabel("Judging Round Duration")
         label_judging_duration_constant.setFont(QFont("Sans", 8, QFont.Weight.Bold))
         label_duration_judging_round = QLabel("45 minutes")
         label_duration_judging_round.setFont(QFont("Sans", 8, QFont.Weight.Bold))
+        layout = QFormLayout()
         layout.addRow(label_judging_duration_constant, label_duration_judging_round)
         layout.addRow(QLabel("Practice Round Duration"), self.label.duration_practice_round)
         layout.addRow(QLabel("Minimum Practice Duration: "), self.timeedit.practice_minimum)
@@ -95,3 +95,4 @@ class TimeDataInputs(QGroupBox):
         layout.addRow(QLabel("Table Rounds-Stop"), self.timeedit.table_stop)
         layout.addRow(QLabel("Practice Time Available"), self.label.practice_time_available)
         layout.addRow(QLabel("Table Time Available"), self.label.table_time_available)
+        self.setLayout(layout)

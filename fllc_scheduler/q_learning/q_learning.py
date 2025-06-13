@@ -4,6 +4,8 @@ import random
 from dataclasses import InitVar, dataclass, field
 from typing import Any
 
+from ..data_model.schedule_data import ScheduleConfig, ScheduleData
+from ..data_model.time_data import TimeData
 from ..utils.config import (
     EXPORT_OPTIMAL,
     EXPORT_OPTIMAL_GRID,
@@ -11,8 +13,6 @@ from ..utils.config import (
     EXPORT_SCHED_BENCHMARK,
     EXPORT_SCHED_DIR,
 )
-from ..data_model.schedule_data import ScheduleConfig, ScheduleData
-from ..data_model.time_data import TimeData
 from ..utils.export_utils import (
     save_optimal_schedule_to_excel,
     save_qtable_to_csv,
@@ -133,7 +133,8 @@ class QLearning:
             episode_reward += state_reward
 
             if self.state.states:
-                self.update_q_value((s, curr_action), state_reward, self.state.states[0], actions)
+                next_state = self.state.states[0]
+                self.update_q_value((s, curr_action), state_reward, next_state, actions)
             else:
                 self.add_q_value((s, curr_action), state_reward)
         self._post_training_episode(episode, episode_reward)

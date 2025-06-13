@@ -6,8 +6,8 @@ from dataclasses import dataclass
 
 from PySide6.QtCore import QMutex, QObject, Qt, QThread, QWaitCondition, Signal, Slot
 
-from ..utils.config import EXPORT_RESULTS, Training
 from ..q_learning.q_learning import QLearning
+from ..utils.config import EXPORT_RESULTS, Training
 from ..utils.stat_utils import average
 
 
@@ -146,3 +146,15 @@ class TrainingWorker(QThread):
         self._stop_requested = True
         self.mutex.unlock()
         self.wait_condition.wakeAll()  # Wake up if waiting
+
+
+@dataclass(slots=True)
+class FLLCSchedulerProcessor:
+    """Data class to hold the thread and worker for the FLLC Q-Learning Tournament Scheduler."""
+
+    thread: QThread
+    worker: TrainingWorker
+
+    def emit(self) -> None:
+        """Emit the GUI updated signal from the worker."""
+        self.worker.signals.gui_updated_signal.emit()

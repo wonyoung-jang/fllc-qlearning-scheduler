@@ -5,25 +5,13 @@ from dataclasses import dataclass, field
 from PySide6.QtCore import Qt, QThread, QTime, Slot
 from PySide6.QtWidgets import QHBoxLayout, QSplitter, QWidget
 
-from ..utils.config import EXPORT_DIR, EXPORT_OPTIMAL_GRID, RoundType, Training
 from ..data_model.data import FLLCSchedulerData
+from ..utils.config import EXPORT_DIR, EXPORT_OPTIMAL_GRID, RoundType, Training
 from ..utils.export_utils import clear_exports_dir
 from .input_panel import FLLCSchedulerInputPanel
 from .mpl_widgets import MplWidgets
 from .schedule_display import ScheduleDisplay
-from .training_thread import TrainingWorker
-
-
-@dataclass(slots=True)
-class FLLCSchedulerProcessor:
-    """Data class to hold the thread and worker for the FLLC Q-Learning Tournament Scheduler."""
-
-    thread: QThread
-    worker: TrainingWorker
-
-    def emit(self) -> None:
-        """Emit the GUI updated signal from the worker."""
-        self.worker.signals.gui_updated_signal.emit()
+from .training_thread import FLLCSchedulerProcessor, TrainingWorker
 
 
 @dataclass(slots=True)

@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from ..q_learning.q_learning import QLearning
 from .schedule_config import ScheduleConfig
 from .schedule_data import ScheduleData
-from .time_data import TimeData
+from .time_data import TimeData, TimeDataDurationsAvailable, TimeDataSettings, TimeDataStartTimeCollections
 
 
 @dataclass(slots=True)
@@ -19,6 +19,13 @@ class FLLCSchedulerData:
 
     def __post_init__(self) -> None:
         """Initialize the FLLCSchedulerData with default values."""
-        self.schedule = ScheduleData(self.config)
-        self.time = TimeData(self.config)
+        self.schedule = ScheduleData(
+            config=self.config,
+        )
+        self.time = TimeData(
+            config=self.config,
+            setting=TimeDataSettings(),
+            start_times=TimeDataStartTimeCollections(),
+            duration_available=TimeDataDurationsAvailable(),
+        )
         self.q_learning = QLearning(self.config, self.schedule, self.time)

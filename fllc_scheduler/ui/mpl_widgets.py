@@ -10,8 +10,8 @@ from matplotlib.figure import Figure
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QGroupBox, QSplitter, QVBoxLayout, QWidget
 
-from ..utils.config import Training
 from ..q_learning.q_learning import QLearning, QLearningMetrics
+from ..utils.config import Training
 from ..utils.stat_utils import average
 
 
@@ -25,9 +25,9 @@ class BasePlotWidget(QWidget):
     _cached_episodes: int = field(default=None, init=False)
     _cached_step: int = field(default=None, init=False)
 
-    def __post_init__(self, parent: QWidget | None = None) -> None:
+    def __post_init__(self) -> None:
         """Initialize the plot widget with a Matplotlib figure and canvas."""
-        super().__init__(parent)
+        super().__init__()
         self.figure = Figure(
             figsize=(5, 3),
             dpi=100,
@@ -346,34 +346,27 @@ class MplWidgets(QGroupBox):
     heatmap: HeatmapPlotWidget = None
     explore_exploit: ExplorationExploitationPlotWidget = None
 
-    def __post_init__(self, parent: QWidget | None = None) -> None:
-        """
-        Initialize the MplWidgets with Matplotlib figures and a layout.
-
-        Args:
-            parent (QWidget | None): The parent widget for the MplWidgets. Defaults to None.
-        """
-        super(MplWidgets, self).__init__(parent)
-        self.schedule_scores = ScheduleScoresPlotWidget(parent)
-        self.convergence = ConvergencePlotWidget(parent)
-        self.heatmap = HeatmapPlotWidget(parent)
-        self.explore_exploit = ExplorationExploitationPlotWidget(parent)
+    def __post_init__(self) -> None:
+        """Initialize the MplWidgets with Matplotlib figures and a layout."""
+        super(MplWidgets, self).__init__()
+        self.schedule_scores = ScheduleScoresPlotWidget()
+        self.convergence = ConvergencePlotWidget()
+        self.heatmap = HeatmapPlotWidget()
+        self.explore_exploit = ExplorationExploitationPlotWidget()
         self.setTitle("Visualizations")
-        self.init_layout()
+        self.initialize_layout()
 
-    def set_q_learning(self, q_learning: QLearning | None = None) -> None:
+    def set_q_learning(self, q_learning: QLearning) -> None:
         """
         Set the QLearning instance for the MplWidgets.
 
         Args:
-            q_learning (QLearning | None): The QLearning instance to set. If None, the current instance is used.
+            q_learning (QLearning): The QLearning instance to set.
         """
         for w in (self.convergence, self.heatmap, self.explore_exploit, self.schedule_scores):
             w.set_q_learning(q_learning)
-            w.plot()
-            w.canvas.draw()
 
-    def init_layout(self) -> None:
+    def initialize_layout(self) -> None:
         """Initialize the layout for the MplWidgets."""
         splitter = QSplitter(Qt.Orientation.Vertical)
         for w in (self.convergence, self.heatmap, self.explore_exploit, self.schedule_scores):

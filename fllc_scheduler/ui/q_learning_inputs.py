@@ -31,7 +31,7 @@ class QLearningInputs(QGroupBox):
     def __post_init__(self) -> None:
         """Initialize the Q-Learning input fields with default values."""
         super(QLearningInputs, self).__init__("Q-Learning Inputs")
-        self.set_layout()
+        self.initialize_layout()
 
     def initialize(self, q_learning: QLearning) -> None:
         """Initialize the Q-Learning input fields with default values."""
@@ -75,7 +75,7 @@ class QLearningInputs(QGroupBox):
             epsilon_decay_list(e_start)
         return ep_count_half, ep_count
 
-    def set_layout(self) -> None:
+    def initialize_layout(self) -> None:
         """Set the layout for the Q-Learning inputs."""
 
         layout = QFormLayout()
@@ -85,6 +85,6 @@ class QLearningInputs(QGroupBox):
         layout.addRow("Epsilon End (Ɛ): ", self.dblspin.epsilon_end)
         layout.addRow("Epsilon Decay (Ɛ): ", self.dblspin.epsilon_decay)
         layout.addRow("Max Training Episodes: ", self.spinbox_episodes)
-        layout.addRow(r"Epsilon 50% at: ", self.label_epsilon_halfway)
+        layout.addRow("Epsilon Halfway at: ", self.label_epsilon_halfway)
         layout.addRow("Epsilon End at:", self.label_epsilon_total)
         self.setLayout(layout)

@@ -35,10 +35,11 @@ class SoftConstraintInputSliders:
             QSlider: The created slider widget.
         """
         weight = q_learning.config.constraint_weights[constraint]
-        slider = QSlider(Qt.Orientation.Horizontal)
+        slider = QSlider(
+            orientation=Qt.Orientation.Horizontal,
+        )
         slider.setRange(0, 100)
         slider.setSingleStep(1)
-        slider.setTickInterval(10)
         slider.setSliderPosition(weight * 100.0)
         return slider
 

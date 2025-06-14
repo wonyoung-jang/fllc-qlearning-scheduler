@@ -41,15 +41,12 @@ class GuiRefreshInputs(QGroupBox):
         self.progressbar.setMaximum(q_learning.config.episodes)
         self.spinbox_gui_refresh_rate.setValue(1)
         self.update_labels(q_learning)
-        self.set_layout()
+        self.initialize_layout()
 
     def update_labels(self, q_learning: QLearning) -> None:
         """Update the labels for the GUI refresh inputs."""
         self.label.qlearning.setText(
-            f"Epsilon: {q_learning.param.epsilon:.2f} \n"
-            f"Alpha: {q_learning.param.alpha:.2f} \n"
-            f"Gamma: {q_learning.param.gamma:.2f} \n"
-            f"Episodes: {q_learning.config.episodes}"
+            f"Epsilon: {q_learning.param.epsilon:.2f} \nEpisodes: {q_learning.config.episodes}"
         )
         self.label.curr_sched_len.setText(
             f"Required Schedule Slots: {q_learning.data.config.get_required_schedule_slots()} "
@@ -58,7 +55,7 @@ class GuiRefreshInputs(QGroupBox):
         self.label.qtable_size.setText(f"Q-Table Size: {len(q_learning.state.q_table)}/{q_learning.q_table_size_limit}")
         self.label.status.setText("Waiting for User to Complete Initialization")
 
-    def set_layout(self) -> None:
+    def initialize_layout(self) -> None:
         """Set the layout for the GUI refresh inputs."""
         hbox = QFormLayout()
         hbox.addRow("Episodes to refresh GUI:", self.spinbox_gui_refresh_rate)

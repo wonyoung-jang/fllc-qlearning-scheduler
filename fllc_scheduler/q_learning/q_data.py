@@ -87,32 +87,25 @@ class QLearningSchedulerData:
         """
         return list(self.schedule.teams.keys()) * self.config.round_types_per_team[RoundType.TABLE]
 
-    def check_is_team_scheduled(self, potential_actions: list, round_type: str) -> Generator[Any, None, None]:
+    def check_is_team_scheduled_or_overlapping(
+        self,
+        actions: list[int],
+        round_type: str,
+        time_slot: tuple[str, str],
+    ) -> Generator[Any, None, None]:
         """
-        Check if any team in the potential actions is already scheduled.
+        Check if any team in the actions is already scheduled or has overlapping time slots.
 
         Args:
-            potential_actions (list): List of potential actions (teams).
+            actions (list[int]): List of team IDs to check.
             round_type (str): The type of round being checked (e.g., RoundType.PRACTICE, RoundType.TABLE).
+            time_slot (tuple[str, str]): The time slot to check for conflicts.
         Yields:
-            Any: Team ID if it is already scheduled for the current round type.
+            Any: Team ID if it is already scheduled or has overlapping time slots.
         """
-        for team_id in potential_actions:
-            if self.schedule.is_team_scheduled(team_id, round_type):
-                yield team_id
-
-    def check_is_time_slot_overlapping(self, potential_actions: list, time_slot: tuple) -> Generator[Any, None, None]:
-        """
-        Check if the time slot overlaps with any scheduled times for the teams.
-
-        Args:
-            potential_actions (list): List of potential actions (teams).
-            time_slot (tuple): The time slot to check (start_time, end_time).
-        Yields:
-            Any: Team ID if the time slot overlaps with any scheduled times.
-        """
-        for team_id in potential_actions:
+        for team_id in actions:
             if not (team := self.schedule.get_team(team_id)):
                 continue
-            if team.has_time_conflict(time_slot):
+            required_rounds = self.config.round_types_per_team.get(round_type, 0)
+            if team.is_fully_scheduled(round_type, required_rounds) or team.has_time_conflict(time_slot):
                 yield team_id

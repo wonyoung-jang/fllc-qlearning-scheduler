@@ -106,19 +106,19 @@ class QLearningStates:
         """
         data = defaultdict(list)
         for (state, action), value in self.q_table.items():
-            detailed_state = (state.time_slot[0][:5], state.round_type)
+            start_time, round_type = state.time_slot[0], state.round_type
+            detailed_state = (start_time, round_type)
             data[(detailed_state, action)].append(value)
         aggregated_data = {k: average(values) for k, values in data.items()}
-        detailed_states = sorted(set(k[0] for k in aggregated_data.keys()), key=lambda x: (x[1], x[0]))
-        actions = sorted(set(k[1] for k in aggregated_data.keys()))
+        detailed_states = sorted(set(k[0] for k in aggregated_data), key=lambda x: (x[1], x[0]))
+        actions = sorted(set(k[1] for k in aggregated_data))
         heatmap_data = np.zeros((len(detailed_states), len(actions)))
         for (detailed_state, action), value in aggregated_data.items():
             row = detailed_states.index(detailed_state)
             col = actions.index(action)
             heatmap_data[row, col] = value
-        state_labels = [f"{state[0]}-{state[1]}" for state in detailed_states]
-        action_labels = [str(action) for action in actions]
-        return heatmap_data, action_labels, state_labels
+        state_labels = [f"{state[0]} {state[1][0].capitalize()}" for state in detailed_states]
+        return heatmap_data, actions, state_labels
 
     def add_availability(self, round_type: RoundType, team_id: int) -> None:
         """
@@ -128,12 +128,12 @@ class QLearningStates:
             round_type (RoundType): The type of round (Practice or Table).
             team_id (int): The ID of the team to update.
         """
-        add_available = {
+        add_team = {
             RoundType.PRACTICE: self.practice_teams_available.append,
             RoundType.TABLE: self.table_teams_available.append,
         }.get(round_type, None)
-        if add_available is not None:
-            add_available(team_id)
+        if add_team is not None:
+            add_team(team_id)
 
     def remove_availability(self, round_type: RoundType, team_id: int) -> None:
         """
@@ -207,8 +207,9 @@ class QLearningStates:
         }.get(state.round_type, [])
 
         potential_actions = [team for team in data.schedule.teams if team in available_potentials]
-        remove_actions = list(data.check_is_team_scheduled(potential_actions, state.round_type))
-        remove_actions.extend(data.check_is_time_slot_overlapping(potential_actions, state.time_slot))
+        remove_actions = list(
+            data.check_is_team_scheduled_or_overlapping(potential_actions, state.round_type, state.time_slot)
+        )
         available_actions = [team for team in potential_actions if team not in remove_actions]
         if state.location.side == 2:
             if previous_state := self.find_previous(state):

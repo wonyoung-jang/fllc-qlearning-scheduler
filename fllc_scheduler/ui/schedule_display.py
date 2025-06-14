@@ -30,7 +30,7 @@ class ScheduleDisplay(QGroupBox):
         super(ScheduleDisplay, self).__init__()
         self.setTitle("Schedule Display")
 
-    def create_schedule_display(self, num_rooms: int, num_tables: int) -> None:
+    def initialize_layout(self, num_rooms: int, num_tables: int) -> None:
         """Create the widgets for displaying the schedule."""
         ScheduleDisplay.col_index = {}
         for i in range(1, num_rooms + 1):
@@ -68,7 +68,7 @@ class ScheduleDisplay(QGroupBox):
         layout.addWidget(splitter)
         self.setLayout(layout)
 
-    def init_schedule_display(self, schedule: list[ScheduleState]) -> None:
+    def reset_display(self, schedule: list[ScheduleState]) -> None:
         """Initialize the schedule display tables with default values."""
         self._clear_and_setup_tables()
         last_row = {RoundType.JUDGING: {}, RoundType.PRACTICE: {}, RoundType.TABLE: {}}

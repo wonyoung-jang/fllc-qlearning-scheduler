@@ -9,10 +9,9 @@ EXPORT_OPTIMAL = EXPORT_DIR / "optimal_schedule.csv"
 EXPORT_OPTIMAL_GRID = EXPORT_DIR / "optimal_schedule_grid.xlsx"
 EXPORT_SCHED_DIR = EXPORT_DIR / "training_schedules_output"
 EXPORT_SCHED_BENCHMARK = EXPORT_SCHED_DIR / "schedule_episode_benchmark.csv"
-EXPORT_EVAL_DIR = EXPORT_DIR / "schedule_evaluation"
-EXPORT_RESULTS = EXPORT_EVAL_DIR / "evaluation_results.csv"
 WEIGHTED = 0.25
 BASE_ADJUST = 0.5
+NUM_BENCHMARKS = 5
 
 
 class Time(StrEnum):

@@ -79,7 +79,7 @@ class RoundTypeInputs(QGroupBox):
         count = 0
         for name, spinbox in self.spinboxes.items():
             if name == RoundType.JUDGING:
-                judging_label = QLabel("Judging")
+                judging_label = QLabel(name.capitalize())
                 judging_label.setFont(QFont("Sans", 8, QFont.Weight.Bold))
                 layout.addWidget(judging_label, count, 0)
             else:

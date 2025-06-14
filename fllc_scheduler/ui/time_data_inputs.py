@@ -59,7 +59,7 @@ class TimeDataInputs(QGroupBox):
         self.timeedit.table_start.setTime(QTime.fromString(time_data.setting.start_time_table_rounds, "HH:mm"))
         self.timeedit.table_stop.setTime(QTime.fromString(time_data.setting.stop_time_table_rounds, "HH:mm"))
         self.update_labels(time_data)
-        self.set_layout()
+        self.initialize_layout()
 
     def update_labels(self, time_data: TimeData) -> None:
         """Update the labels for the time data inputs."""
@@ -74,7 +74,7 @@ class TimeDataInputs(QGroupBox):
         self.label.practice_time_available.setText(f"{time_data.duration_available.practice} minutes")
         self.label.table_time_available.setText(f"{time_data.duration_available.table} minutes")
 
-    def set_layout(self) -> None:
+    def initialize_layout(self) -> None:
         """Set the layout for the time data inputs."""
 
         label_duration_judging_round = QLabel("45 minutes")

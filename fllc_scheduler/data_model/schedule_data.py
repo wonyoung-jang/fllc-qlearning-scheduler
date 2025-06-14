@@ -67,6 +67,10 @@ class Team:
                 return True
         return False
 
+    def is_fully_scheduled(self, round_type: RoundType, required_rounds: int) -> bool:
+        """Check if the team has been scheduled for a specific round type."""
+        return self.get_round_count(round_type) >= required_rounds
+
     def yield_tables(self) -> Generator[Location, None, None]:
         """Yield all tables that this team is scheduled for."""
         for booking in self.bookings:
@@ -113,22 +117,6 @@ class ScheduleData:
             Team: The team object corresponding to the given ID.
         """
         return self.teams.get(team_id, None)
-
-    def is_team_scheduled(self, team_id: int, round_type: RoundType) -> bool:
-        """
-        Check if a team has been scheduled for a specific round type.
-
-        Args:
-            team_id (int): The ID of the team to check.
-            round_type (RoundType): The type of round to check.
-
-        Returns:
-            bool: True if the team is scheduled for the round type, False otherwise.
-        """
-        if not (team := self.get_team(team_id)):
-            return False
-        required_rounds = self.config.round_types_per_team.get(round_type, 0)
-        return team.get_round_count(round_type) >= required_rounds
 
     def book_team_for_slot(
         self,

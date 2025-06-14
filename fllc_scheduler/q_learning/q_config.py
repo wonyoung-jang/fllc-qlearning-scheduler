@@ -57,7 +57,7 @@ class TrainingConfig:
         if len_tables > 1:
             unique_to_tables = len(set(scheduled_tables)) / len_tables
             reward_table = unique_to_tables * self.max_num_rounds
-            reward_table = normalize(reward_table, 0, 1)
+            reward_table = normalize(reward_table, -1, 1)
             return reward_table * self.constraint_weights[Constraint.TABLE_CONSISTENCY]
         return 0
 
@@ -74,7 +74,7 @@ class TrainingConfig:
         if len_opps > 1:
             unique_to_opponents = len(set(scheduled_opponents)) / len_opps
             reward_opponent = unique_to_opponents * self.max_num_rounds
-            reward_opponent = normalize(reward_opponent, 0, 1)
+            reward_opponent = normalize(reward_opponent, -1, 1)
             return reward_opponent * self.constraint_weights[Constraint.OPP_VARIETY]
         return 0
 

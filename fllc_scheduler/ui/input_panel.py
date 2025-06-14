@@ -205,9 +205,9 @@ class FLLCSchedulerInputPanel(QWidget):
         """Initialize the input panel with the necessary components."""
         super(FLLCSchedulerInputPanel, self).__init__()
         self.comp = FLLCSchedulerInputPanelComponents(self.data)
-        self.setup_ui()
+        self.initialize_layout()
 
-    def setup_ui(self) -> None:
+    def initialize_layout(self) -> None:
         """Set up the UI components of the input panel."""
         splitter = QSplitter(Qt.Orientation.Vertical)
         splitter.addWidget(self.comp.sched_inputs)

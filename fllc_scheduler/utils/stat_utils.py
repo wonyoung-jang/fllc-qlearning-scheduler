@@ -8,7 +8,7 @@ def average(seq: Any) -> float:
     return sum(seq) / len(seq) if seq else 0.0
 
 
-def normalize(reward: float, min_reward: int, max_reward: int) -> float:
+def normalize(reward: float, min_reward: int = 0, max_reward: int = 1) -> float:
     """
     Normalize the reward value to a range between 0 and 1.
 

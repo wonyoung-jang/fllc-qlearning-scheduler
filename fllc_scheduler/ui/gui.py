@@ -54,15 +54,15 @@ class FLLCSchedulerGUI(QWidget):
             judging_headers=self.data.config.get_judging_headers(),
             table_headers=self.data.config.get_table_headers(),
         )
-        self.sched_display.create_schedule_display(
+        self.sched_display.initialize_layout(
             num_rooms=self.data.config.num_rooms,
             num_tables=self.data.config.num_tables,
         )
-        self.sched_display.init_schedule_display(self.data.q_learning.state.schedule)
+        self.sched_display.reset_display(self.data.q_learning.state.schedule)
 
     def initialize_mpl_widgets(self) -> None:
         """Initialize the Matplotlib widgets for plotting."""
-        self.mpl = MplWidgets(self)
+        self.mpl = MplWidgets()
         self.mpl.set_q_learning(self.data.q_learning)
 
     def connect_signals_and_slots(self) -> None:
@@ -151,10 +151,7 @@ class FLLCSchedulerGUI(QWidget):
         _mpl.explore_exploit.plot(_inputs.q_inputs.decays)
         _gui_labels.avg_reward.setText(f"Average Reward: {self.data.q_learning.metrics.avg_rewards[-1]:.2f}")
         _gui_labels.qlearning.setText(
-            f"Epsilon: {self.data.q_learning.param.epsilon:.2f}\n"
-            f"Alpha: {self.data.q_learning.param.alpha:.2f}\n"
-            f"Gamma: {self.data.q_learning.param.gamma:.2f}\n"
-            f"Episodes: {self.data.q_learning.config.episodes}"
+            f"Epsilon: {self.data.q_learning.param.epsilon:.2f}\nEpisodes: {self.data.q_learning.config.episodes}"
         )
         _gui_labels.qtable_size.setText(
             f"Q-Table Size: {len(self.data.q_learning.state.q_table)}/{self.data.q_learning.q_table_size_limit}"
@@ -174,13 +171,8 @@ class FLLCSchedulerGUI(QWidget):
         _q = self.data.q_learning
         _mpl.schedule_scores.plot(Training.OPTIMAL)
         _gui_labels.avg_reward.setText("Average Reward: Optimized")
-        _gui_labels.qlearning.setText(
-            f"Epsilon: {_q.param.epsilon:.2f} (Final)\n"
-            f"Alpha: {_q.param.alpha:.2f}\n"
-            f"Gamma: {_q.param.gamma:.2f}\n"
-            f"Episodes: {_q.config.episodes}"
-        )
-        _gui_labels.qtable_size.setText(f"Q-Table Size: {len(_q.state.q_table)}/{_q.q_table_size_limit} (Final)")
+        _gui_labels.qlearning.setText(f"Epsilon: {_q.param.epsilon:.2f}\nEpisodes: {_q.config.episodes}")
+        _gui_labels.qtable_size.setText(f"Q-Table Size: {len(_q.state.q_table)}/{_q.q_table_size_limit}")
         _gui_labels.status.setText(
             f"Optimal Scheduling: Scheduling complete!\nOptimal Schedule Generated at {str(EXPORT_OPTIMAL_GRID)}"
         )
@@ -202,9 +194,12 @@ class FLLCSchedulerGUI(QWidget):
         self.process.worker.signals.update_gui_signal.connect(self.update_gui_total, Qt.ConnectionType.QueuedConnection)
         self.process.thread.started.connect(self.process.worker.run, Qt.ConnectionType.DirectConnection)
         self.process.thread.start()
-        self.inputs.comp.gui_inputs.run.setText("Stop Training")
-        self.inputs.comp.gui_inputs.run.clicked.disconnect()
-        self.inputs.comp.gui_inputs.run.clicked.connect(self.stop_training_thread)
+
+        _inputs = self.inputs.comp
+        _gui_inputs = _inputs.gui_inputs
+        _gui_inputs.run.setText("Stop Training")
+        _gui_inputs.run.clicked.disconnect()
+        _gui_inputs.run.clicked.connect(self.stop_training_thread)
 
     @Slot()
     def validate_practice_times(self) -> None:
@@ -234,7 +229,7 @@ class FLLCSchedulerGUI(QWidget):
         settings_from_ui = self.inputs.comp.collect_settings_from_ui()
         self.data.time.update_from_settings(settings_from_ui)
         self.data.config.update_from_settings(settings_from_ui)
-        self.sched_display.init_schedule_display(self.data.q_learning.state.schedule)
+        self.sched_display.reset_display(self.data.q_learning.state.schedule)
         self.inputs.comp.update_dependent_displays()
         self.validate_practice_times()
         self.validate_table_times()
@@ -265,10 +260,10 @@ class FLLCSchedulerGUI(QWidget):
         """
         to_refresh = episode % self.inputs.comp.gui_inputs.spinbox_gui_refresh_rate.value() == 0
         if training_type == Training.BENCHMARK:
-            self.sched_display.init_schedule_display(self.data.q_learning.state.schedule)
+            self.sched_display.reset_display(self.data.q_learning.state.schedule)
             self._training_benchmark()
         elif training_type == Training.TRAINING and to_refresh:
-            self.sched_display.init_schedule_display(self.data.q_learning.state.schedule)
+            self.sched_display.reset_display(self.data.q_learning.state.schedule)
             self._training_training(episode)
         elif training_type == Training.OPTIMAL:
             self._training_optimal()

@@ -46,6 +46,9 @@ class TimeData:
     """Class to manage time data for scheduling rounds in FLLC events."""
 
     config: ScheduleConfig
+    setting: TimeDataSettings
+    start_times: TimeDataStartTimeCollections
+    duration_available: TimeDataDurationsAvailable
     min_slots: dict[RoundType, int] = field(
         default_factory=lambda: {
             RoundType.JUDGING: 0,
@@ -67,9 +70,6 @@ class TimeData:
             RoundType.TABLE: [],
         }
     )
-    setting: TimeDataSettings = field(default_factory=TimeDataSettings)
-    start_times: TimeDataStartTimeCollections = field(default_factory=TimeDataStartTimeCollections)
-    duration_available: TimeDataDurationsAvailable = field(default_factory=TimeDataDurationsAvailable)
 
     def __post_init__(self) -> None:
         """Initialize the TimeData with schedule data."""

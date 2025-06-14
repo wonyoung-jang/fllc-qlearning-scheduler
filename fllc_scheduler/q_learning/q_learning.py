@@ -216,11 +216,16 @@ class QLearning:
         Returns:
             float: The calculated reward for the state-action pair.
         """
+        training_config = self.config
+        schedule_config = self.data.config
         team = self.data.schedule.get_team(action)
-        max_num_rounds = sum(self.data.config.round_types_per_team.values())
-        reward = self.config.calc_reward(team, state.time_slot, max_num_rounds)
-        required_not_judging = self.data.config.get_required_schedule_slots() - self.data.config.num_teams
-        completion_reward = self.state.current_schedule_length / required_not_judging if required_not_judging > 0 else 0
+        max_num_rounds = sum(schedule_config.round_types_per_team.values())
+        reward = training_config.calc_reward(team, state.time_slot, max_num_rounds)
+        required_not_judging = schedule_config.get_required_schedule_slots() - schedule_config.num_teams
+        if required_not_judging > 0:
+            completion_reward = self.state.current_schedule_length / required_not_judging
+        else:
+            completion_reward = 0
         return reward + (reward * completion_reward)
 
     def update_from_settings(self, settings: dict[str, Any]) -> None:

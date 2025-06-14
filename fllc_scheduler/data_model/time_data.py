@@ -45,8 +45,8 @@ class TimeDataDurationsAvailable:
 class TimeData:
     """Class to manage time data for scheduling rounds in FLLC events."""
 
-    config: ScheduleConfig
-    setting: TimeDataSettings
+    sched_config: ScheduleConfig
+    time_setting: TimeDataSettings
     start_times: TimeDataStartTimeCollections
     duration_available: TimeDataDurationsAvailable
     min_slots: dict[RoundType, int] = field(
@@ -87,9 +87,9 @@ class TimeData:
         """
         Update the minimum slots required for each round type based on the current configuration.
         """
-        n_teams = self.config.num_teams
-        n_rooms = self.config.num_rooms
-        n_tables_and_sides = self.config.num_tables * 2
+        n_teams = self.sched_config.num_teams
+        n_rooms = self.sched_config.num_rooms
+        n_tables_and_sides = self.sched_config.num_tables * 2
         self.min_slots = {
             RoundType.JUDGING: self.calculate_min_slots_required(n_teams, n_rooms),
             RoundType.PRACTICE: self.calculate_min_slots_required(n_teams, n_tables_and_sides, RoundType.PRACTICE),
@@ -100,10 +100,10 @@ class TimeData:
         """
         Calculate the available duration for practice and table rounds based on the current settings.
         """
-        start_break = time_to_minutes(self.setting.start_time_break)
-        start_practice = time_to_minutes(self.setting.start_time_practice_rounds)
-        start_table = time_to_minutes(self.setting.start_time_table_rounds)
-        stop_table = time_to_minutes(self.setting.stop_time_table_rounds)
+        start_break = time_to_minutes(self.time_setting.start_time_break)
+        start_practice = time_to_minutes(self.time_setting.start_time_practice_rounds)
+        start_table = time_to_minutes(self.time_setting.start_time_table_rounds)
+        stop_table = time_to_minutes(self.time_setting.stop_time_table_rounds)
         self.duration_available.practice = start_break - start_practice
         self.duration_available.table = stop_table - start_table
 
@@ -147,7 +147,7 @@ class TimeData:
             int: The minimum number of time slots required.
         """
         if round_type:
-            num_teams *= self.config.round_types_per_team[round_type]
+            num_teams *= self.sched_config.round_types_per_team[round_type]
 
         if num_teams % divisor == 0:
             return num_teams // divisor
@@ -172,14 +172,14 @@ class TimeData:
                 round_time_slots = list(calculate_end_times(self.start_times.judging, duration))
                 return round_time_slots
             case RoundType.PRACTICE:
-                start = self.setting.start_time_practice_rounds
-                stop = self.setting.start_time_break
+                start = self.time_setting.start_time_practice_rounds
+                stop = self.time_setting.start_time_break
                 available_duration = self.duration_available.practice
                 duration = self.round_durations[RoundType.PRACTICE]
                 round_time_slots = list(calculate_end_times(self.start_times.practice, duration))
             case RoundType.TABLE:
-                start = self.setting.start_time_table_rounds
-                stop = self.setting.stop_time_table_rounds
+                start = self.time_setting.start_time_table_rounds
+                stop = self.time_setting.stop_time_table_rounds
                 available_duration = self.duration_available.table
                 duration = self.round_durations[RoundType.TABLE]
                 round_time_slots = list(calculate_end_times(self.start_times.table, duration))
@@ -199,15 +199,15 @@ class TimeData:
         """Get the start time, number of slots, and slot length for a given round type."""
         match round_type:
             case RoundType.JUDGING:
-                start_time = self.setting.start_time_judging_rounds
+                start_time = self.time_setting.start_time_judging_rounds
                 num_slots = self.min_slots[RoundType.JUDGING]
                 slot_length = self.round_durations[RoundType.JUDGING]
             case RoundType.PRACTICE:
-                start_time = self.setting.start_time_practice_rounds
+                start_time = self.time_setting.start_time_practice_rounds
                 num_slots = self.min_slots[RoundType.PRACTICE]
                 slot_length = self.round_durations[RoundType.PRACTICE]
             case RoundType.TABLE:
-                start_time = self.setting.start_time_table_rounds
+                start_time = self.time_setting.start_time_table_rounds
                 num_slots = self.min_slots[RoundType.TABLE]
                 slot_length = self.round_durations[RoundType.TABLE]
         return start_time, num_slots, slot_length
@@ -219,9 +219,9 @@ class TimeData:
         Args:
             settings (dict[str, Any]): The settings to update the time data.
         """
-        self.setting.start_time_judging_rounds = settings.get(Time.JUDGING_START)
-        self.setting.start_time_practice_rounds = settings.get(Time.PRACTICE_START)
-        self.setting.start_time_break = settings.get(Time.PRACTICE_STOP)
-        self.setting.start_time_table_rounds = settings.get(Time.TABLE_START)
-        self.setting.stop_time_table_rounds = settings.get(Time.TABLE_STOP)
+        self.time_setting.start_time_judging_rounds = settings.get(Time.JUDGING_START)
+        self.time_setting.start_time_practice_rounds = settings.get(Time.PRACTICE_START)
+        self.time_setting.start_time_break = settings.get(Time.PRACTICE_STOP)
+        self.time_setting.start_time_table_rounds = settings.get(Time.TABLE_START)
+        self.time_setting.stop_time_table_rounds = settings.get(Time.TABLE_STOP)
         self.update_time_data()

@@ -53,11 +53,13 @@ class TimeDataInputs(QGroupBox):
             QTime.fromString(str(time_data.round_durations[RoundType.PRACTICE]), "mm")
         )
         self.timeedit.table_minimum.setTime(QTime.fromString(str(time_data.round_durations[RoundType.TABLE]), "mm"))
-        self.timeedit.judging_start.setTime(QTime.fromString(time_data.setting.start_time_judging_rounds, "HH:mm"))
-        self.timeedit.practice_start.setTime(QTime.fromString(time_data.setting.start_time_practice_rounds, "HH:mm"))
-        self.timeedit.practice_stop.setTime(QTime.fromString(time_data.setting.start_time_break, "HH:mm"))
-        self.timeedit.table_start.setTime(QTime.fromString(time_data.setting.start_time_table_rounds, "HH:mm"))
-        self.timeedit.table_stop.setTime(QTime.fromString(time_data.setting.stop_time_table_rounds, "HH:mm"))
+        self.timeedit.judging_start.setTime(QTime.fromString(time_data.time_setting.start_time_judging_rounds, "HH:mm"))
+        self.timeedit.practice_start.setTime(
+            QTime.fromString(time_data.time_setting.start_time_practice_rounds, "HH:mm")
+        )
+        self.timeedit.practice_stop.setTime(QTime.fromString(time_data.time_setting.start_time_break, "HH:mm"))
+        self.timeedit.table_start.setTime(QTime.fromString(time_data.time_setting.start_time_table_rounds, "HH:mm"))
+        self.timeedit.table_stop.setTime(QTime.fromString(time_data.time_setting.stop_time_table_rounds, "HH:mm"))
         self.update_labels(time_data)
         self.initialize_layout()
 

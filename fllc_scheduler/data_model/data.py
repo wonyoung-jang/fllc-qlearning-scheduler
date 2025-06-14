@@ -23,8 +23,8 @@ class FLLCSchedulerData:
             config=self.config,
         )
         self.time = TimeData(
-            config=self.config,
-            setting=TimeDataSettings(),
+            sched_config=self.config,
+            time_setting=TimeDataSettings(),
             start_times=TimeDataStartTimeCollections(),
             duration_available=TimeDataDurationsAvailable(),
         )

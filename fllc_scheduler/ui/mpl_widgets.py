@@ -37,8 +37,9 @@ class BasePlotWidget(QWidget):
             linewidth=0.8,
         )
         self.canvas = FigureCanvas(self.figure)
-        layout = QVBoxLayout(self)
+        layout = QVBoxLayout()
         layout.addWidget(self.canvas)
+        self.setLayout(layout)
 
     def set_q_learning(self, q_learning: QLearning) -> None:
         """Set the QLearning instance for the plot widget."""
@@ -377,5 +378,6 @@ class MplWidgets(QGroupBox):
         splitter = QSplitter(Qt.Orientation.Vertical)
         for w in (self.convergence, self.heatmap, self.explore_exploit, self.schedule_scores):
             splitter.addWidget(w)
-        layout = QVBoxLayout(self)
+        layout = QVBoxLayout()
         layout.addWidget(splitter)
+        self.setLayout(layout)

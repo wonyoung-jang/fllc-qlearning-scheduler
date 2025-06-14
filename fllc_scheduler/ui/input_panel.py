@@ -53,9 +53,9 @@ class FLLCSchedulerInputPanelComponents(QWidget):
     def _init_sched_inputs(self) -> ScheduleDataInputs:
         """Initialize the ScheduleDataInputs with common properties."""
         sched_inputs = ScheduleDataInputs(
-            spinbox_num_teams=QSpinBox(self),
-            spinbox_num_rooms=QSpinBox(self),
-            spinbox_num_tables=QSpinBox(self),
+            spinbox_num_teams=QSpinBox(),
+            spinbox_num_rooms=QSpinBox(),
+            spinbox_num_tables=QSpinBox(),
             label_num_tables_and_sides=QLabel(),
         )
         sched_inputs.initialize(self.data.schedule)
@@ -66,8 +66,8 @@ class FLLCSchedulerInputPanelComponents(QWidget):
         round_inputs = RoundTypeInputs(
             spinboxes={
                 RoundType.JUDGING: QLabel("1"),
-                RoundType.PRACTICE: QSpinBox(self),
-                RoundType.TABLE: QSpinBox(self),
+                RoundType.PRACTICE: QSpinBox(),
+                RoundType.TABLE: QSpinBox(),
             },
             labels={
                 RoundType.JUDGING: QLabel(),
@@ -82,13 +82,13 @@ class FLLCSchedulerInputPanelComponents(QWidget):
         """Initialize the TimeDataInputs with common properties."""
         time_inputs = TimeDataInputs(
             timeedit=TimeDataInputTimeEdits(
-                judging_start=QTimeEdit(self),
-                practice_start=QTimeEdit(self),
-                practice_stop=QTimeEdit(self),
-                table_start=QTimeEdit(self),
-                table_stop=QTimeEdit(self),
-                practice_minimum=QTimeEdit(self),
-                table_minimum=QTimeEdit(self),
+                judging_start=QTimeEdit(),
+                practice_start=QTimeEdit(),
+                practice_stop=QTimeEdit(),
+                table_start=QTimeEdit(),
+                table_stop=QTimeEdit(),
+                practice_minimum=QTimeEdit(),
+                table_minimum=QTimeEdit(),
             ),
             label=TimeDataInputLabels(
                 duration_practice_round=QLabel(),
@@ -105,7 +105,7 @@ class FLLCSchedulerInputPanelComponents(QWidget):
         """Initialize the QLearningInputs with common properties."""
         q_inputs = QLearningInputs(
             decays=[],
-            spinbox_episodes=QSpinBox(self),
+            spinbox_episodes=QSpinBox(),
             label_epsilon_halfway=QLabel("0 episodes"),
             label_epsilon_total=QLabel("0 episodes"),
             dblspin=QLearningInputDoubleSpinBoxes(
@@ -113,7 +113,7 @@ class FLLCSchedulerInputPanelComponents(QWidget):
                 gamma=WidgetHelper.double_spin_box(),
                 epsilon_start=WidgetHelper.double_spin_box(),
                 epsilon_end=WidgetHelper.double_spin_box(),
-                epsilon_decay=QDoubleSpinBox(self, decimals=3),
+                epsilon_decay=QDoubleSpinBox(decimals=3),
             ),
         )
         q_inputs.initialize(self.data.q_learning)
@@ -122,11 +122,10 @@ class FLLCSchedulerInputPanelComponents(QWidget):
     def _init_gui_refresh_inputs(self) -> GuiRefreshInputs:
         """Initialize the GuiRefreshInputs with common properties."""
         gui_inputs = GuiRefreshInputs(
-            progressbar=QProgressBar(self),
-            spinbox_gui_refresh_rate=QSpinBox(self),
-            gui_refresh_layout=QHBoxLayout(),
-            run=QPushButton("Train then Generate Optimal Schedule", self),
-            exit=QPushButton("Exit", self),
+            progressbar=QProgressBar(),
+            spinbox_gui_refresh_rate=QSpinBox(),
+            run=QPushButton("Train then Generate Optimal Schedule"),
+            exit=QPushButton("Exit"),
             label=GuiRefreshInputLabels(
                 avg_reward=QLabel("Average Reward: "),
                 curr_sched_len=QLabel(),

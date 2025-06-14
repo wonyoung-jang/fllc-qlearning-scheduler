@@ -37,11 +37,12 @@ class ScheduleDataInputs(QGroupBox):
 
     def set_layout(self) -> None:
         """Set the layout for the schedule data inputs."""
-        layout = QFormLayout(self)
+        layout = QFormLayout()
         layout.addRow(QLabel("Number of Teams"), self.spinbox_num_teams)
         layout.addRow(QLabel("Number of Rooms"), self.spinbox_num_rooms)
         layout.addRow(QLabel("Number of Tables"), self.spinbox_num_tables)
         layout.addRow(QLabel("Number of Tables and Sides: "), self.label_num_tables_and_sides)
+        self.setLayout(layout)
 
 
 @dataclass(slots=True)
@@ -74,7 +75,7 @@ class RoundTypeInputs(QGroupBox):
 
     def set_layout(self) -> None:
         """Set the layout for the round type inputs."""
-        layout = QGridLayout(self)
+        layout = QGridLayout()
         count = 0
         for name, spinbox in self.spinboxes.items():
             if name == RoundType.JUDGING:
@@ -86,3 +87,4 @@ class RoundTypeInputs(QGroupBox):
             layout.addWidget(spinbox, count, 1)
             layout.addWidget(self.labels[name], count, 2, Qt.AlignmentFlag.AlignRight)
             count += 1
+        self.setLayout(layout)

@@ -64,8 +64,9 @@ class ScheduleDisplay(QGroupBox):
         splitter.addWidget(groupbox_judging)
         splitter.addWidget(groupbox_practice)
         splitter.addWidget(groupbox_table)
-        layout = QVBoxLayout(self)
+        layout = QVBoxLayout()
         layout.addWidget(splitter)
+        self.setLayout(layout)
 
     def init_schedule_display(self, schedule: list[ScheduleState]) -> None:
         """Initialize the schedule display tables with default values."""

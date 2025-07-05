@@ -1,3 +1,8 @@
+> [!WARNING]
+> **This repository is archived and no longer maintained.**
+> Feel free to browse the code, but no further updates or support will be provided.
+> For a more robust solution to scheduling this tournament see **[FLLC Scheduler Genetic Algorithm](https://github.com/wonyoung-jang/fllc-scheduler-ga)**
+
 # FIRST LEGO League Challenge Q-Learning Event Scheduler
 
 This project aims to develop a Python application using a Q-learning algorithm to automate and optimize the scheduling process for FIRST LEGO League Challenge events. The application is designed to address the inefficiencies of manual scheduling by ensuring fairness, adaptability, and transparency in event organization.
